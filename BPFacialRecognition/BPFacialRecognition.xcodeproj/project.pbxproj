@@ -8,14 +8,17 @@
 
 /* Begin PBXBuildFile section */
 		D5AF85E21890DC10009A42D0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5AF85E11890DC10009A42D0 /* Foundation.framework */; };
-		D5AF85E71890DC10009A42D0 /* BPFacialRecognition.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5AF85E61890DC10009A42D0 /* BPFacialRecognition.h */; };
-		D5AF85E91890DC10009A42D0 /* BPFacialRecognition.m in Sources */ = {isa = PBXBuildFile; fileRef = D5AF85E81890DC10009A42D0 /* BPFacialRecognition.m */; };
+		D5AF85E71890DC10009A42D0 /* BPFacialRecognizer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5AF85E61890DC10009A42D0 /* BPFacialRecognizer.h */; };
+		D5AF85E91890DC10009A42D0 /* BPFacialRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = D5AF85E81890DC10009A42D0 /* BPFacialRecognizer.m */; };
 		D5AF85F01890DC10009A42D0 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5AF85EF1890DC10009A42D0 /* XCTest.framework */; };
 		D5AF85F11890DC10009A42D0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5AF85E11890DC10009A42D0 /* Foundation.framework */; };
 		D5AF85F31890DC10009A42D0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5AF85F21890DC10009A42D0 /* UIKit.framework */; };
 		D5AF85F61890DC10009A42D0 /* libBPFacialRecognition.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D5AF85DE1890DC10009A42D0 /* libBPFacialRecognition.a */; };
 		D5AF85FC1890DC10009A42D0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D5AF85FA1890DC10009A42D0 /* InfoPlist.strings */; };
 		D5AF85FE1890DC10009A42D0 /* BPFacialRecognitionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5AF85FD1890DC10009A42D0 /* BPFacialRecognitionTests.m */; };
+		D5AF86091890DE35009A42D0 /* BPRecognitionResult.m in Sources */ = {isa = PBXBuildFile; fileRef = D5AF86081890DE35009A42D0 /* BPRecognitionResult.m */; };
+		D5AF860C1890E425009A42D0 /* BPPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = D5AF860B1890E425009A42D0 /* BPPerson.m */; };
+		D5AF860E1890E51C009A42D0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5AF860D1890E51C009A42D0 /* UIKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,7 +38,7 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				D5AF85E71890DC10009A42D0 /* BPFacialRecognition.h in CopyFiles */,
+				D5AF85E71890DC10009A42D0 /* BPFacialRecognizer.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -45,14 +48,19 @@
 		D5AF85DE1890DC10009A42D0 /* libBPFacialRecognition.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libBPFacialRecognition.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5AF85E11890DC10009A42D0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D5AF85E51890DC10009A42D0 /* BPFacialRecognition-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "BPFacialRecognition-Prefix.pch"; sourceTree = "<group>"; };
-		D5AF85E61890DC10009A42D0 /* BPFacialRecognition.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BPFacialRecognition.h; sourceTree = "<group>"; };
-		D5AF85E81890DC10009A42D0 /* BPFacialRecognition.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BPFacialRecognition.m; sourceTree = "<group>"; };
+		D5AF85E61890DC10009A42D0 /* BPFacialRecognizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BPFacialRecognizer.h; sourceTree = "<group>"; };
+		D5AF85E81890DC10009A42D0 /* BPFacialRecognizer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BPFacialRecognizer.m; sourceTree = "<group>"; };
 		D5AF85EE1890DC10009A42D0 /* BPFacialRecognitionTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BPFacialRecognitionTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D5AF85EF1890DC10009A42D0 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		D5AF85F21890DC10009A42D0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		D5AF85F91890DC10009A42D0 /* BPFacialRecognitionTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BPFacialRecognitionTests-Info.plist"; sourceTree = "<group>"; };
 		D5AF85FB1890DC10009A42D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D5AF85FD1890DC10009A42D0 /* BPFacialRecognitionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BPFacialRecognitionTests.m; sourceTree = "<group>"; };
+		D5AF86071890DE35009A42D0 /* BPRecognitionResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPRecognitionResult.h; sourceTree = "<group>"; };
+		D5AF86081890DE35009A42D0 /* BPRecognitionResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BPRecognitionResult.m; sourceTree = "<group>"; };
+		D5AF860A1890E425009A42D0 /* BPPerson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPPerson.h; sourceTree = "<group>"; };
+		D5AF860B1890E425009A42D0 /* BPPerson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BPPerson.m; sourceTree = "<group>"; };
+		D5AF860D1890E51C009A42D0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5AF860E1890E51C009A42D0 /* UIKit.framework in Frameworks */,
 				D5AF85E21890DC10009A42D0 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -100,6 +109,7 @@
 		D5AF85E01890DC10009A42D0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D5AF860D1890E51C009A42D0 /* UIKit.framework */,
 				D5AF85E11890DC10009A42D0 /* Foundation.framework */,
 				D5AF85EF1890DC10009A42D0 /* XCTest.framework */,
 				D5AF85F21890DC10009A42D0 /* UIKit.framework */,
@@ -110,9 +120,13 @@
 		D5AF85E31890DC10009A42D0 /* BPFacialRecognition */ = {
 			isa = PBXGroup;
 			children = (
-				D5AF85E61890DC10009A42D0 /* BPFacialRecognition.h */,
-				D5AF85E81890DC10009A42D0 /* BPFacialRecognition.m */,
+				D5AF85E61890DC10009A42D0 /* BPFacialRecognizer.h */,
+				D5AF85E81890DC10009A42D0 /* BPFacialRecognizer.m */,
 				D5AF85E41890DC10009A42D0 /* Supporting Files */,
+				D5AF86071890DE35009A42D0 /* BPRecognitionResult.h */,
+				D5AF86081890DE35009A42D0 /* BPRecognitionResult.m */,
+				D5AF860A1890E425009A42D0 /* BPPerson.h */,
+				D5AF860B1890E425009A42D0 /* BPPerson.m */,
 			);
 			path = BPFacialRecognition;
 			sourceTree = "<group>";
@@ -224,7 +238,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D5AF85E91890DC10009A42D0 /* BPFacialRecognition.m in Sources */,
+				D5AF86091890DE35009A42D0 /* BPRecognitionResult.m in Sources */,
+				D5AF860C1890E425009A42D0 /* BPPerson.m in Sources */,
+				D5AF85E91890DC10009A42D0 /* BPFacialRecognizer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
