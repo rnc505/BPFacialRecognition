@@ -5,13 +5,18 @@
 //  Created by Robby Cohen on 1/22/14.
 //  Copyright (c) 2014 BP. All rights reserved.
 //
-
 #import <Foundation/Foundation.h>
+
+@protocol BPPersonDelegate <NSObject>
+-(void)addedNewImage;
+@end
+
+
 @class UIImage;
 @interface BPPerson : NSObject
+@property (nonatomic, weak) id<BPPersonDelegate> delegate;
 
 +(BPPerson*)personWithName:(NSString*)name;
--(void)addImage:(UIImage*)newImage;
--(BOOL)isEqualToPerson:(BPPerson*)person;
+-(BOOL)detectFaceAndAddImage:(UIImage*)newImage;
 
 @end

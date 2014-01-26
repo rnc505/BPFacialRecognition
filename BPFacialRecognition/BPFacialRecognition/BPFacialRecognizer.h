@@ -7,13 +7,15 @@
 //
 
 #import <Foundation/Foundation.h>
-@class BPPerson, BPRecognitionResult, UIImage;
-@interface BPFacialRecognizer : NSObject
+#import "BPPerson.h"
+@class  BPRecognitionResult, UIImage;
+@interface BPFacialRecognizer : NSObject <BPPersonDelegate>
 
 +(BPFacialRecognizer*)newRecognizer;
 -(void)addNewPerson:(BPPerson*)person;
 -(void)train;
 -(BPRecognitionResult*)recognizeUnknownPerson:(UIImage*)image;
 -(BOOL)doesUnknownImage:(UIImage*)image matchPerson:(BPPerson*)person;
+-(NSSet*)peopleInRecognizer;
 
 @end

@@ -8,19 +8,21 @@
 
 #import "BPFacialRecognizer.h"
 #import "BPRecognitionResult.h"
-#import "BPPerson.h"
 @interface BPFacialRecognizer ()
 @property (nonatomic, retain) NSMutableSet *people;
+@property (nonatomic, assign) BOOL needsToBeTrained;
 @end
 
 @implementation BPFacialRecognizer
 +(BPFacialRecognizer *)newRecognizer {
     BPFacialRecognizer *recognizer = [BPFacialRecognizer new];
     [recognizer setPeople:[NSMutableSet new]];
+    [recognizer setNeedsToBeTrained:YES];
     return recognizer;
 }
 
 -(void)addNewPerson:(BPPerson*)person {
+    [person setDelegate:self];
     [_people addObject:person];
 }
 
@@ -29,7 +31,11 @@
 }
 
 -(BPRecognitionResult*)recognizeUnknownPerson:(UIImage*)image {
-    // RECOGNIZE UNKOWN PERSON
+    if (_needsToBeTrained) {
+        NSLog(@"Recognizer needs to be trained before recongizing. Please call -train on on Recognizer. Returning nil.");
+        return nil;
+    }
+    // RECOGNIZE UNKNOWN PERSON
     
     BPPerson* recognizedPerson = [BPPerson personWithName:@"New Person"];
     double confidence = 0;
@@ -39,7 +45,18 @@
 
 -(BOOL)doesUnknownImage:(UIImage*)image matchPerson:(BPPerson*)person {
     BPRecognitionResult *matched = [self recognizeUnknownPerson:image];
-    return [person isEqualToPerson:[matched person]];
+    if(!matched) {
+        return NO;
+    }
+    return [person isEqual:[matched person]];
+}
+-(NSSet *)peopleInRecognizer {
+    return [_people copy];
+}
+
+#pragma BPPersonDelegate Methods
+-(void)addedNewImage {
+    _needsToBeTrained = YES;
 }
 
 @end
