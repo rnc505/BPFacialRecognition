@@ -37,7 +37,7 @@
 }
 
 - (void) testRecognizerCreation {
-    XCTAssertNotNil(self.recognizer, @"Recognizer should not be nill");
+    XCTAssertNotNil(self.recognizer, @"Recognizer should not be nil");
 }
 
 - (void) testAddNewPerson {

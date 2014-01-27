@@ -24,10 +24,15 @@
 -(void)addNewPerson:(BPPerson*)person {
     [person setDelegate:self];
     [_people addObject:person];
+    _needsToBeTrained = YES;
 }
 
 -(void)train {
-    // DO TRAINING MUMBOJUMBO
+    /*
+        Run the trainer
+     */
+    
+    _needsToBeTrained = NO;
 }
 
 -(BPRecognitionResult*)recognizeUnknownPerson:(UIImage*)image {
@@ -35,7 +40,10 @@
         NSLog(@"Recognizer needs to be trained before recongizing. Please call -train on on Recognizer. Returning nil.");
         return nil;
     }
-    // RECOGNIZE UNKNOWN PERSON
+    
+    /*
+        Run the person recognizer here
+     */
     
     BPPerson* recognizedPerson = [BPPerson personWithName:@"New Person"];
     double confidence = 0;
