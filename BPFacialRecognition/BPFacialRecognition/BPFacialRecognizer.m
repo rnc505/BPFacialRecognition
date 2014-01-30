@@ -8,9 +8,14 @@
 
 #import "BPFacialRecognizer.h"
 #import "BPRecognitionResult.h"
+#import <QuartzCore/QuartzCore.h>
+
+
 @interface BPFacialRecognizer ()
 @property (nonatomic, retain) NSMutableSet *people;
 @property (nonatomic, assign) BOOL needsToBeTrained;
+@property (nonatomic, retain) EAGLContext* context;
+
 @end
 
 @implementation BPFacialRecognizer
@@ -20,6 +25,8 @@
     [recognizer setNeedsToBeTrained:YES];
     return recognizer;
 }
+
+
 
 -(void)addNewPerson:(BPPerson*)person {
     [person setDelegate:self];

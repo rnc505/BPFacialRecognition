@@ -13,6 +13,7 @@
 @property (nonatomic, copy) NSString* name;
 @property (nonatomic, copy) NSString* uuid;
 @property (nonatomic, retain) NSMutableSet* images;
+@property (nonatomic, retain) NSMutableSet* grayscaledImages;
 -(BOOL)imageContainsFace:(UIImage*)image;
 @end
 
@@ -27,7 +28,9 @@
 }
 -(BOOL)detectFaceAndAddImage:(UIImage *)newImage {
     if([self imageContainsFace:newImage]) {
-        [_images addObject:newImage];
+        UIImage *resized = [BPUtil resizedImageFromImage:newImage];
+        [_images addObject:resized];
+        [_grayscaledImages addObject:[BPUtil grayscaledImageFromImage:resized]];
         if(_delegate) {
             [_delegate addedNewImage];
         }
