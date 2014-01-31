@@ -1,5 +1,2 @@
 language: objective-c
-before_install:
-    - brew update
-    - brew install xctool
-script: xctool -project BPFacialRecognition.xcodeproj -scheme BPFacialRecognition test
+script: xctool -project BPFacialRecogntion/BPFacialRecognition.xcodeproj -scheme BPFacialRecognition test
