@@ -1,2 +1,2 @@
 language: objective-c
-script: xctool -project BPFacialRecognition.xcodeproj -scheme BPFacialRecognition test
+script: xctool test -project BPFacialRecognition/BPFacialRecognition.xcodeproj -scheme BPFacialRecognitionTests -sdk iphonesimulator ONLY_ACTIVE_ARCH=NO
