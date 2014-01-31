@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		D539E4B1189B626F00958964 /* face_image2.png in Resources */ = {isa = PBXBuildFile; fileRef = D539E4B0189B626F00958964 /* face_image2.png */; };
 		D539E4B3189B62FE00958964 /* average_face_of_1_and_2.png in Resources */ = {isa = PBXBuildFile; fileRef = D539E4B2189B62FE00958964 /* average_face_of_1_and_2.png */; };
+		D539E4BA189C0B4900958964 /* UIImage+Utils.m in Sources */ = {isa = PBXBuildFile; fileRef = D539E4B9189C0B4900958964 /* UIImage+Utils.m */; };
 		D54F6B54189AD22A00AFB7D5 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D54F6B53189AD22A00AFB7D5 /* Accelerate.framework */; };
 		D54F6B57189AD7DF00AFB7D5 /* BPUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D54F6B56189AD7DF00AFB7D5 /* BPUtil.m */; };
 		D54F6B59189B139000AFB7D5 /* BPUtilTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D54F6B58189B139000AFB7D5 /* BPUtilTests.m */; };
@@ -57,6 +58,8 @@
 /* Begin PBXFileReference section */
 		D539E4B0189B626F00958964 /* face_image2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = face_image2.png; sourceTree = "<group>"; };
 		D539E4B2189B62FE00958964 /* average_face_of_1_and_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = average_face_of_1_and_2.png; sourceTree = "<group>"; };
+		D539E4B8189C0B4900958964 /* UIImage+Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Utils.h"; sourceTree = "<group>"; };
+		D539E4B9189C0B4900958964 /* UIImage+Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Utils.m"; sourceTree = "<group>"; };
 		D54F6B51189994F400AFB7D5 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		D54F6B53189AD22A00AFB7D5 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D54F6B55189AD7DF00AFB7D5 /* BPUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPUtil.h; sourceTree = "<group>"; };
@@ -156,6 +159,8 @@
 				D5AF860B1890E425009A42D0 /* BPPerson.m */,
 				D54F6B55189AD7DF00AFB7D5 /* BPUtil.h */,
 				D54F6B56189AD7DF00AFB7D5 /* BPUtil.m */,
+				D539E4B8189C0B4900958964 /* UIImage+Utils.h */,
+				D539E4B9189C0B4900958964 /* UIImage+Utils.m */,
 			);
 			path = BPFacialRecognition;
 			sourceTree = "<group>";
@@ -282,6 +287,7 @@
 				D5AF860C1890E425009A42D0 /* BPPerson.m in Sources */,
 				D5AF85E91890DC10009A42D0 /* BPFacialRecognizer.m in Sources */,
 				D54F6B57189AD7DF00AFB7D5 /* BPUtil.m in Sources */,
+				D539E4BA189C0B4900958964 /* UIImage+Utils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
