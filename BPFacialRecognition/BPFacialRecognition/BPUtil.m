@@ -48,32 +48,63 @@
 }
 
 +(vImage_Buffer)vImageFromUIImage:(UIImage *)image {
-    CGImageRef imageRef = [image CGImage];
-    NSUInteger width = CGImageGetWidth(imageRef);
-    NSUInteger height = CGImageGetHeight(imageRef);
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    Byte *rawData = (Byte*) calloc(height * width * 1, sizeof(Byte));
-    NSUInteger bytesPerPixel = 1;
-    NSUInteger bytesPerRow = bytesPerPixel * width;
-    NSUInteger bitsPerComponent = 8;
-    CGContextRef context = CGBitmapContextCreate(rawData, width, height,
-                                                 bitsPerComponent, bytesPerRow, colorSpace,
-                                                 kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-    CGColorSpaceRelease(colorSpace);
+    vImage_Buffer returnValue;
     
-    CGContextDrawImage(context, CGRectMake(0, 0, width, height), imageRef);
+    CGSize size = image.size;
+    
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
+    if (colorSpace == NULL)
+    {
+        fprintf(stderr, "Error allocating color space\n");
+           }
+    
+    void *bitmapData = malloc(size.width * size.height);
+    if (bitmapData == NULL)
+    {
+        fprintf (stderr, "Error: Memory not allocated!");
+        CGColorSpaceRelease(colorSpace);
+    }
+    
+    CGContextRef context = CGBitmapContextCreate (bitmapData, size.width, size.height, 8, size.width * 1, colorSpace, kCGBitmapByteOrderDefault);
+    CGColorSpaceRelease(colorSpace );
+    if (context == NULL)
+    {
+        fprintf (stderr, "Error: Context not created!");
+        free (bitmapData);
+    }
+    
+    CGRect rect = (CGRect){.size = size};
+    CGContextDrawImage(context, rect, image.CGImage);
+    Byte *byteData = CGBitmapContextGetData (context);
     CGContextRelease(context);
     
-    vImage_Buffer returnValue;
-    returnValue.data = rawData;
-    returnValue.width = CGImageGetWidth(imageRef);
-    returnValue.height = CGImageGetHeight(imageRef);
-    returnValue.rowBytes = CGImageGetBytesPerRow(imageRef);
+    NSData *data = [NSData dataWithBytes:byteData length:(size.width * size.height * 1)];
+    free(bitmapData);
+    
+    Byte* vImageData = calloc([data length], sizeof(Byte));
+    [BPUtil copyVectorFrom:(void*)data.bytes toVector:vImageData offset:0];
+    returnValue.data = vImageData;
+    returnValue.width = image.size.width;
+    returnValue.height = image.size.height;
+    returnValue.rowBytes = image.size.width;
     return returnValue; // returns in the Planar_8 format -- single channel, unsigned 8-bit ints
 }
 
 +(void)cleanupvImage:(vImage_Buffer)rawData {
     free(rawData.data);
+}
+
++(void)copyVectorFrom:(Byte*)input toVector:(Byte*)output offset:(NSInteger)offset {
+    memcpy(output+(sizeDimension*sizeDimension*offset*sizeof(Byte)), input, sizeDimension*sizeDimension);
+}
++(void)calculateMeanOfVectorFrom:(Byte *)input toVector:(Byte *)output ofHeight:(NSUInteger)height ofWidth:(NSUInteger)width{
+    float* inbuffer = calloc(height*width, sizeof(float));
+    float* outbuffer = calloc(height, sizeof(float));
+    vDSP_vfltu8(input, 1, inbuffer, 1, width*height);
+    for (int i = 0; i < height; ++i) {
+        vDSP_meanv(inbuffer + i, height, outbuffer+i, width);
+    }
+    vDSP_vfixru8(outbuffer, 1, output, sizeof(Byte), height);
 }
 
 @end

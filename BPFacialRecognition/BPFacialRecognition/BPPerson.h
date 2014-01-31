@@ -11,12 +11,12 @@
 -(void)addedNewImage;
 @end
 
-
 @class UIImage;
 @interface BPPerson : NSObject
 @property (nonatomic, weak) id<BPPersonDelegate> delegate;
 
 +(BPPerson*)personWithName:(NSString*)name;
 -(BOOL)detectFaceAndAddImage:(UIImage*)newImage;
+-(NSSet*)getPersonsImages;
 
 @end

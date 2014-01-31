@@ -10,11 +10,13 @@
 #import "BPRecognitionResult.h"
 #import <QuartzCore/QuartzCore.h>
 
-
 @interface BPFacialRecognizer ()
 @property (nonatomic, retain) NSMutableSet *people;
 @property (nonatomic, assign) BOOL needsToBeTrained;
 @property (nonatomic, retain) EAGLContext* context;
+
+-(Byte*)createVectorFromImageSet:(NSUInteger)numberOfImages;
+-(Byte*)createMeanImageFromVector:(Byte*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
 
 @end
 
@@ -35,10 +37,13 @@
 }
 
 -(void)train {
-    /*
-        Run the trainer
-     */
+    NSNumber *numberOfImages = [_people valueForKeyPath:@"@sum.count"];
+    Byte* oneDVector = [self createVectorFromImageSet:[numberOfImages unsignedIntegerValue]]; // sizeDimension*sizeDimension x numberOfImages matrix
+    Byte* meanImage = [self createMeanImageFromVector:oneDVector fromNumberOfImages:[numberOfImages unsignedIntegerValue]];
     
+    
+    free(meanImage);
+    free(oneDVector);
     _needsToBeTrained = NO;
 }
 
@@ -72,6 +77,27 @@
 #pragma BPPersonDelegate Methods
 -(void)addedNewImage {
     _needsToBeTrained = YES;
+}
+
+-(Byte *)createVectorFromImageSet:(NSUInteger)numberOfImages {
+    Byte* retVal = (Byte*) calloc(sizeDimension * sizeDimension * numberOfImages, sizeof(Byte));
+    int currentPosition = 0;
+    for (BPPerson *person in _people) {
+        NSSet* images = [person getPersonsImages];
+        for (UIImage* img in images) {
+            vImage_Buffer vImg = [BPUtil vImageFromUIImage:img];
+            [BPUtil copyVectorFrom:vImg.data toVector:retVal offset:currentPosition];
+            ++currentPosition;
+            [BPUtil cleanupvImage:vImg];
+        }
+    }
+    return retVal;
+}
+
+-(Byte *)createMeanImageFromVector:(Byte *)vector fromNumberOfImages:(NSUInteger)numberOfImages {
+    Byte* retVal = (Byte*) calloc(sizeDimension*sizeDimension, sizeof(Byte));
+    [BPUtil calculateMeanOfVectorFrom:vector toVector:retVal ofHeight:sizeDimension*sizeDimension ofWidth:numberOfImages];
+    return retVal;
 }
 
 @end

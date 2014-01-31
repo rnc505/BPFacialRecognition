@@ -8,7 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import "BPPerson.h"
-@class  BPRecognitionResult, UIImage;
+
+@class  BPRecognitionResult, UIImage, BPPerson;
 @interface BPFacialRecognizer : NSObject <BPPersonDelegate>
 
 +(BPFacialRecognizer*)newRecognizer;
@@ -19,3 +20,4 @@
 -(NSSet*)peopleInRecognizer;
 
 @end
+

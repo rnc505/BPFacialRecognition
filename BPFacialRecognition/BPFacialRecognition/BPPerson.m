@@ -9,6 +9,8 @@
 #import "BPPerson.h"
 #import <UIKit/UIKit.h>
 #import <CoreImage/CoreImage.h>
+#import "BPFacialRecognizer.h"
+
 @interface BPPerson ()
 @property (nonatomic, copy) NSString* name;
 @property (nonatomic, copy) NSString* uuid;
@@ -61,6 +63,10 @@
         return YES;
     }
     return NO;
+}
+
+-(NSSet *)getPersonsImages {
+    return [_grayscaledImages copy];
 }
 
 @end

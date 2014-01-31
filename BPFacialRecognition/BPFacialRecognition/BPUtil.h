@@ -15,11 +15,11 @@
 
 @interface BPUtil : NSObject
 
-typedef unsigned char Byte;
-
 +(UIImage*)resizedImageFromImage:(UIImage*)image;
 +(UIImage *)grayscaledImageFromImage:(UIImage *)image;
 +(vImage_Buffer)vImageFromUIImage:(UIImage*)image;
 +(void)cleanupvImage:(vImage_Buffer)vImage;
 
++(void)copyVectorFrom:(Byte*)input toVector:(Byte*)output offset:(NSInteger)offset;
++(void)calculateMeanOfVectorFrom:(Byte*)input toVector:(Byte*)output ofHeight:(NSUInteger)height ofWidth:(NSUInteger)width;
 @end

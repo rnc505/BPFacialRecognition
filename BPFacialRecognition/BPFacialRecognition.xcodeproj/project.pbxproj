@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D539E4B1189B626F00958964 /* face_image2.png in Resources */ = {isa = PBXBuildFile; fileRef = D539E4B0189B626F00958964 /* face_image2.png */; };
+		D539E4B3189B62FE00958964 /* average_face_of_1_and_2.png in Resources */ = {isa = PBXBuildFile; fileRef = D539E4B2189B62FE00958964 /* average_face_of_1_and_2.png */; };
 		D54F6B54189AD22A00AFB7D5 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D54F6B53189AD22A00AFB7D5 /* Accelerate.framework */; };
 		D54F6B57189AD7DF00AFB7D5 /* BPUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = D54F6B56189AD7DF00AFB7D5 /* BPUtil.m */; };
+		D54F6B59189B139000AFB7D5 /* BPUtilTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D54F6B58189B139000AFB7D5 /* BPUtilTests.m */; };
 		D5999EEF1892D79D0000CF6C /* face_image.png in Resources */ = {isa = PBXBuildFile; fileRef = D5999EED1892D79D0000CF6C /* face_image.png */; };
 		D5999EF01892D79D0000CF6C /* car_image.png in Resources */ = {isa = PBXBuildFile; fileRef = D5999EEE1892D79D0000CF6C /* car_image.png */; };
 		D5999EF11892D8A90000CF6C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5AF860D1890E51C009A42D0 /* UIKit.framework */; };
@@ -52,10 +55,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		D539E4B0189B626F00958964 /* face_image2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = face_image2.png; sourceTree = "<group>"; };
+		D539E4B2189B62FE00958964 /* average_face_of_1_and_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = average_face_of_1_and_2.png; sourceTree = "<group>"; };
 		D54F6B51189994F400AFB7D5 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		D54F6B53189AD22A00AFB7D5 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D54F6B55189AD7DF00AFB7D5 /* BPUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPUtil.h; sourceTree = "<group>"; };
 		D54F6B56189AD7DF00AFB7D5 /* BPUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BPUtil.m; sourceTree = "<group>"; };
+		D54F6B58189B139000AFB7D5 /* BPUtilTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BPUtilTests.m; sourceTree = "<group>"; };
 		D5999EED1892D79D0000CF6C /* face_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = face_image.png; sourceTree = "<group>"; };
 		D5999EEE1892D79D0000CF6C /* car_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = car_image.png; sourceTree = "<group>"; };
 		D5999EF41892DBE80000CF6C /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
@@ -165,12 +171,15 @@
 		D5AF85F71890DC10009A42D0 /* BPFacialRecognitionTests */ = {
 			isa = PBXGroup;
 			children = (
+				D539E4B2189B62FE00958964 /* average_face_of_1_and_2.png */,
+				D539E4B0189B626F00958964 /* face_image2.png */,
 				D5999EED1892D79D0000CF6C /* face_image.png */,
 				D5999EEE1892D79D0000CF6C /* car_image.png */,
 				D5AF85F81890DC10009A42D0 /* Supporting Files */,
 				D5AF85FD1890DC10009A42D0 /* BPFacialRecognizerTests.m */,
 				D5AF860F18917838009A42D0 /* BPPersonTests.m */,
 				D5AF86111891784C009A42D0 /* BPRecognitionResultTests.m */,
+				D54F6B58189B139000AFB7D5 /* BPUtilTests.m */,
 			);
 			path = BPFacialRecognitionTests;
 			sourceTree = "<group>";
@@ -255,6 +264,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				D5999EF01892D79D0000CF6C /* car_image.png in Resources */,
+				D539E4B1189B626F00958964 /* face_image2.png in Resources */,
+				D539E4B3189B62FE00958964 /* average_face_of_1_and_2.png in Resources */,
 				D5999EEF1892D79D0000CF6C /* face_image.png in Resources */,
 				D5AF85FC1890DC10009A42D0 /* InfoPlist.strings in Resources */,
 			);
@@ -281,6 +292,7 @@
 				D5AF861018917838009A42D0 /* BPPersonTests.m in Sources */,
 				D5999EF21892D8F80000CF6C /* BPFacialRecognizerTests.m in Sources */,
 				D5999EF31892D8FD0000CF6C /* BPRecognitionResultTests.m in Sources */,
+				D54F6B59189B139000AFB7D5 /* BPUtilTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
