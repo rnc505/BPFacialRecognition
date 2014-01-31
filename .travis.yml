@@ -1,2 +1,2 @@
 language: objective-c
-script: xctool -project BPFacialRecogntion/BPFacialRecognition.xcodeproj -scheme BPFacialRecognition test
+script: xctool -project BPFacialRecognition.xcodeproj -scheme BPFacialRecognition test
