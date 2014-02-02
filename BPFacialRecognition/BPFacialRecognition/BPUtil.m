@@ -48,7 +48,7 @@
 }
 
 +(vImage_Buffer)vImageFromUIImage:(UIImage *)image {
-    vImage_Buffer returnValue;
+    vImage_Buffer  returnValue;
     
     CGSize size = image.size;
     
@@ -81,12 +81,13 @@
     NSData *data = [NSData dataWithBytes:byteData length:(size.width * size.height * 1)];
     free(bitmapData);
     
-    Byte* vImageData = calloc([data length], sizeof(Byte));
-    [BPUtil copyVectorFrom:(void*)data.bytes toVector:vImageData offset:0];
-    returnValue.data = vImageData;
+    Byte* returnData = calloc([data length], sizeof(Byte));
+    [BPUtil copyVectorFrom:(void*)data.bytes toVector:returnData offset:0];
+    returnValue.data = returnData;
     returnValue.width = image.size.width;
     returnValue.height = image.size.height;
     returnValue.rowBytes = image.size.width;
+  
     return returnValue; // returns in the Planar_8 format -- single channel, unsigned 8-bit ints
 }
 
@@ -104,7 +105,29 @@
     for (int i = 0; i < height; ++i) {
         vDSP_meanv(inbuffer + i, height, outbuffer+i, width);
     }
-    vDSP_vfixru8(outbuffer, 1, output, sizeof(Byte), height);
+    vDSP_vfixru8(outbuffer, 1, output, 1, height);
+    free(outbuffer);
+    free(inbuffer);
+}
++(void)subtractMean:(Byte *)mean fromVector:(Byte *)vector withNumberOfImages:(NSInteger)num {
+    float *inbuffer = calloc(sizeDimension*sizeDimension*(num+1), sizeof(float));
+    vDSP_vfltu8(mean, 1, inbuffer, 1, sizeDimension*sizeDimension);
+    vDSP_vfltu8(vector, 1, inbuffer+sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension*num);
+    for (int i = 1; i <= num; i++) {
+        vsub(inbuffer, 1, inbuffer+i*sizeDimension*sizeDimension, 1, inbuffer+i*sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension);
+    }
+    vDSP_vfixru8(inbuffer+sizeDimension*sizeDimension,1,vector,1,sizeDimension*sizeDimension*num);
+    free(inbuffer);
+}
+
++(void)calculateAtransposeTimesAFromVector:(Byte *)input toOutputVector:(Byte *)output withNumberOfImages:(NSUInteger)num {
+    float* Atranspose = calloc(sizeDimension*sizeDimension*num, sizeof(float));
+    float* A = calloc(sizeDimension*sizeDimension*num, sizeof(float));
+    float* outbuff = calloc(num*num, sizeof(float));
+    vDSP_vfltu8(input, 1, A, 1, sizeDimension*sizeDimension*num);
+    mtrans(A, 1, Atranspose, 1, num, sizeDimension*sizeDimension);
+    mmul(Atranspose, 1, A, 1, outbuff, 1, num, num, sizeDimension*sizeDimension);
+    vDSP_vfixru8(outbuff, 1, output, 1, num*num); // MUST TEST
 }
 
 @end

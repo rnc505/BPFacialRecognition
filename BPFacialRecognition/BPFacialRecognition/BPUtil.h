@@ -22,4 +22,6 @@
 
 +(void)copyVectorFrom:(Byte*)input toVector:(Byte*)output offset:(NSInteger)offset;
 +(void)calculateMeanOfVectorFrom:(Byte*)input toVector:(Byte*)output ofHeight:(NSUInteger)height ofWidth:(NSUInteger)width;
++(void)subtractMean:(Byte*)mean fromVector:(Byte*)vector withNumberOfImages:(NSInteger)num;
++(void)calculateAtransposeTimesAFromVector:(Byte*)input toOutputVector:(Byte*)output withNumberOfImages:(NSUInteger)num;
 @end

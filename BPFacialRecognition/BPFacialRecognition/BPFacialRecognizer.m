@@ -16,8 +16,8 @@
 @property (nonatomic, retain) EAGLContext* context;
 
 -(Byte*)createVectorFromImageSet:(NSUInteger)numberOfImages;
--(Byte*)createMeanImageFromVector:(Byte*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
-
+-(void)createMeanImageFromVector:(Byte*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
+-(Byte*)createSurrogateCovarianceFromVector:(Byte*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
 @end
 
 @implementation BPFacialRecognizer
@@ -39,10 +39,11 @@
 -(void)train {
     NSNumber *numberOfImages = [_people valueForKeyPath:@"@sum.count"];
     Byte* oneDVector = [self createVectorFromImageSet:[numberOfImages unsignedIntegerValue]]; // sizeDimension*sizeDimension x numberOfImages matrix
-    Byte* meanImage = [self createMeanImageFromVector:oneDVector fromNumberOfImages:[numberOfImages unsignedIntegerValue]];
+    [self createMeanImageFromVector:oneDVector fromNumberOfImages:[numberOfImages unsignedIntegerValue]]; // sizeDimension*sizeDimension x numberOfImages matrix
+    Byte* surrogateCovariance = [self createSurrogateCovarianceFromVector:oneDVector fromNumberOfImages:numberOfImages];
     
     
-    free(meanImage);
+    free(surrogateCovariance);
     free(oneDVector);
     _needsToBeTrained = NO;
 }
@@ -94,10 +95,16 @@
     return retVal;
 }
 
--(Byte *)createMeanImageFromVector:(Byte *)vector fromNumberOfImages:(NSUInteger)numberOfImages {
-    Byte* retVal = (Byte*) calloc(sizeDimension*sizeDimension, sizeof(Byte));
-    [BPUtil calculateMeanOfVectorFrom:vector toVector:retVal ofHeight:sizeDimension*sizeDimension ofWidth:numberOfImages];
-    return retVal;
+-(void)createMeanImageFromVector:(Byte *)vector fromNumberOfImages:(NSUInteger)numberOfImages {
+    Byte* mean = (Byte*) calloc(sizeDimension*sizeDimension, sizeof(Byte));
+    [BPUtil calculateMeanOfVectorFrom:vector toVector:mean ofHeight:sizeDimension*sizeDimension ofWidth:numberOfImages];
+    [BPUtil subtractMean:mean fromVector:vector withNumberOfImages:numberOfImages];
+}
+
+-(Byte *)createSurrogateCovarianceFromVector:(Byte *)vector fromNumberOfImages:(NSUInteger)numberOfImages{
+    Byte* surrogate = (Byte*) calloc(numberOfImages*numberOfImages, sizeof(Byte));
+    [BPUtil calculateAtransposeTimesAFromVector:vector toOutputVector:surrogate withNumberOfImages:<#(NSUInteger)#>]
+    return surrogate;
 }
 
 @end
