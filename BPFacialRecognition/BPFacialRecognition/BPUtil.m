@@ -48,7 +48,7 @@
 }
 
 +(vImage_Buffer)vImageFromUIImage:(UIImage *)image {
-    vImage_Buffer  returnValue;
+    vImage_Buffer intermediate, returnValue;
     
     CGSize size = image.size;
     
@@ -81,53 +81,57 @@
     NSData *data = [NSData dataWithBytes:byteData length:(size.width * size.height * 1)];
     free(bitmapData);
     
-    Byte* returnData = calloc([data length], sizeof(Byte));
-    [BPUtil copyVectorFrom:(void*)data.bytes toVector:returnData offset:0];
-    returnValue.data = returnData;
-    returnValue.width = image.size.width;
-    returnValue.height = image.size.height;
-    returnValue.rowBytes = image.size.width;
-  
-    return returnValue; // returns in the Planar_8 format -- single channel, unsigned 8-bit ints
+    Byte* intermediateData = calloc([data length], sizeof(Byte));
+    float* returnData = calloc([data length], sizeof(float));
+    [BPUtil copyVectorFrom:(void*)data.bytes toVector:intermediateData offset:0 sizeOfType:sizeof(Byte)];
+    intermediate.data = intermediateData; returnValue.data = returnData;
+    intermediate.width = returnValue.width = image.size.width;
+    intermediate.height = returnValue.height = image.size.height;
+    intermediate.rowBytes = returnValue.rowBytes = image.size.width;
+    returnValue.rowBytes *= 4;
+    vImageConvert_Planar8toPlanarF(&intermediate, &returnValue, 255.f, 0.f, kvImageNoFlags);
+    return returnValue; // returns in the PlanarF format -- single channel, 32-floating points, range 0 - 255
 }
 
 +(void)cleanupvImage:(vImage_Buffer)rawData {
     free(rawData.data);
 }
 
-+(void)copyVectorFrom:(Byte*)input toVector:(Byte*)output offset:(NSInteger)offset {
-    memcpy(output+(sizeDimension*sizeDimension*offset*sizeof(Byte)), input, sizeDimension*sizeDimension);
++(void)copyVectorFrom:(void*)input toVector:(void*)output offset:(NSInteger)offset sizeOfType:(NSUInteger)size{
+    memcpy(output+(sizeDimension*sizeDimension*offset*size), input, sizeDimension*sizeDimension*size);
 }
-+(void)calculateMeanOfVectorFrom:(Byte *)input toVector:(Byte *)output ofHeight:(NSUInteger)height ofWidth:(NSUInteger)width{
-    float* inbuffer = calloc(height*width, sizeof(float));
-    float* outbuffer = calloc(height, sizeof(float));
-    vDSP_vfltu8(input, 1, inbuffer, 1, width*height);
++(void)calculateMeanOfVectorFrom:(RawType *)input toVector:(RawType *)output ofHeight:(NSUInteger)height ofWidth:(NSUInteger)width{
+    //float* inbuffer = calloc(height*width, sizeof(float));
+    //float* outbuffer = calloc(height, sizeof(float));
+    //vDSP_vfltu8(input, 1, inbuffer, 1, width*height);
     for (int i = 0; i < height; ++i) {
-        vDSP_meanv(inbuffer + i, height, outbuffer+i, width);
+        vDSP_meanv(input + i, height, output+i, width);
     }
-    vDSP_vfixru8(outbuffer, 1, output, 1, height);
-    free(outbuffer);
-    free(inbuffer);
+    //vDSP_vfixru8(outbuffer, 1, output, 1, height);
+    //free(outbuffer);
+    //free(inbuffer);
 }
-+(void)subtractMean:(Byte *)mean fromVector:(Byte *)vector withNumberOfImages:(NSInteger)num {
-    float *inbuffer = calloc(sizeDimension*sizeDimension*(num+1), sizeof(float));
-    vDSP_vfltu8(mean, 1, inbuffer, 1, sizeDimension*sizeDimension);
-    vDSP_vfltu8(vector, 1, inbuffer+sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension*num);
-    for (int i = 1; i <= num; i++) {
-        vsub(inbuffer, 1, inbuffer+i*sizeDimension*sizeDimension, 1, inbuffer+i*sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension);
++(void)subtractMean:(RawType *)mean fromVector:(RawType *)vector withNumberOfImages:(NSInteger)num {
+    //float *inbuffer = calloc(sizeDimension*sizeDimension*(num+1), sizeof(float));
+    //vDSP_vfltu8(mean, 1, inbuffer, 1, sizeDimension*sizeDimension);
+    //vDSP_vfltu8(vector, 1, inbuffer+sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension*num);
+    for (int i = 0; i < num; i++) {
+        //vDSP_vsub(inbuffer, 1, inbuffer+i*sizeDimension*sizeDimension, 1, inbuffer+i*sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension);
+        vDSP_vsub(mean, 1, vector+i*sizeDimension*sizeDimension, 1, vector+i*sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension);
     }
-    vDSP_vfixru8(inbuffer+sizeDimension*sizeDimension,1,vector,1,sizeDimension*sizeDimension*num);
-    free(inbuffer);
+    //vDSP_vfixru8(inbuffer+sizeDimension*sizeDimension,1,vector,1,sizeDimension*sizeDimension*num);
+    //free(inbuffer);
 }
 
-+(void)calculateAtransposeTimesAFromVector:(Byte *)input toOutputVector:(Byte *)output withNumberOfImages:(NSUInteger)num {
-    float* Atranspose = calloc(sizeDimension*sizeDimension*num, sizeof(float));
-    float* A = calloc(sizeDimension*sizeDimension*num, sizeof(float));
-    float* outbuff = calloc(num*num, sizeof(float));
-    vDSP_vfltu8(input, 1, A, 1, sizeDimension*sizeDimension*num);
-    mtrans(A, 1, Atranspose, 1, num, sizeDimension*sizeDimension);
-    mmul(Atranspose, 1, A, 1, outbuff, 1, num, num, sizeDimension*sizeDimension);
-    vDSP_vfixru8(outbuff, 1, output, 1, num*num); // MUST TEST
++(void)calculateAtransposeTimesAFromVector:(RawType *)input toOutputVector:(RawType *)output withNumberOfImages:(NSUInteger)num {
+    float* inputTranspose = calloc(sizeDimension*sizeDimension*num, sizeof(float));
+    //float* A = calloc(sizeDimension*sizeDimension*num, sizeof(float));
+    //float* outbuff = calloc(num*num, sizeof(float));
+    //vDSP_vfltu8(input, 1, A, 1, sizeDimension*sizeDimension*num);
+    vDSP_mtrans(input, 1, inputTranspose, 1, num, sizeDimension*sizeDimension);
+    vDSP_mmul(inputTranspose, 1, input, 1, output, 1, num, num, sizeDimension*sizeDimension);
+    //vDSP_vfixru8(outbuff, 1, output, 1, num*num); // MUST TEST
+    free(inputTranspose);
 }
 
 @end

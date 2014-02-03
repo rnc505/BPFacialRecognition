@@ -32,7 +32,7 @@
         input[i] = i;
     }
     Byte* output = calloc(sizeDimension*sizeDimension, sizeof(Byte));
-    [BPUtil copyVectorFrom:input toVector:output offset:0];
+    [BPUtil copyVectorFrom:input toVector:output offset:0 sizeOfType:sizeof(Byte)];
     BOOL failed = NO;
     for (int i = 0; i < sizeDimension*sizeDimension; i++) {
         if(input[i] != output[i]) {
@@ -44,22 +44,22 @@
 }
 
 - (void) testCopyMultipleVectorsCorrectly {
-    Byte* input1 = calloc(sizeDimension*sizeDimension, sizeof(Byte));
+    float* input1 = calloc(sizeDimension*sizeDimension, sizeof(float));
     for (int i = 0; i < sizeDimension*sizeDimension; i++) {
-        input1[i] = i;
+        input1[i] = (float)i;
     }
-    Byte* input2 = calloc(sizeDimension*sizeDimension, sizeof(Byte));
+    float* input2 = calloc(sizeDimension*sizeDimension, sizeof(float));
     for (int i = 0; i < sizeDimension*sizeDimension; i++) {
-        input2[i] = i*2;
+        input2[i] = (float)i*2;
     }
-    Byte* input3 = calloc(sizeDimension*sizeDimension, sizeof(Byte));
+    float* input3 = calloc(sizeDimension*sizeDimension, sizeof(float));
     for (int i = 0; i < sizeDimension*sizeDimension; i++) {
-        input3[i] = i*3;
+        input3[i] = (float)i*3;
     }
-    Byte* output = calloc(sizeDimension*sizeDimension*3, sizeof(Byte));
-    [BPUtil copyVectorFrom:input1 toVector:output offset:0];
-    [BPUtil copyVectorFrom:input2 toVector:output offset:1];
-    [BPUtil copyVectorFrom:input3 toVector:output offset:2];
+    float* output = calloc(sizeDimension*sizeDimension*3, sizeof(float));
+    [BPUtil copyVectorFrom:input1 toVector:output offset:0 sizeOfType:sizeof(float)];
+    [BPUtil copyVectorFrom:input2 toVector:output offset:1 sizeOfType:sizeof(float)];
+    [BPUtil copyVectorFrom:input3 toVector:output offset:2 sizeOfType:sizeof(float)];
     BOOL failed = NO;
     int i = 0;
     for (; i < sizeDimension*sizeDimension*3; i++) {
@@ -95,14 +95,28 @@
     vImage_Buffer faceBuffer = [BPUtil vImageFromUIImage:grayed];
     vImage_Buffer faceBuffer2 = [BPUtil vImageFromUIImage:grayed2];
     
-    Byte* rawData = calloc(sizeDimension*sizeDimension*2, sizeof(Byte));
-    [BPUtil copyVectorFrom:faceBuffer.data toVector:rawData offset:0];
-    [BPUtil copyVectorFrom:faceBuffer2.data toVector:rawData offset:1];
+    float* rawData = calloc(sizeDimension*sizeDimension*2, sizeof(float));
+    [BPUtil copyVectorFrom:faceBuffer.data toVector:rawData offset:0 sizeOfType:sizeof(float)];
+    [BPUtil copyVectorFrom:faceBuffer2.data toVector:rawData offset:1 sizeOfType:sizeof(float)];
     
     
-    Byte* meanFace = calloc(sizeDimension*sizeDimension, sizeof(Byte));
+    float* meanFace = calloc(sizeDimension*sizeDimension, sizeof(float));
     [BPUtil calculateMeanOfVectorFrom:rawData toVector:meanFace ofHeight:sizeDimension*sizeDimension ofWidth:2];
 
+    Byte* meanFaceIntRaw = calloc(sizeDimension*sizeDimension, sizeof(Byte));
+    
+    vImage_Buffer meanFaceFL;
+    meanFaceFL.width = sizeDimension;
+    meanFaceFL.height = sizeDimension;
+    meanFaceFL.rowBytes = sizeDimension*4;
+    meanFaceFL.data = meanFace;
+    vImage_Buffer meanFaceInt;
+    meanFaceInt.width = sizeDimension;
+    meanFaceInt.height = sizeDimension;
+    meanFaceInt.rowBytes = sizeDimension;
+    meanFaceInt.data = meanFaceIntRaw;
+    vImageConvert_PlanarFtoPlanar8(&meanFaceFL, &meanFaceInt, 255.f, 0, kvImageNoFlags);
+    
     
     // Create a color space
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
@@ -113,7 +127,7 @@
     }
     
     // Create the bitmap context
-    CGContextRef context = CGBitmapContextCreate (meanFace, sizeDimension, sizeDimension, 8, sizeDimension, colorSpace, (CGBitmapInfo)kCGImageAlphaNone);
+    CGContextRef context = CGBitmapContextCreate (meanFaceIntRaw, sizeDimension, sizeDimension, 8, sizeDimension, colorSpace, (CGBitmapInfo)kCGImageAlphaNone);
     if (context == NULL)
     {
         fprintf (stderr, "Error: Context not created!");
@@ -143,7 +157,7 @@
 	BOOL yes = [data1 writeToFile:pngFilePath atomically:YES];
     
     
-    free(meanFace);
+    //free(meanFace);
     free(rawData);
     [BPUtil cleanupvImage:faceBuffer2];
     [BPUtil cleanupvImage:faceBuffer];
@@ -159,14 +173,30 @@
     vImage_Buffer faceBuffer = [BPUtil vImageFromUIImage:grayed];
     vImage_Buffer faceBuffer2 = [BPUtil vImageFromUIImage:grayed2];
     
-    Byte* rawData = calloc(sizeDimension*sizeDimension*2, sizeof(Byte));
-    [BPUtil copyVectorFrom:faceBuffer.data toVector:rawData offset:0];
-    [BPUtil copyVectorFrom:faceBuffer2.data toVector:rawData offset:1];
+    float* rawData = calloc(sizeDimension*sizeDimension*2, sizeof(float));
+    [BPUtil copyVectorFrom:faceBuffer.data toVector:rawData offset:0 sizeOfType:sizeof(float)];
+    [BPUtil copyVectorFrom:faceBuffer2.data toVector:rawData offset:1 sizeOfType:sizeof(float)];
     
     
-    Byte* meanFace = calloc(sizeDimension*sizeDimension, sizeof(Byte));
+    float* meanFace = calloc(sizeDimension*sizeDimension, sizeof(float));
     [BPUtil calculateMeanOfVectorFrom:rawData toVector:meanFace ofHeight:sizeDimension*sizeDimension ofWidth:2];
     [BPUtil subtractMean:meanFace fromVector:rawData withNumberOfImages:2];
+    
+    Byte* meanFaceIntRaw = calloc(sizeDimension*sizeDimension, sizeof(Byte));
+    
+    vImage_Buffer normalizedFaceFL;
+    normalizedFaceFL.width = sizeDimension;
+    normalizedFaceFL.height = sizeDimension;
+    normalizedFaceFL.rowBytes = sizeDimension*4;
+    normalizedFaceFL.data = rawData;
+    vImage_Buffer normalizedFaceInt;
+    normalizedFaceInt.width = sizeDimension;
+    normalizedFaceInt.height = sizeDimension;
+    normalizedFaceInt.rowBytes = sizeDimension;
+    normalizedFaceInt.data = meanFaceIntRaw;
+    vImageConvert_PlanarFtoPlanar8(&normalizedFaceFL, &normalizedFaceInt, 255.f, -255.f, kvImageNoFlags);
+    
+    
     
     // Create a color space
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
@@ -177,7 +207,7 @@
     }
     
     // Create the bitmap context
-    CGContextRef context = CGBitmapContextCreate (rawData, sizeDimension, sizeDimension, 8, sizeDimension, colorSpace, (CGBitmapInfo)kCGImageAlphaNone);
+    CGContextRef context = CGBitmapContextCreate (meanFaceIntRaw, sizeDimension, sizeDimension, 8, sizeDimension, colorSpace, (CGBitmapInfo)kCGImageAlphaNone);
     if (context == NULL)
     {
         fprintf (stderr, "Error: Context not created!");
@@ -208,7 +238,7 @@
     
     
     free(meanFace);
-    free(rawData);
+    //free(rawData);
     [BPUtil cleanupvImage:faceBuffer2];
     [BPUtil cleanupvImage:faceBuffer];
     

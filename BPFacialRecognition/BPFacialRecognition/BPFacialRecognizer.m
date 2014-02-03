@@ -15,9 +15,9 @@
 @property (nonatomic, assign) BOOL needsToBeTrained;
 @property (nonatomic, retain) EAGLContext* context;
 
--(Byte*)createVectorFromImageSet:(NSUInteger)numberOfImages;
--(void)createMeanImageFromVector:(Byte*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
--(Byte*)createSurrogateCovarianceFromVector:(Byte*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
+-(RawType*)createVectorFromImageSet:(NSUInteger)numberOfImages;
+-(void)createMeanImageFromVector:(RawType*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
+-(RawType*)createSurrogateCovarianceFromVector:(RawType*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
 @end
 
 @implementation BPFacialRecognizer
@@ -38,9 +38,9 @@
 
 -(void)train {
     NSNumber *numberOfImages = [_people valueForKeyPath:@"@sum.count"];
-    Byte* oneDVector = [self createVectorFromImageSet:[numberOfImages unsignedIntegerValue]]; // sizeDimension*sizeDimension x numberOfImages matrix
+    RawType* oneDVector = [self createVectorFromImageSet:[numberOfImages unsignedIntegerValue]]; // sizeDimension*sizeDimension x numberOfImages matrix
     [self createMeanImageFromVector:oneDVector fromNumberOfImages:[numberOfImages unsignedIntegerValue]]; // sizeDimension*sizeDimension x numberOfImages matrix
-    Byte* surrogateCovariance = [self createSurrogateCovarianceFromVector:oneDVector fromNumberOfImages:numberOfImages];
+    RawType* surrogateCovariance = [self createSurrogateCovarianceFromVector:oneDVector fromNumberOfImages:[numberOfImages unsignedIntegerValue]];
     
     
     free(surrogateCovariance);
@@ -80,14 +80,14 @@
     _needsToBeTrained = YES;
 }
 
--(Byte *)createVectorFromImageSet:(NSUInteger)numberOfImages {
-    Byte* retVal = (Byte*) calloc(sizeDimension * sizeDimension * numberOfImages, sizeof(Byte));
+-(RawType *)createVectorFromImageSet:(NSUInteger)numberOfImages {
+    RawType* retVal = (RawType*) calloc(sizeDimension * sizeDimension * numberOfImages, sizeof(float));
     int currentPosition = 0;
     for (BPPerson *person in _people) {
         NSSet* images = [person getPersonsImages];
         for (UIImage* img in images) {
             vImage_Buffer vImg = [BPUtil vImageFromUIImage:img];
-            [BPUtil copyVectorFrom:vImg.data toVector:retVal offset:currentPosition];
+            [BPUtil copyVectorFrom:vImg.data toVector:retVal offset:currentPosition sizeOfType:sizeof(float)];
             ++currentPosition;
             [BPUtil cleanupvImage:vImg];
         }
@@ -95,15 +95,15 @@
     return retVal;
 }
 
--(void)createMeanImageFromVector:(Byte *)vector fromNumberOfImages:(NSUInteger)numberOfImages {
-    Byte* mean = (Byte*) calloc(sizeDimension*sizeDimension, sizeof(Byte));
+-(void)createMeanImageFromVector:(RawType *)vector fromNumberOfImages:(NSUInteger)numberOfImages {
+    RawType* mean = (RawType*) calloc(sizeDimension*sizeDimension, sizeof(float));
     [BPUtil calculateMeanOfVectorFrom:vector toVector:mean ofHeight:sizeDimension*sizeDimension ofWidth:numberOfImages];
     [BPUtil subtractMean:mean fromVector:vector withNumberOfImages:numberOfImages];
 }
 
--(Byte *)createSurrogateCovarianceFromVector:(Byte *)vector fromNumberOfImages:(NSUInteger)numberOfImages{
-    Byte* surrogate = (Byte*) calloc(numberOfImages*numberOfImages, sizeof(Byte));
-    [BPUtil calculateAtransposeTimesAFromVector:vector toOutputVector:surrogate withNumberOfImages:<#(NSUInteger)#>]
+-(RawType *)createSurrogateCovarianceFromVector:(RawType *)vector fromNumberOfImages:(NSUInteger)numberOfImages{
+    RawType* surrogate = (RawType*) calloc(numberOfImages*numberOfImages, sizeof(float));
+    [BPUtil calculateAtransposeTimesAFromVector:vector toOutputVector:surrogate withNumberOfImages:numberOfImages];
     return surrogate;
 }
 

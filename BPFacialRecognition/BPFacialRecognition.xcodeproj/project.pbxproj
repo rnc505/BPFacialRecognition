@@ -30,6 +30,7 @@
 		D5AF860C1890E425009A42D0 /* BPPerson.m in Sources */ = {isa = PBXBuildFile; fileRef = D5AF860B1890E425009A42D0 /* BPPerson.m */; };
 		D5AF860E1890E51C009A42D0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5AF860D1890E51C009A42D0 /* UIKit.framework */; };
 		D5AF861018917838009A42D0 /* BPPersonTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D5AF860F18917838009A42D0 /* BPPersonTests.m */; };
+		D5C734AD189F455F00198654 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D54F6B53189AD22A00AFB7D5 /* Accelerate.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,7 +61,6 @@
 		D539E4B2189B62FE00958964 /* average_face_of_1_and_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = average_face_of_1_and_2.png; sourceTree = "<group>"; };
 		D539E4B8189C0B4900958964 /* UIImage+Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Utils.h"; sourceTree = "<group>"; };
 		D539E4B9189C0B4900958964 /* UIImage+Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Utils.m"; sourceTree = "<group>"; };
-		D54F6B51189994F400AFB7D5 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		D54F6B53189AD22A00AFB7D5 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D54F6B55189AD7DF00AFB7D5 /* BPUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPUtil.h; sourceTree = "<group>"; };
 		D54F6B56189AD7DF00AFB7D5 /* BPUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BPUtil.m; sourceTree = "<group>"; };
@@ -93,6 +93,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5C734AD189F455F00198654 /* Accelerate.framework in Frameworks */,
 				D5AF860E1890E51C009A42D0 /* UIKit.framework in Frameworks */,
 				D5AF85E21890DC10009A42D0 /* Foundation.framework in Frameworks */,
 			);
@@ -137,7 +138,6 @@
 			isa = PBXGroup;
 			children = (
 				D54F6B53189AD22A00AFB7D5 /* Accelerate.framework */,
-				D54F6B51189994F400AFB7D5 /* OpenGLES.framework */,
 				D5999EF41892DBE80000CF6C /* CoreImage.framework */,
 				D5AF860D1890E51C009A42D0 /* UIKit.framework */,
 				D5AF85E11890DC10009A42D0 /* Foundation.framework */,
