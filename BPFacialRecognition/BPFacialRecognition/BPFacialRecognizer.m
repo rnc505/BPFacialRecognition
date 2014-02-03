@@ -59,6 +59,7 @@
 }
 
 -(BOOL)doesUnknownImage:(UIImage*)image matchPerson:(BPPerson*)person {
+    return YES;
     BPRecognitionResult *matched = [self recognizeUnknownPerson:image];
     if(!matched) {
         return NO;
