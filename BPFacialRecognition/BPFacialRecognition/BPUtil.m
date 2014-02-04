@@ -82,13 +82,13 @@
     free(bitmapData);
     
     Byte* intermediateData = calloc([data length], sizeof(Byte));
-    float* returnData = calloc([data length], sizeof(float));
+    RawType* returnData = calloc([data length], sizeof(RawType));
     [BPUtil copyVectorFrom:(void*)data.bytes toVector:intermediateData offset:0 sizeOfType:sizeof(Byte)];
     intermediate.data = intermediateData; returnValue.data = returnData;
     intermediate.width = returnValue.width = image.size.width;
     intermediate.height = returnValue.height = image.size.height;
     intermediate.rowBytes = returnValue.rowBytes = image.size.width;
-    returnValue.rowBytes *= 4;
+    returnValue.rowBytes *= sizeof(RawType);
     vImageConvert_Planar8toPlanarF(&intermediate, &returnValue, 255.f, 0.f, kvImageNoFlags);
     return returnValue; // returns in the PlanarF format -- single channel, 32-floating points, range 0 - 255
 }
@@ -124,7 +124,7 @@
 }
 
 +(void)calculateAtransposeTimesAFromVector:(RawType *)input toOutputVector:(RawType *)output withNumberOfImages:(NSUInteger)num {
-    float* inputTranspose = calloc(sizeDimension*sizeDimension*num, sizeof(float));
+    RawType* inputTranspose = calloc(sizeDimension*sizeDimension*num, sizeof(RawType));
     //float* A = calloc(sizeDimension*sizeDimension*num, sizeof(float));
     //float* outbuff = calloc(num*num, sizeof(float));
     //vDSP_vfltu8(input, 1, A, 1, sizeDimension*sizeDimension*num);

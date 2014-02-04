@@ -95,12 +95,12 @@
     vImage_Buffer faceBuffer = [BPUtil vImageFromUIImage:grayed];
     vImage_Buffer faceBuffer2 = [BPUtil vImageFromUIImage:grayed2];
     
-    float* rawData = calloc(sizeDimension*sizeDimension*2, sizeof(float));
-    [BPUtil copyVectorFrom:faceBuffer.data toVector:rawData offset:0 sizeOfType:sizeof(float)];
-    [BPUtil copyVectorFrom:faceBuffer2.data toVector:rawData offset:1 sizeOfType:sizeof(float)];
+    RawType* rawData = calloc(sizeDimension*sizeDimension*2, sizeof(RawType));
+    [BPUtil copyVectorFrom:faceBuffer.data toVector:rawData offset:0 sizeOfType:sizeof(RawType)];
+    [BPUtil copyVectorFrom:faceBuffer2.data toVector:rawData offset:1 sizeOfType:sizeof(RawType)];
     
     
-    float* meanFace = calloc(sizeDimension*sizeDimension, sizeof(float));
+    RawType* meanFace = calloc(sizeDimension*sizeDimension, sizeof(RawType));
     [BPUtil calculateMeanOfVectorFrom:rawData toVector:meanFace ofHeight:sizeDimension*sizeDimension ofWidth:2];
 
     Byte* meanFaceIntRaw = calloc(sizeDimension*sizeDimension, sizeof(Byte));
@@ -173,12 +173,12 @@
     vImage_Buffer faceBuffer = [BPUtil vImageFromUIImage:grayed];
     vImage_Buffer faceBuffer2 = [BPUtil vImageFromUIImage:grayed2];
     
-    float* rawData = calloc(sizeDimension*sizeDimension*2, sizeof(float));
-    [BPUtil copyVectorFrom:faceBuffer.data toVector:rawData offset:0 sizeOfType:sizeof(float)];
-    [BPUtil copyVectorFrom:faceBuffer2.data toVector:rawData offset:1 sizeOfType:sizeof(float)];
+    RawType* rawData = calloc(sizeDimension*sizeDimension*2, sizeof(RawType));
+    [BPUtil copyVectorFrom:faceBuffer.data toVector:rawData offset:0 sizeOfType:sizeof(RawType)];
+    [BPUtil copyVectorFrom:faceBuffer2.data toVector:rawData offset:1 sizeOfType:sizeof(RawType)];
     
     
-    float* meanFace = calloc(sizeDimension*sizeDimension, sizeof(float));
+    RawType* meanFace = calloc(sizeDimension*sizeDimension, sizeof(RawType));
     [BPUtil calculateMeanOfVectorFrom:rawData toVector:meanFace ofHeight:sizeDimension*sizeDimension ofWidth:2];
     [BPUtil subtractMean:meanFace fromVector:rawData withNumberOfImages:2];
     
@@ -241,9 +241,20 @@
     //free(rawData);
     [BPUtil cleanupvImage:faceBuffer2];
     [BPUtil cleanupvImage:faceBuffer];
-    
-    
-    
+}
+
+- (void) testAtransposeTimesA {
+    RawType* A = calloc(sizeDimension*sizeDimension, sizeof(RawType));
+    RawType* output = calloc(1, sizeof(RawType));
+    for (int i = 0; i < sizeDimension*sizeDimension; ++i) {
+        A[i] = (RawType)i;
+    }
+    RawType answer = 0.f;
+    for(int i = 0; i< sizeDimension*sizeDimension; ++i) {
+        answer += (RawType)i*(RawType)i;
+    }
+    [BPUtil calculateAtransposeTimesAFromVector:A toOutputVector:output withNumberOfImages:1];
+    XCTAssertEqual(answer, *output, @"At x A doesn't work");
     
 }
 @end
