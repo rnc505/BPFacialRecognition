@@ -82,14 +82,18 @@
     free(bitmapData);
     
     Byte* intermediateData = calloc([data length], sizeof(Byte));
-    RawType* returnData = calloc([data length], sizeof(RawType));
+    float* returnData = calloc([data length], sizeof(float));
     [BPUtil copyVectorFrom:(void*)data.bytes toVector:intermediateData offset:0 sizeOfType:sizeof(Byte)];
     intermediate.data = intermediateData; returnValue.data = returnData;
     intermediate.width = returnValue.width = image.size.width;
     intermediate.height = returnValue.height = image.size.height;
     intermediate.rowBytes = returnValue.rowBytes = image.size.width;
-    returnValue.rowBytes *= sizeof(RawType);
-    vImageConvert_Planar8toPlanarF(&intermediate, &returnValue, 255.f, 0.f, kvImageNoFlags);
+    returnValue.rowBytes *= sizeof(float);
+    vImageConvert_Planar8toPlanarF(&intermediate, &returnValue, 1.f, 0.f, kvImageNoFlags);
+    RawType* returnDataD = calloc([data length], sizeof(RawType));
+    vDSP_vspdp(returnData, 1, returnDataD, 1, [data length]);
+    returnValue.rowBytes *= 2;
+    returnValue.data = returnDataD;
     return returnValue; // returns in the PlanarF format -- single channel, 32-floating points, range 0 - 255
 }
 
@@ -105,7 +109,7 @@
     //float* outbuffer = calloc(height, sizeof(float));
     //vDSP_vfltu8(input, 1, inbuffer, 1, width*height);
     for (int i = 0; i < height; ++i) {
-        vDSP_meanv(input + i, height, output+i, width);
+        vDSP_meanvD(input + i, height, output+i, width);
     }
     //vDSP_vfixru8(outbuffer, 1, output, 1, height);
     //free(outbuffer);
@@ -117,7 +121,7 @@
     //vDSP_vfltu8(vector, 1, inbuffer+sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension*num);
     for (int i = 0; i < num; i++) {
         //vDSP_vsub(inbuffer, 1, inbuffer+i*sizeDimension*sizeDimension, 1, inbuffer+i*sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension);
-        vDSP_vsub(mean, 1, vector+i*sizeDimension*sizeDimension, 1, vector+i*sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension);
+        vDSP_vsubD(mean, 1, vector+i*sizeDimension*sizeDimension, 1, vector+i*sizeDimension*sizeDimension, 1, sizeDimension*sizeDimension);
     }
     //vDSP_vfixru8(inbuffer+sizeDimension*sizeDimension,1,vector,1,sizeDimension*sizeDimension*num);
     //free(inbuffer);
@@ -128,10 +132,22 @@
     //float* A = calloc(sizeDimension*sizeDimension*num, sizeof(float));
     //float* outbuff = calloc(num*num, sizeof(float));
     //vDSP_vfltu8(input, 1, A, 1, sizeDimension*sizeDimension*num);
-    vDSP_mtrans(input, 1, inputTranspose, 1, num, sizeDimension*sizeDimension);
-    vDSP_mmul(inputTranspose, 1, input, 1, output, 1, num, num, sizeDimension*sizeDimension);
+    vDSP_mtransD(input, 1, inputTranspose, 1, num, sizeDimension*sizeDimension);
+    vDSP_mmulD(inputTranspose, 1, input, 1, output, 1, num, num, sizeDimension*sizeDimension);
     //vDSP_vfixru8(outbuff, 1, output, 1, num*num); // MUST TEST
     free(inputTranspose);
+}
+
++(void)calculateEigenvectors:(float *)eigenvectors eigenvalues:(float *)eigenvalues fromVector:(float *)vector withNumberOfImages:(NSUInteger)num {
+    RawType* work = calloc(4*num, sizeof(RawType));
+    long output = 0L;
+    long numL = (long)num;
+    long numLx4 = numL*4;
+    sgeev_("N", "V", & numL, vector, &numL, eigenvalues, NULL, NULL, NULL, eigenvectors, &numL, work, & numLx4, &output);
+    
+    if(output) {
+        
+    }
 }
 
 @end

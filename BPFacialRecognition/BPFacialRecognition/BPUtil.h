@@ -12,7 +12,7 @@
 
 #define sizeDimension 512
 #define imageSize (CGSize){sizeDimension, sizeDimension}
-#define RawType float
+#define RawType double
 @interface BPUtil : NSObject
 
 +(UIImage*)resizedImageFromImage:(UIImage*)image;
@@ -24,4 +24,5 @@
 +(void)calculateMeanOfVectorFrom:(RawType*)input toVector:(RawType*)output ofHeight:(NSUInteger)height ofWidth:(NSUInteger)width;
 +(void)subtractMean:(RawType*)mean fromVector:(RawType*)vector withNumberOfImages:(NSInteger)num;
 +(void)calculateAtransposeTimesAFromVector:(RawType*)input toOutputVector:(RawType*)output withNumberOfImages:(NSUInteger)num;
++(void)calculateEigenvectors:(RawType*)eigenvectors eigenvalues:(RawType*)eigenvalues fromVector:(RawType*)vector withNumberOfImages:(NSUInteger)num;
 @end

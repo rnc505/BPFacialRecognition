@@ -105,17 +105,20 @@
 
     Byte* meanFaceIntRaw = calloc(sizeDimension*sizeDimension, sizeof(Byte));
     
+    float* rawDataF = calloc(sizeDimension*sizeDimension, sizeof(float));
+    vDSP_vdpsp(meanFace, 1, rawDataF, 1, sizeDimension*sizeDimension);
+    
     vImage_Buffer meanFaceFL;
     meanFaceFL.width = sizeDimension;
     meanFaceFL.height = sizeDimension;
-    meanFaceFL.rowBytes = sizeDimension*4;
-    meanFaceFL.data = meanFace;
+    meanFaceFL.rowBytes = sizeDimension*sizeof(float);
+    meanFaceFL.data = rawDataF;
     vImage_Buffer meanFaceInt;
     meanFaceInt.width = sizeDimension;
     meanFaceInt.height = sizeDimension;
     meanFaceInt.rowBytes = sizeDimension;
     meanFaceInt.data = meanFaceIntRaw;
-    vImageConvert_PlanarFtoPlanar8(&meanFaceFL, &meanFaceInt, 255.f, 0, kvImageNoFlags);
+    vImageConvert_PlanarFtoPlanar8(&meanFaceFL, &meanFaceInt, 1.f, 0, kvImageNoFlags);
     
     
     // Create a color space
@@ -184,17 +187,20 @@
     
     Byte* meanFaceIntRaw = calloc(sizeDimension*sizeDimension, sizeof(Byte));
     
+    float* rawDataF = calloc(sizeDimension*sizeDimension, sizeof(float));
+    vDSP_vdpsp(rawData, 1, rawDataF, 1, sizeDimension*sizeDimension);
+    
     vImage_Buffer normalizedFaceFL;
     normalizedFaceFL.width = sizeDimension;
     normalizedFaceFL.height = sizeDimension;
-    normalizedFaceFL.rowBytes = sizeDimension*4;
-    normalizedFaceFL.data = rawData;
+    normalizedFaceFL.rowBytes = sizeDimension*sizeof(float);
+    normalizedFaceFL.data = rawDataF;
     vImage_Buffer normalizedFaceInt;
     normalizedFaceInt.width = sizeDimension;
     normalizedFaceInt.height = sizeDimension;
     normalizedFaceInt.rowBytes = sizeDimension;
     normalizedFaceInt.data = meanFaceIntRaw;
-    vImageConvert_PlanarFtoPlanar8(&normalizedFaceFL, &normalizedFaceInt, 255.f, -255.f, kvImageNoFlags);
+    vImageConvert_PlanarFtoPlanar8(&normalizedFaceFL, &normalizedFaceInt, 1.f, -1.f, kvImageNoFlags);
     
     
     
@@ -247,14 +253,51 @@
     RawType* A = calloc(sizeDimension*sizeDimension, sizeof(RawType));
     RawType* output = calloc(1, sizeof(RawType));
     for (int i = 0; i < sizeDimension*sizeDimension; ++i) {
-        A[i] = (RawType)i;
+        A[i] = ((RawType)(i%255))/255;
     }
     RawType answer = 0.f;
     for(int i = 0; i< sizeDimension*sizeDimension; ++i) {
-        answer += (RawType)i*(RawType)i;
+        answer += (((RawType)(i%255))/255)*(((RawType)(i%255))/255);
     }
     [BPUtil calculateAtransposeTimesAFromVector:A toOutputVector:output withNumberOfImages:1];
-    XCTAssertEqual(answer, *output, @"At x A doesn't work");
-    
+    XCTAssertEqualWithAccuracy(answer, *output, (1/255.0)*(1/255.0),@"At x A doesn't work");
 }
+
+- (void) testEigenvectorsInfo {
+    int N = 5, LDA = 5, LDVL = 5, LDVR = 5;
+    long n = N, lda = LDA, ldvl = LDVL, ldvr = LDVR, info, lwork;
+    float wkopt;
+    float* work;
+    /* Local arrays */
+    float wr[N], wi[N], vl[LDVL*N], vr[LDVR*N];
+    float a[25] = {
+        -1.01f,  3.98f,  3.30f,  4.43f,  7.31f,
+        0.86f,  0.53f,  8.26f,  4.96f, -6.43f,
+        -4.60f, -7.04f, -3.89f, -7.66f, -6.16f,
+        3.31f,  5.29f,  8.20f, -7.33f,  2.47f,
+        -4.81f,  3.55f, -1.51f,  6.18f,  5.58f
+    };
+    lwork = -1;
+    sgeev_( "Vectors", "Vectors", &n, a, &lda, wr, wi, vl, &ldvl, vr, &ldvr,
+          &wkopt, &lwork, &info );
+    lwork = (int)wkopt;
+    work = (float*)malloc( lwork*sizeof(float) );
+    sgeev_( "Vectors", "Vectors", &n, a, &lda, wr, wi, vl, &ldvl, vr, &ldvr,
+          work, &lwork, &info );
+    /* Check for convergence */
+    if( info > 0 ) {
+        printf( "The algorithm failed to compute eigenvalues.\n" );
+    }
+}
+
+//-(void)testCalculateEigenvectors {
+//    RawType* A = calloc(9, sizeof(RawType));
+//    RawType* eigenvectors = calloc(3, sizeof(RawType));
+//    RawType* eigenvalues = calloc(9, sizeof(RawType));
+//    for (int i = 1; i <= 9; ++i) {
+//        A[i-1] = (RawType)i;
+//    }
+//    [BPUtil calculateEigenvectors:eigenvectors eigenvalues:eigenvalues fromVector:A withNumberOfImages:3];
+//}
+
 @end
