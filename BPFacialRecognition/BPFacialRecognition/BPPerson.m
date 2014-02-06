@@ -10,7 +10,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreImage/CoreImage.h>
 #import "BPFacialRecognizer.h"
-
+#import "UIImage+Utils.h"
 @interface BPPerson ()
 @property (nonatomic, copy) NSString* name;
 @property (nonatomic, copy) NSString* uuid;
@@ -30,9 +30,9 @@
 }
 -(BOOL)detectFaceAndAddImage:(UIImage *)newImage {
     if([self imageContainsFace:newImage]) {
-        UIImage *resized = [BPUtil resizedImageFromImage:newImage];
+        UIImage *resized = [newImage resizedSquareImageOfDimension:sizeDimension];;
         [_images addObject:resized];
-        [_grayscaledImages addObject:[BPUtil grayscaledImageFromImage:resized]];
+        [_grayscaledImages addObject:[resized grayscaledImage]];
         if(_delegate) {
             [_delegate addedNewImage];
         }

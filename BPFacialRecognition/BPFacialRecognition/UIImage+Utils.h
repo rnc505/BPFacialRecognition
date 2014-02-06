@@ -8,6 +8,12 @@
 
 #import <UIKit/UIKit.h>
 
-@interface UIImage (Utils)
+@interface UIImage (Utilities)
++(UIImage*)imageWithFilename:(NSString*)filename withExtension:(NSString*)fileExtension;
+-(UIImage*)grayscaledImage;
+-(UIImage*)resizedSquareImageOfDimension:(NSUInteger)dimension;
+-(UIImage*)resizedAndGrayscaledSquareImageOfDimension:(NSUInteger)dimension;
+-(void*)vImageDataWithDoubles;
++(UIImage*)imageWithRawDoubleFloats:(double*)rawBytesDF WithDoubleAndOfSquareDimension:(NSUInteger)dimension;
 
 @end

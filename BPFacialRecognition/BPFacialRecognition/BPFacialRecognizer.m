@@ -9,12 +9,13 @@
 #import "BPFacialRecognizer.h"
 #import "BPRecognitionResult.h"
 #import <QuartzCore/QuartzCore.h>
-
+#import "UIImage+Utils.h"
+#import "BPRecognizerCPUOperator.h"
 @interface BPFacialRecognizer ()
 @property (nonatomic, retain) NSMutableSet *people;
 @property (nonatomic, assign) BOOL needsToBeTrained;
 @property (nonatomic, retain) EAGLContext* context;
-
+@property (nonatomic, retain) BPRecognizerCPUOperator* operator;
 -(RawType*)createVectorFromImageSet:(NSUInteger)numberOfImages;
 -(void)createMeanImageFromVector:(RawType*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
 -(RawType*)createSurrogateCovarianceFromVector:(RawType*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
@@ -25,6 +26,7 @@
     BPFacialRecognizer *recognizer = [BPFacialRecognizer new];
     [recognizer setPeople:[NSMutableSet new]];
     [recognizer setNeedsToBeTrained:YES];
+    [recognizer setOperator:[BPRecognizerCPUOperator new]];
     return recognizer;
 }
 
@@ -87,10 +89,10 @@
     for (BPPerson *person in _people) {
         NSSet* images = [person getPersonsImages];
         for (UIImage* img in images) {
-            vImage_Buffer vImg = [BPUtil vImageFromUIImage:img];
-            [BPUtil copyVectorFrom:vImg.data toVector:retVal offset:currentPosition sizeOfType:sizeof(float)];
+            double* vImg = [img vImageDataWithDoubles];
+            [_operator copyVector:vImg toVector:retVal numberOfElements:sizeDimension*sizeDimension offset:currentPosition sizeOfType:sizeof(RawType)];
             ++currentPosition;
-            [BPUtil cleanupvImage:vImg];
+            free(vImg);
         }
     }
     return retVal;
@@ -98,13 +100,20 @@
 
 -(void)createMeanImageFromVector:(RawType *)vector fromNumberOfImages:(NSUInteger)numberOfImages {
     RawType* mean = (RawType*) calloc(sizeDimension*sizeDimension, sizeof(float));
-    [BPUtil calculateMeanOfVectorFrom:vector toVector:mean ofHeight:sizeDimension*sizeDimension ofWidth:numberOfImages];
-    [BPUtil subtractMean:mean fromVector:vector withNumberOfImages:numberOfImages];
+//    [BPUtil calculateMeanOfVectorFrom:vector toVector:mean ofHeight:sizeDimension*sizeDimension ofWidth:numberOfImages];
+//    [BPUtil subtractMean:mean fromVector:vector withNumberOfImages:numberOfImages];
+    [_operator columnWiseMeanOfDoubleMatrix:vector toDoubleVector:mean columnHeight:sizeDimension*sizeDimension rowWidth:numberOfImages freeInput:NO];
+    for (int i = 0; i < numberOfImages; ++i) {
+        [_operator subtractDoubleVector:mean fromDoubleVector:(vector+i*sizeDimension*sizeDimension) numberOfElements:sizeDimension*sizeDimension freeInput:NO];
+    }
 }
 
 -(RawType *)createSurrogateCovarianceFromVector:(RawType *)vector fromNumberOfImages:(NSUInteger)numberOfImages{
     RawType* surrogate = (RawType*) calloc(numberOfImages*numberOfImages, sizeof(float));
-    [BPUtil calculateAtransposeTimesAFromVector:vector toOutputVector:surrogate withNumberOfImages:numberOfImages];
+    
+    // TODO: fix method declaration to include vector size info
+//    [BPUtil calculateAtransposeTimesAFromVector:vector toOutputVector:surrogate withNumberOfImages:numberOfImages];
+//    [_operator transposeMatrix:vector transposed:<#(void *)#> columnHeight:<#(NSUInteger)#> rowWidth:<#(NSUInteger)#> freeInput:<#(BOOL)#>]
     return surrogate;
 }
 
