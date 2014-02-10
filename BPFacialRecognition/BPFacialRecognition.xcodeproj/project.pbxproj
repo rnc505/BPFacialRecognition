@@ -14,6 +14,7 @@
 		D55566D618A4048A009F088E /* UIImage+Utils.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D539E4B8189C0B4900958964 /* UIImage+Utils.h */; };
 		D55566D718A4048A009F088E /* BPRecognizerOperator.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5DFC99B18A339C30024FC6B /* BPRecognizerOperator.h */; };
 		D55566D818A4048A009F088E /* BPRecognizerCPUOperator.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5DFC99C18A33E830024FC6B /* BPRecognizerCPUOperator.h */; };
+		D56F0C7E18A87EDF008E4ECE /* BPFisherFaces.m in Sources */ = {isa = PBXBuildFile; fileRef = D56F0C7D18A87EDF008E4ECE /* BPFisherFaces.m */; };
 		D5999EEF1892D79D0000CF6C /* face_image.png in Resources */ = {isa = PBXBuildFile; fileRef = D5999EED1892D79D0000CF6C /* face_image.png */; };
 		D5999EF01892D79D0000CF6C /* car_image.png in Resources */ = {isa = PBXBuildFile; fileRef = D5999EEE1892D79D0000CF6C /* car_image.png */; };
 		D5999EF11892D8A90000CF6C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D5AF860D1890E51C009A42D0 /* UIKit.framework */; };
@@ -75,6 +76,8 @@
 		D539E4B8189C0B4900958964 /* UIImage+Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Utils.h"; sourceTree = "<group>"; };
 		D539E4B9189C0B4900958964 /* UIImage+Utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Utils.m"; sourceTree = "<group>"; };
 		D54F6B53189AD22A00AFB7D5 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		D56F0C7C18A87EDF008E4ECE /* BPFisherFaces.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPFisherFaces.h; sourceTree = "<group>"; };
+		D56F0C7D18A87EDF008E4ECE /* BPFisherFaces.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BPFisherFaces.m; sourceTree = "<group>"; };
 		D5999EED1892D79D0000CF6C /* face_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = face_image.png; sourceTree = "<group>"; };
 		D5999EEE1892D79D0000CF6C /* car_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = car_image.png; sourceTree = "<group>"; };
 		D5999EF41892DBE80000CF6C /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
@@ -182,6 +185,8 @@
 				D5DFC99B18A339C30024FC6B /* BPRecognizerOperator.h */,
 				D5DFC99C18A33E830024FC6B /* BPRecognizerCPUOperator.h */,
 				D5DFC99D18A33E830024FC6B /* BPRecognizerCPUOperator.m */,
+				D56F0C7C18A87EDF008E4ECE /* BPFisherFaces.h */,
+				D56F0C7D18A87EDF008E4ECE /* BPFisherFaces.m */,
 			);
 			path = BPFacialRecognition;
 			sourceTree = "<group>";
@@ -306,6 +311,7 @@
 			files = (
 				D5AF86091890DE35009A42D0 /* BPRecognitionResult.m in Sources */,
 				D5AF860C1890E425009A42D0 /* BPPerson.m in Sources */,
+				D56F0C7E18A87EDF008E4ECE /* BPFisherFaces.m in Sources */,
 				D5DFC99E18A33E830024FC6B /* BPRecognizerCPUOperator.m in Sources */,
 				D5AF85E91890DC10009A42D0 /* BPFacialRecognizer.m in Sources */,
 				D539E4BA189C0B4900958964 /* UIImage+Utils.m in Sources */,

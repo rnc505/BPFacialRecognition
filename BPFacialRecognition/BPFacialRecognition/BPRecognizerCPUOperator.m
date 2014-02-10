@@ -20,34 +20,34 @@
     [self copyVector:inputVector toVector:outputVector numberOfElements:elements offset:0 sizeOfType:typeSize];
 }
 
--(void)columnWiseMeanOfDoubleMatrix:(double*)inputMatrix toDoubleVector:(double*)outputVector columnHeight:(NSUInteger)cHeight rowWidth:(NSUInteger)rWidth freeInput:(BOOL)shouldFreeInput {
+-(void)columnWiseMeanOfFloatMatrix:(float*)inputMatrix toFloatVector:(float*)outputVector columnHeight:(NSUInteger)cHeight rowWidth:(NSUInteger)rWidth freeInput:(BOOL)shouldFreeInput {
     
     for (int i = 0; i < cHeight; ++i) {
-        vDSP_meanvD(inputMatrix + i, cHeight, outputVector+i, rWidth);
+        vDSP_meanv(inputMatrix + i, cHeight, outputVector+i, rWidth);
     }
     if(shouldFreeInput)
         free(inputMatrix);
     
 }
--(void)subtractDoubleVector:(double*)subtrahend fromDoubleVector:(double*)minuend numberOfElements:(NSUInteger)elements freeInput:(BOOL)shouldFreeInput{
+-(void)subtractFloatVector:(float*)subtrahend fromFloatVector:(float*)minuend numberOfElements:(NSUInteger)elements freeInput:(BOOL)shouldFreeInput{
     
-    vDSP_vsubD(subtrahend, 1, minuend, 1, minuend, 1, elements);
+    vDSP_vsub(subtrahend, 1, minuend, 1, minuend, 1, elements);
     if (shouldFreeInput) {
         free(subtrahend);
     }
     
 }
--(void)transposeDoubleMatrix:(double*)inputMatrix transposed:(double*)outputMatrix columnHeight:(NSUInteger)cHeight rowWidth:(NSUInteger)rWidth freeInput:(BOOL)shouldFreeInput {
+-(void)transposeFloatMatrix:(float*)inputMatrix transposed:(float*)outputMatrix columnHeight:(NSUInteger)cHeight rowWidth:(NSUInteger)rWidth freeInput:(BOOL)shouldFreeInput {
     
-    vDSP_mtransD(inputMatrix, 1, outputMatrix, 1, rWidth, cHeight);
+    vDSP_mtrans(inputMatrix, 1, outputMatrix, 1, rWidth, cHeight);
     if (shouldFreeInput) {
         free(inputMatrix);
     }
     
 }
--(void)multiplyDoubleMatrix:(double*)inputMatrixOne withDoubleMatrix:(double*)inputMatrixTwo product:(double*)product matrixOneColumnHeight:(NSUInteger)cOneHeight matrixOneRowWidth:(NSUInteger)rOneWidth matrixTwoRowWidth:(NSUInteger)rTwoWidth freeInputs:(BOOL)shouldFreeInputs {
+-(void)multiplyFloatMatrix:(float*)inputMatrixOne withFloatMatrix:(float*)inputMatrixTwo product:(float*)product matrixOneColumnHeight:(NSUInteger)cOneHeight matrixOneRowWidth:(NSUInteger)rOneWidth matrixTwoRowWidth:(NSUInteger)rTwoWidth freeInputs:(BOOL)shouldFreeInputs {
     
-    vDSP_mmulD(inputMatrixOne, 1, inputMatrixTwo, 1, product, 1, cOneHeight, rTwoWidth, rOneWidth);
+    vDSP_mmul(inputMatrixOne, 1, inputMatrixTwo, 1, product, 1, cOneHeight, rTwoWidth, rOneWidth);
     if (shouldFreeInputs) {
         free(inputMatrixOne);
         free(inputMatrixTwo);

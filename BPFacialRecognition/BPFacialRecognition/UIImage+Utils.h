@@ -13,7 +13,7 @@
 -(UIImage*)grayscaledImage;
 -(UIImage*)resizedSquareImageOfDimension:(NSUInteger)dimension;
 -(UIImage*)resizedAndGrayscaledSquareImageOfDimension:(NSUInteger)dimension;
--(void*)vImageDataWithDoubles;
-+(UIImage*)imageWithRawDoubleFloats:(double*)rawBytesDF WithDoubleAndOfSquareDimension:(NSUInteger)dimension;
+-(void*)vImageDataWithFloats;
++(UIImage*)imageWithRawFloatFloats:(float*)rawBytesSF WithFloatAndOfSquareDimension:(NSUInteger)dimension;
 
 @end

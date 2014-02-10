@@ -52,7 +52,7 @@
     return [[self resizedSquareImageOfDimension:dimension]grayscaledImage];
 }
 
--(void*)vImageDataWithDoubles {
+-(void*)vImageDataWithFloats {
     vImage_Buffer intermediate, returnValue;
     
     CGSize size = self.size;
@@ -92,7 +92,7 @@
     BPRecognizerCPUOperator *operator = [BPRecognizerCPUOperator new];
     
 //    [BPUtil copyVectorFrom:(void*)data.bytes toVector:intermediateData offset:0 sizeOfType:sizeof(Byte)];
-    [operator copyVector:(void*)data.bytes toVector:intermediateData numberOfElements:sizeDimension*sizeDimension  sizeOfType:sizeof(Byte)];
+    [operator copyVector:(void*)data.bytes toVector:intermediateData numberOfElements:kSizeDimension*kSizeDimension  sizeOfType:sizeof(Byte)];
     
     intermediate.data = intermediateData; returnValue.data = returnData;
     intermediate.width = returnValue.width = self.size.width;
@@ -100,35 +100,35 @@
     intermediate.rowBytes = returnValue.rowBytes = self.size.width;
     returnValue.rowBytes *= sizeof(float);
     vImageConvert_Planar8toPlanarF(&intermediate, &returnValue, 1.f, 0.f, kvImageNoFlags);
-    double* returnDataD = calloc([data length], sizeof(double));
-    vDSP_vspdp(returnData, 1, returnDataD, 1, [data length]);
-    returnValue.rowBytes = sizeof(double);
-    returnValue.data = returnDataD;
+    //float* returnDataD = calloc([data length], sizeof(float));
+    //vDSP_vspdp(returnData, 1, returnDataD, 1, [data length]);
+    //returnValue.rowBytes = sizeof(float);
+    //returnValue.data = returnData;
     
     //free(byteData);
     free(intermediateData);
-    free(returnData);
+    //free(returnData);
     
     
-    return returnDataD; // returns in the PlanarF format -- single channel, 32-floating points, range 0 - 255
+    return returnData; // returns in the PlanarF format -- single channel, 32-floating points, range 0 - 255
 
 }
-+(UIImage*)imageWithRawDoubleFloats:(double*)rawBytesDF WithDoubleAndOfSquareDimension:(NSUInteger)dimension {
++(UIImage*)imageWithRawFloatFloats:(float*)rawBytesSF WithFloatAndOfSquareDimension:(NSUInteger)dimension {
     
-    Byte* rawBytesInt = calloc(sizeDimension*sizeDimension, sizeof(Byte));
+    Byte* rawBytesInt = calloc(kSizeDimension*kSizeDimension, sizeof(Byte));
     
-    float* rawBytesSF = calloc(dimension*dimension, sizeof(float));
-    vDSP_vdpsp(rawBytesDF, 1, rawBytesSF, 1, dimension*dimension);
+    //float* rawBytesSF = calloc(dimension*dimension, sizeof(float));
+    //vDSP_vdpsp(rawBytesDF, 1, rawBytesSF, 1, dimension*dimension);
     
     vImage_Buffer tempBufferSF;
-    tempBufferSF.width = sizeDimension;
-    tempBufferSF.height = sizeDimension;
-    tempBufferSF.rowBytes = sizeDimension*sizeof(float);
+    tempBufferSF.width = kSizeDimension;
+    tempBufferSF.height = kSizeDimension;
+    tempBufferSF.rowBytes = kSizeDimension*sizeof(float);
     tempBufferSF.data = rawBytesSF;
     vImage_Buffer tempBufferInt;
-    tempBufferInt.width = sizeDimension;
-    tempBufferInt.height = sizeDimension;
-    tempBufferInt.rowBytes = sizeDimension;
+    tempBufferInt.width = kSizeDimension;
+    tempBufferInt.height = kSizeDimension;
+    tempBufferInt.rowBytes = kSizeDimension;
     tempBufferInt.data = rawBytesInt;
     vImageConvert_PlanarFtoPlanar8(&tempBufferSF, &tempBufferInt, 1.f, -1.f, kvImageNoFlags);
     
@@ -142,7 +142,7 @@
     }
     
     // Create the bitmap context
-    CGContextRef context = CGBitmapContextCreate (rawBytesInt, sizeDimension, sizeDimension, 8, sizeDimension, colorSpace, (CGBitmapInfo)kCGImageAlphaNone);
+    CGContextRef context = CGBitmapContextCreate (rawBytesInt, kSizeDimension, kSizeDimension, 8, kSizeDimension, colorSpace, (CGBitmapInfo)kCGImageAlphaNone);
     if (context == NULL)
     {
         fprintf (stderr, "Error: Context not created!");

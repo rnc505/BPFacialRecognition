@@ -8,9 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import "BPPerson.h"
+#import "BPFisherFaces.h"
 
 @class  BPRecognitionResult, UIImage, BPPerson;
-@interface BPFacialRecognizer : NSObject <BPPersonDelegate>
+@interface BPFacialRecognizer : NSObject <BPPersonDelegate,BPFisherFacesDataSource>
 
 +(BPFacialRecognizer*)newRecognizer;
 -(void)addNewPerson:(BPPerson*)person;

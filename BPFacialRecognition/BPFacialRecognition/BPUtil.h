@@ -7,11 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <Accelerate/Accelerate.h>
 
-#define sizeDimension 512
-#define RawType double
+#define RawType float
+static const NSUInteger kSizeDimension = 512;
 
 @interface BPUtil : NSObject
 @end

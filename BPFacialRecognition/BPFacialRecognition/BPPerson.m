@@ -30,7 +30,7 @@
 }
 -(BOOL)detectFaceAndAddImage:(UIImage *)newImage {
     if([self imageContainsFace:newImage]) {
-        UIImage *resized = [newImage resizedSquareImageOfDimension:sizeDimension];;
+        UIImage *resized = [newImage resizedSquareImageOfDimension:kSizeDimension];;
         [_images addObject:resized];
         [_grayscaledImages addObject:[resized grayscaledImage]];
         if(_delegate) {

@@ -30,14 +30,14 @@
 }
 
 - (void) testCopySingleVectorCorrectly {
-    Byte* input = calloc(sizeDimension*sizeDimension, sizeof(Byte));
-    for (int i = 0; i < sizeDimension*sizeDimension; i++) {
+    Byte* input = calloc(kSizeDimension*kSizeDimension, sizeof(Byte));
+    for (int i = 0; i < kSizeDimension*kSizeDimension; i++) {
         input[i] = i;
     }
-    Byte* output = calloc(sizeDimension*sizeDimension, sizeof(Byte));
-    [_operator copyVector:input toVector:output numberOfElements:sizeDimension*sizeDimension sizeOfType:sizeof(Byte)];
+    Byte* output = calloc(kSizeDimension*kSizeDimension, sizeof(Byte));
+    [_operator copyVector:input toVector:output numberOfElements:kSizeDimension*kSizeDimension sizeOfType:sizeof(Byte)];
     BOOL failed = NO;
-    for (int i = 0; i < sizeDimension*sizeDimension; i++) {
+    for (int i = 0; i < kSizeDimension*kSizeDimension; i++) {
         if(input[i] != output[i]) {
             failed = YES;
             break;
@@ -47,39 +47,39 @@
 }
 
 - (void) testCopyMultipleVectorsCorrectly {
-    float* input1 = calloc(sizeDimension*sizeDimension, sizeof(float));
-    for (int i = 0; i < sizeDimension*sizeDimension; i++) {
+    float* input1 = calloc(kSizeDimension*kSizeDimension, sizeof(float));
+    for (int i = 0; i < kSizeDimension*kSizeDimension; i++) {
         input1[i] = (float)i;
     }
-    float* input2 = calloc(sizeDimension*sizeDimension, sizeof(float));
-    for (int i = 0; i < sizeDimension*sizeDimension; i++) {
+    float* input2 = calloc(kSizeDimension*kSizeDimension, sizeof(float));
+    for (int i = 0; i < kSizeDimension*kSizeDimension; i++) {
         input2[i] = (float)i*2;
     }
-    float* input3 = calloc(sizeDimension*sizeDimension, sizeof(float));
-    for (int i = 0; i < sizeDimension*sizeDimension; i++) {
+    float* input3 = calloc(kSizeDimension*kSizeDimension, sizeof(float));
+    for (int i = 0; i < kSizeDimension*kSizeDimension; i++) {
         input3[i] = (float)i*3;
     }
-    float* output = calloc(sizeDimension*sizeDimension*3, sizeof(float));
-    [_operator copyVector:input1 toVector:output numberOfElements:sizeDimension*sizeDimension offset:0 sizeOfType:sizeof(float)];
-    [_operator copyVector:input2 toVector:output numberOfElements:sizeDimension*sizeDimension offset:1 sizeOfType:sizeof(float)];
-    [_operator copyVector:input3 toVector:output numberOfElements:sizeDimension*sizeDimension offset:2 sizeOfType:sizeof(float)];
+    float* output = calloc(kSizeDimension*kSizeDimension*3, sizeof(float));
+    [_operator copyVector:input1 toVector:output numberOfElements:kSizeDimension*kSizeDimension offset:0 sizeOfType:sizeof(float)];
+    [_operator copyVector:input2 toVector:output numberOfElements:kSizeDimension*kSizeDimension offset:1 sizeOfType:sizeof(float)];
+    [_operator copyVector:input3 toVector:output numberOfElements:kSizeDimension*kSizeDimension offset:2 sizeOfType:sizeof(float)];
     BOOL failed = NO;
     int i = 0;
-    for (; i < sizeDimension*sizeDimension*3; i++) {
-        if (i < sizeDimension*sizeDimension) {
+    for (; i < kSizeDimension*kSizeDimension*3; i++) {
+        if (i < kSizeDimension*kSizeDimension) {
             if(input1[i] != output[i]) {
                 failed = YES;
                 break;
             }
         } else
-            if (i < sizeDimension*sizeDimension*2) {
-                if(input2[i-sizeDimension*sizeDimension] != output[i]) {
+            if (i < kSizeDimension*kSizeDimension*2) {
+                if(input2[i-kSizeDimension*kSizeDimension] != output[i]) {
                     failed = YES;
                     break;
                 }
             } else
-                if (i < sizeDimension*sizeDimension*3) {
-                    if(input3[i-sizeDimension*sizeDimension-sizeDimension*sizeDimension] != output[i]) {
+                if (i < kSizeDimension*kSizeDimension*3) {
+                    if(input3[i-kSizeDimension*kSizeDimension-kSizeDimension*kSizeDimension] != output[i]) {
                         failed = YES;
                         break;
                     }
@@ -89,22 +89,22 @@
 }
 
 - (void) testCalculatingMeanImage {
-    UIImage *face1 = [[UIImage imageWithFilename:@"face_image" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:sizeDimension];
-    UIImage *face2 = [[UIImage imageWithFilename:@"face_image2" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:sizeDimension];
+    UIImage *face1 = [[UIImage imageWithFilename:@"face_image" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:kSizeDimension];
+    UIImage *face2 = [[UIImage imageWithFilename:@"face_image2" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:kSizeDimension];
     
-    double* face1Buffer = [face1 vImageDataWithDoubles];
-    double* face2Buffer = [face2 vImageDataWithDoubles];
+    float* face1Buffer = [face1 vImageDataWithFloats];
+    float* face2Buffer = [face2 vImageDataWithFloats];
     
-    RawType* twoImages = calloc(sizeDimension*sizeDimension*2, sizeof(RawType));
+    RawType* twoImages = calloc(kSizeDimension*kSizeDimension*2, sizeof(RawType));
     
-    [_operator copyVector:face1Buffer toVector:twoImages numberOfElements:sizeDimension*sizeDimension offset:0 sizeOfType:sizeof(RawType)];
-    [_operator copyVector:face2Buffer toVector:twoImages numberOfElements:sizeDimension*sizeDimension offset:1 sizeOfType:sizeof(RawType)];
+    [_operator copyVector:face1Buffer toVector:twoImages numberOfElements:kSizeDimension*kSizeDimension offset:0 sizeOfType:sizeof(RawType)];
+    [_operator copyVector:face2Buffer toVector:twoImages numberOfElements:kSizeDimension*kSizeDimension offset:1 sizeOfType:sizeof(RawType)];
     
-    RawType* meanFace = calloc(sizeDimension*sizeDimension, sizeof(RawType));
+    RawType* meanFace = calloc(kSizeDimension*kSizeDimension, sizeof(RawType));
 
-    [_operator columnWiseMeanOfDoubleMatrix:twoImages toDoubleVector:meanFace columnHeight:sizeDimension*sizeDimension rowWidth:2 freeInput:YES];
+    [_operator columnWiseMeanOfFloatMatrix:twoImages toFloatVector:meanFace columnHeight:kSizeDimension*kSizeDimension rowWidth:2 freeInput:YES];
     
-    UIImage *outputImage = [UIImage imageWithRawDoubleFloats:meanFace WithDoubleAndOfSquareDimension:sizeDimension];
+    UIImage *outputImage = [UIImage imageWithRawFloatFloats:meanFace WithFloatAndOfSquareDimension:kSizeDimension];
     
     NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     
@@ -120,25 +120,25 @@
 }
 
 - (void) testSubtractMeanFromVector {
-    UIImage *face1 = [[UIImage imageWithFilename:@"face_image" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:sizeDimension];
-    UIImage *face2 = [[UIImage imageWithFilename:@"face_image2" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:sizeDimension];
+    UIImage *face1 = [[UIImage imageWithFilename:@"face_image" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:kSizeDimension];
+    UIImage *face2 = [[UIImage imageWithFilename:@"face_image2" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:kSizeDimension];
     
-    double* face1Buffer = [face1 vImageDataWithDoubles];
-    double* face2Buffer = [face2 vImageDataWithDoubles];
+    float* face1Buffer = [face1 vImageDataWithFloats];
+    float* face2Buffer = [face2 vImageDataWithFloats];
     
-    RawType* twoImages = calloc(sizeDimension*sizeDimension*2, sizeof(RawType));
+    RawType* twoImages = calloc(kSizeDimension*kSizeDimension*2, sizeof(RawType));
     
-    [_operator copyVector:face1Buffer toVector:twoImages numberOfElements:sizeDimension*sizeDimension offset:0 sizeOfType:sizeof(RawType)];
-    [_operator copyVector:face2Buffer toVector:twoImages numberOfElements:sizeDimension*sizeDimension offset:1 sizeOfType:sizeof(RawType)];
+    [_operator copyVector:face1Buffer toVector:twoImages numberOfElements:kSizeDimension*kSizeDimension offset:0 sizeOfType:sizeof(RawType)];
+    [_operator copyVector:face2Buffer toVector:twoImages numberOfElements:kSizeDimension*kSizeDimension offset:1 sizeOfType:sizeof(RawType)];
     
-    RawType* meanFace = calloc(sizeDimension*sizeDimension, sizeof(RawType));
+    RawType* meanFace = calloc(kSizeDimension*kSizeDimension, sizeof(RawType));
     
-    [_operator columnWiseMeanOfDoubleMatrix:twoImages toDoubleVector:meanFace columnHeight:sizeDimension*sizeDimension rowWidth:2 freeInput:NO];
-    [_operator subtractDoubleVector:meanFace fromDoubleVector:twoImages numberOfElements:sizeDimension*sizeDimension freeInput:NO];
-    [_operator subtractDoubleVector:meanFace fromDoubleVector:(twoImages+sizeDimension*sizeDimension) numberOfElements:sizeDimension*sizeDimension freeInput:YES];
+    [_operator columnWiseMeanOfFloatMatrix:twoImages toFloatVector:meanFace columnHeight:kSizeDimension*kSizeDimension rowWidth:2 freeInput:NO];
+    [_operator subtractFloatVector:meanFace fromFloatVector:twoImages numberOfElements:kSizeDimension*kSizeDimension freeInput:NO];
+    [_operator subtractFloatVector:meanFace fromFloatVector:(twoImages+kSizeDimension*kSizeDimension) numberOfElements:kSizeDimension*kSizeDimension freeInput:YES];
     
-    UIImage *outputImage1 = [UIImage imageWithRawDoubleFloats:twoImages WithDoubleAndOfSquareDimension:sizeDimension];
-    UIImage *outputImage2 = [UIImage imageWithRawDoubleFloats:(twoImages+sizeDimension*sizeDimension) WithDoubleAndOfSquareDimension:sizeDimension];
+    UIImage *outputImage1 = [UIImage imageWithRawFloatFloats:twoImages WithFloatAndOfSquareDimension:kSizeDimension];
+    UIImage *outputImage2 = [UIImage imageWithRawFloatFloats:(twoImages+kSizeDimension*kSizeDimension) WithFloatAndOfSquareDimension:kSizeDimension];
     
     NSString *docDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0];
     
@@ -159,26 +159,27 @@
 }
 
 - (void) testAtransposeTimesA {
-    RawType* A = calloc(sizeDimension*sizeDimension, sizeof(RawType));
-    //RawType* Atranspose = calloc(sizeDimension*sizeDimension, sizeof(RawType));
+    RawType* A = calloc(kSizeDimension*kSizeDimension, sizeof(RawType));
+    //RawType* Atranspose = calloc(kSizeDimension*kSizeDimension, sizeof(RawType));
 
     RawType* output = calloc(1, sizeof(RawType));
-    for (int i = 0; i < sizeDimension*sizeDimension; ++i) {
+    for (int i = 0; i < kSizeDimension*kSizeDimension; ++i) {
         A[i] = ((RawType)(i%255))/255;
     }
-    RawType answer = 0.f;
-    for(int i = 0; i< sizeDimension*sizeDimension; ++i) {
-        answer += (((RawType)(i%255))/255)*(((RawType)(i%255))/255);
+    double answer = 0.f;
+    for(int i = 0; i< kSizeDimension*kSizeDimension; ++i) {
+        answer += (((double)(i%255))/255)*(((double)(i%255))/255);
     }
-    //[_operator transposeDoubleMatrix:A transposed:Atranspose columnHeight:sizeDimension rowWidth:1 freeInput:NO];
+    //[_operator transposeFloatMatrix:A transposed:Atranspose columnHeight:kSizeDimension rowWidth:1 freeInput:NO];
     //
     // Transposing A not necessary since the matrix representation is
     // one long vector anyway
-    [_operator multiplyDoubleMatrix:A withDoubleMatrix:A product:output matrixOneColumnHeight:1 matrixOneRowWidth:sizeDimension*sizeDimension matrixTwoRowWidth:1 freeInputs:YES];
-    XCTAssertEqualWithAccuracy(answer, *output, (1/255.0)*(1/255.0),@"At x A doesn't work");
+    [_operator multiplyFloatMatrix:A withFloatMatrix:A product:output matrixOneColumnHeight:1 matrixOneRowWidth:kSizeDimension*kSizeDimension matrixTwoRowWidth:1 freeInputs:YES];
+    XCTAssertEqualWithAccuracy(answer, *output, .5,@"At x A doesn't work");
     
     free(output);
 }
+
 
 
 @end
