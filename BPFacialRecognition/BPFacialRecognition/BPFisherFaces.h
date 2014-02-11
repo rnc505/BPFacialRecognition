@@ -11,6 +11,7 @@
 @class UIImage;
 @protocol BPFisherFacesDataSource <NSObject>
 -(NSUInteger)totalNumberOfImages;
+-(NSUInteger)totalNumberOfPeople;
 -(NSArray*)totalImageSet;
 @end
 

@@ -80,4 +80,8 @@
     return retVal;
 }
 
+-(NSUInteger)totalNumberOfPeople {
+    return [_people count];
+}
+
 @end
