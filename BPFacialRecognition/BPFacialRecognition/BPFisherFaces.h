@@ -13,6 +13,7 @@
 -(NSUInteger)totalNumberOfImages;
 -(NSUInteger)totalNumberOfPeople;
 -(NSArray*)totalImageSet;
+-(NSArray*)personImageIndexes;
 @end
 
 @interface BPFisherFaces : NSObject

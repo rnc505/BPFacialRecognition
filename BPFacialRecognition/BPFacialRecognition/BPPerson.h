@@ -14,7 +14,7 @@
 @class UIImage;
 @interface BPPerson : NSObject
 @property (nonatomic, weak) id<BPPersonDelegate> delegate;
-
+@property (nonatomic, retain) NSNumber* count;
 +(BPPerson*)personWithName:(NSString*)name;
 -(BOOL)detectFaceAndAddImage:(UIImage*)newImage;
 -(NSSet*)getPersonsImages;

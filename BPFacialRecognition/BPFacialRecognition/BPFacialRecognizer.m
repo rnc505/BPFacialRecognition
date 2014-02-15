@@ -15,9 +15,6 @@
 @property (nonatomic, retain) NSMutableArray *people;
 @property (nonatomic, assign) BOOL needsToBeTrained;
 @property (nonatomic, retain) BPFisherFaces* operator;
-//-(RawType*)createVectorFromImageSet:(NSUInteger)numberOfImages;
-//-(void)createMeanImageFromVector:(RawType*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
-//-(RawType*)createSurrogateCovarianceFromVector:(RawType*)vector fromNumberOfImages:(NSUInteger)numberOfImages;
 @end
 
 @implementation BPFacialRecognizer
@@ -77,11 +74,23 @@
         NSSet* images = [person getPersonsImages];
         [retVal addObjectsFromArray:[images allObjects]];
     }
-    return retVal;
+    return [retVal copy];
 }
 
 -(NSUInteger)totalNumberOfPeople {
     return [_people count];
+}
+
+-(NSArray*)personImageIndexes {
+    NSMutableArray *retVal = [NSMutableArray new];
+    NSUInteger index = 0;
+    for (BPPerson *person in _people) {
+        [retVal addObject:[NSNumber numberWithUnsignedInt:index]];
+        index += [[person getPersonsImages] count];
+    }
+    // endpost
+    [retVal addObject:[NSNumber numberWithUnsignedInt:index]];
+    return [retVal copy];
 }
 
 @end

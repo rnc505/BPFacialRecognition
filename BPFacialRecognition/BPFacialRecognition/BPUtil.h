@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 #define RawType float
-static const NSUInteger kSizeDimension = 512;
+static const NSUInteger kSizeDimension = 180;
 
 @interface BPUtil : NSObject
 @end

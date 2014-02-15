@@ -26,10 +26,11 @@
     [person setName:name];
     [person setUuid:[[NSUUID UUID] UUIDString]];
     [person setImages:[NSMutableSet new]];
+    [person setGrayscaledImages:[NSMutableSet new]];
     return person;
 }
 -(BOOL)detectFaceAndAddImage:(UIImage *)newImage {
-    if([self imageContainsFace:newImage]) {
+//    if([self imageContainsFace:newImage]) {
         UIImage *resized = [newImage resizedSquareImageOfDimension:kSizeDimension];;
         [_images addObject:resized];
         [_grayscaledImages addObject:[resized grayscaledImage]];
@@ -37,8 +38,8 @@
             [_delegate addedNewImage];
         }
         return YES;
-    }
-    return NO;
+//    }
+//    return NO;
 }
 -(BOOL)isEqual:(id)other {
     if (other == self) { // self equality, compare address pointers
@@ -67,6 +68,10 @@
 
 -(NSSet *)getPersonsImages {
     return [_grayscaledImages copy];
+}
+
+-(NSNumber*)count {
+    return [NSNumber numberWithUnsignedInt:[_grayscaledImages count]];
 }
 
 @end

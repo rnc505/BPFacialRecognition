@@ -246,7 +246,7 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
             5  7  9  9  1
      */
     RawType eigenvalues[important], eigenvectors[num*important];
-    [_operator eigendecomposeFloatMatrix:A intoEigenvalues:eigenvalues eigenvectors:eigenvectors numberOfImportantValues:important matrixDimension:num freeInput:NO];
+    [_operator eigendecomposeSymmetricFloatMatrix:A intoEigenvalues:eigenvalues eigenvectors:eigenvectors numberOfImportantValues:important matrixDimension:num freeInput:NO];
     
     /*
         Eigenvalues of A:
@@ -263,9 +263,9 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
     
     
     /* Print eigenvalues */
-   print_matrix( "Selected eigenvalues", 1, important, eigenvalues, 1 );
+//   print_matrix( "Selected eigenvalues", 1, important, eigenvalues, 1 );
     /* Print eigenvectors */
-   print_matrix( "Selected eigenvectors (stored columnwise)", num, important, eigenvectors, num );
+//   print_matrix( "Selected eigenvectors (stored columnwise)", num, important, eigenvectors, num );
 }
 
 - (void) testEigenvalueCalculationOfFaces {
@@ -295,10 +295,45 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
     
     RawType eigenvalues[2], eigenvectors[4];
     
-    [_operator eigendecomposeFloatMatrix:AtransposeTIMESA intoEigenvalues:eigenvalues eigenvectors:eigenvectors numberOfImportantValues:2 matrixDimension:2 freeInput:NO];
-    print_matrix( "Selected eigenvalues", 1, 2, eigenvalues, 1 );
+    [_operator eigendecomposeSymmetricFloatMatrix:AtransposeTIMESA intoEigenvalues:eigenvalues eigenvectors:eigenvectors numberOfImportantValues:2 matrixDimension:2 freeInput:NO];
+//    print_matrix( "Selected eigenvalues", 1, 2, eigenvalues, 1 );
     /* Print eigenvectors */
-    print_matrix( "Selected eigenvectors (stored columnwise)", 2, 2, eigenvectors, 2 );
+//    print_matrix( "Selected eigenvectors (stored columnwise)", 2, 2, eigenvectors, 2 );
+}
+
+- (void) testEnumeration {
+    NSArray *array = @[@"One",@"Two",@"Three"];
+    int i = 0;
+    for (NSString *str in array) {
+        switch (i) {
+            case 0:
+                XCTAssertEqualObjects(@"One", str, @"strings not equal");
+                break;
+                
+            case 1:
+                XCTAssertEqualObjects(@"Two", str, @"strings not equal");
+                break;
+                
+            case 2:
+                XCTAssertEqualObjects(@"Three", str, @"strings not equal");
+                break;
+            default:
+                break;
+        }
+        ++i;
+    }
+}
+
+- (void) testFloatToNSDataAndBackConversion {
+    float* array = calloc(10, sizeof(float));
+    for(int i = 0; i < 10; ++i) {
+        array[i] = powf(2.5f, i);
+    }
+    NSData *data = [NSData dataWithBytes:array length:sizeof(float)*10];
+    float *oldArray = (float*)[data bytes];
+    for (int i = 0; i < 10; ++i) {
+        XCTAssertEqual(powf(2.5f, i), oldArray[i], @"should be equal");
+    }
 }
 
 
