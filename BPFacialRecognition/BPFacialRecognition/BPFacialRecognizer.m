@@ -90,7 +90,7 @@
     }
     // endpost
     [retVal addObject:[NSNumber numberWithUnsignedInt:index]];
-    return [retVal copy];
+    return retVal;
 }
 
 @end

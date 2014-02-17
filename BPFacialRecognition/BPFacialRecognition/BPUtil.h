@@ -11,5 +11,7 @@
 #define RawType float
 static const NSUInteger kSizeDimension = 180;
 
+
+
 @interface BPUtil : NSObject
 @end

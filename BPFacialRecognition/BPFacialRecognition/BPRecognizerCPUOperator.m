@@ -71,10 +71,11 @@
 //    __CLPK_integer il = dimension - numberOfImportantValues + 1;
 //    __CLPK_integer ul = dimension;
     __CLPK_integer il = 1;
-    __CLPK_integer ul = dimension - numberOfImportantValues;
+    __CLPK_integer ul = dimension - numberOfImportantValues+1;
     __CLPK_real abstol = -1,vl,vu;
     __CLPK_integer foundEigenvalues, info;
-    __CLPK_integer* iwork = calloc(1, sizeof(__CLPK_integer)), *isuppz = calloc(dimension, sizeof(__CLPK_integer));
+    __CLPK_integer* iwork = calloc(1, sizeof(__CLPK_integer));
+    __CLPK_integer* isuppz = calloc(dimension, sizeof(__CLPK_integer));
     __CLPK_integer lwork = -1, liwork = -1, n = dimension, lda = dimension;
     __CLPK_real* work = calloc(1, sizeof(__CLPK_real));
     ssyevr_("V", "I", "U", &n, inputMatrix, &lda, &vl, &vu, &il, &ul, &abstol, &foundEigenvalues, eigenvalues, eigenvectors, &n, isuppz, work, &lwork, iwork, &liwork, &info);
@@ -117,16 +118,18 @@
 
 -(void)invertFloatMatrix:(float*)inputMatrix intoResult:(float*)outputMatrix matrixDimension:(NSUInteger)dimension freeInput:(BOOL)shouldFreeInput {
     
-    __CLPK_integer *IPIV = calloc(dimension+1, sizeof(__CLPK_integer));
+//    __CLPK_integer *IPIV = calloc(dimension+1, sizeof(__CLPK_integer));
+    __CLPK_integer IPIV[dimension+1]  __attribute__ ((aligned));
     __CLPK_integer LWORK = dimension*dimension;
-    __CLPK_real *WORK = calloc(LWORK, sizeof(__CLPK_real));
+//    __CLPK_real *WORK = calloc(LWORK, sizeof(__CLPK_real));
+    __CLPK_real WORK[LWORK]  __attribute__ ((aligned));
     __CLPK_integer INFO, N = dimension;
     
     sgetrf_(&N,&N,inputMatrix,&N,IPIV,&INFO);
     sgetri_(&N,inputMatrix,&N,IPIV,WORK,&LWORK,&INFO);
     
-    free(IPIV);
-    free(WORK);
+    //free(IPIV);
+    //free(WORK);
     if(shouldFreeInput) {
         free(inputMatrix);
     }

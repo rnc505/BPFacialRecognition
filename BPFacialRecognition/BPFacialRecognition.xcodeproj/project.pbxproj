@@ -63,6 +63,8 @@
 		D5BC407B18B0151E0025EE7D /* 7.png in Resources */ = {isa = PBXBuildFile; fileRef = D5BC405D18B0151E0025EE7D /* 7.png */; };
 		D5BC407C18B0151E0025EE7D /* 8.png in Resources */ = {isa = PBXBuildFile; fileRef = D5BC405E18B0151E0025EE7D /* 8.png */; };
 		D5BC407D18B0151E0025EE7D /* 9.png in Resources */ = {isa = PBXBuildFile; fileRef = D5BC405F18B0151E0025EE7D /* 9.png */; };
+		D5BC408118B1E34B0025EE7D /* Utilities.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5BC408018B1E2F20025EE7D /* Utilities.h */; };
+		D5BC408318B1E4820025EE7D /* Utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = D5BC408218B1E4820025EE7D /* Utilities.c */; };
 		D5C7349C189EEFFB00198654 /* BPFacialRecognition.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5C7349B189EEFF100198654 /* BPFacialRecognition.h */; };
 		D5C7349D189EEFFB00198654 /* BPRecognitionResult.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5AF86071890DE35009A42D0 /* BPRecognitionResult.h */; };
 		D5C7349E189EEFFB00198654 /* BPPerson.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5AF860A1890E425009A42D0 /* BPPerson.h */; };
@@ -88,6 +90,7 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				D5BC408118B1E34B0025EE7D /* Utilities.h in CopyFiles */,
 				D55566D618A4048A009F088E /* UIImage+Utils.h in CopyFiles */,
 				D55566D718A4048A009F088E /* BPRecognizerOperator.h in CopyFiles */,
 				D55566D818A4048A009F088E /* BPRecognizerCPUOperator.h in CopyFiles */,
@@ -161,6 +164,8 @@
 		D5BC405D18B0151E0025EE7D /* 7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 7.png; sourceTree = "<group>"; };
 		D5BC405E18B0151E0025EE7D /* 8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 8.png; sourceTree = "<group>"; };
 		D5BC405F18B0151E0025EE7D /* 9.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = 9.png; sourceTree = "<group>"; };
+		D5BC408018B1E2F20025EE7D /* Utilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
+		D5BC408218B1E4820025EE7D /* Utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Utilities.c; sourceTree = "<group>"; };
 		D5C7349B189EEFF100198654 /* BPFacialRecognition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPFacialRecognition.h; sourceTree = "<group>"; };
 		D5DFC99B18A339C30024FC6B /* BPRecognizerOperator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPRecognizerOperator.h; sourceTree = "<group>"; };
 		D5DFC99C18A33E830024FC6B /* BPRecognizerCPUOperator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPRecognizerCPUOperator.h; sourceTree = "<group>"; };
@@ -247,6 +252,8 @@
 				D5DFC99D18A33E830024FC6B /* BPRecognizerCPUOperator.m */,
 				D56F0C7C18A87EDF008E4ECE /* BPFisherFaces.h */,
 				D56F0C7D18A87EDF008E4ECE /* BPFisherFaces.m */,
+				D5BC408018B1E2F20025EE7D /* Utilities.h */,
+				D5BC408218B1E4820025EE7D /* Utilities.c */,
 			);
 			path = BPFacialRecognition;
 			sourceTree = "<group>";
@@ -445,6 +452,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5BC408318B1E4820025EE7D /* Utilities.c in Sources */,
 				D5AF86091890DE35009A42D0 /* BPRecognitionResult.m in Sources */,
 				D5AF860C1890E425009A42D0 /* BPPerson.m in Sources */,
 				D56F0C7E18A87EDF008E4ECE /* BPFisherFaces.m in Sources */,

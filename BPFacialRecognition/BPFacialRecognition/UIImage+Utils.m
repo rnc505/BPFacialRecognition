@@ -62,12 +62,13 @@
     {
         fprintf(stderr, "Error allocating color space\n");
     }
-    
-    void *bitmapData = malloc(size.width * size.height);
+    void* bitmapData __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign(&bitmapData, 16, size.width*size.height));
+//    void *bitmapData = malloc(size.width * size.height);
     if (bitmapData == NULL)
     {
         fprintf (stderr, "Error: Memory not allocated!");
-        CGColorSpaceRelease(colorSpace);
+        //CGColorSpaceRelease(colorSpace);
     }
     
     CGContextRef context = CGBitmapContextCreate (bitmapData, size.width, size.height, 8, size.width * 1, colorSpace, kCGBitmapByteOrderDefault);
@@ -75,19 +76,24 @@
     if (context == NULL)
     {
         fprintf (stderr, "Error: Context not created!");
-        free (bitmapData);
+        //free (bitmapData);
     }
     
     CGRect rect = (CGRect){.size = size};
     CGContextDrawImage(context, rect, self.CGImage);
-    Byte *byteData = CGBitmapContextGetData (context);
+    Byte *byteData __attribute__((aligned(16))) = CGBitmapContextGetData (context);
     CGContextRelease(context);
     
     NSData *data = [NSData dataWithBytes:byteData length:(size.width * size.height * 1)];
     free(bitmapData);
     
-    Byte* intermediateData = calloc([data length], sizeof(Byte));
-    float* returnData = calloc([data length], sizeof(float));
+    Byte* intermediateData __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&intermediateData, 16, [data length]*sizeof(Byte)));
+    
+    float* returnData __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&returnData, 16, [data length]*sizeof(float)));
+//    Byte* intermediateData = calloc([data length], sizeof(Byte));
+//    float* returnData = calloc([data length], sizeof(float));
     
     BPRecognizerCPUOperator *operator = [BPRecognizerCPUOperator new];
     
@@ -146,7 +152,7 @@
     if (context == NULL)
     {
         fprintf (stderr, "Error: Context not created!");
-        CGColorSpaceRelease(colorSpace );
+        //CGColorSpaceRelease(colorSpace );
     }
     
     // Convert to image

@@ -49,6 +49,33 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "MallocStackLogging"
+            value = "1"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "MallocStackLoggingNoCompact"
+            value = "1"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "MallocScribble"
+            value = "1"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "MallocPreScribble"
+            value = "1"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "MallocGuardEdges"
+            value = "1"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
       <AdditionalOptions>
          <AdditionalOption
             key = "MallocScribble"
@@ -93,6 +120,11 @@
          <AdditionalOption
             key = "MallocStackLogging"
             value = ""
+            isEnabled = "YES">
+         </AdditionalOption>
+         <AdditionalOption
+            key = "NSZombieEnabled"
+            value = "YES"
             isEnabled = "YES">
          </AdditionalOption>
       </AdditionalOptions>

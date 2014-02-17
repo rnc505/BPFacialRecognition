@@ -7,4 +7,5 @@
 #ifdef __OBJC__
 #import <Accelerate/Accelerate.h>
 #import "BPUtil.h"
+#import "Utilities.h"
 #endif
