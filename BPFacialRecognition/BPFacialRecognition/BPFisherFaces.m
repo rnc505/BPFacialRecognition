@@ -195,6 +195,7 @@
     
 //    RawType* outputEigenvectors = calloc(kSizeDimension*kSizeDimension*(numberOfImages-numberOfPeople), sizeof(RawType));
     
+    [_operator clearFloatMatrix:outputEigenvectors numberOfElements:kSizeDimension*kSizeDimension*(numberOfImages-numberOfPeople)];
     [_operator multiplyFloatMatrix:matrix withFloatMatrix:eigenvectors product:outputEigenvectors matrixOneColumnHeight:kSizeDimension*kSizeDimension matrixOneRowWidth:numberOfImages matrixTwoRowWidth:(numberOfImages-numberOfPeople) freeInputs:NO];
     free(eigenvalues); free(eigenvectors);
     return outputEigenvectors;
@@ -288,9 +289,10 @@
     check_alloc_error(posix_memalign((void**)&scatterBetweenBuffer, 16, (numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* scatterBetweenBuffer = calloc(numberOfImages - numberOfPeople, sizeof(RawType));
     
-    NSArray* indices = [_dataSource personImageIndexes];
+    NSArray* indices = [[_dataSource personImageIndexes] copy];
     for (int i = 0; i < numberOfPeople; ++i) {
-        
+        [self zeroBuffer:scatterBuffer numberOfValues:(numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)];
+
         int startIndex = [indices[i] unsignedIntegerValue];
         int endIndex = [indices[i+1] unsignedIntegerValue] - 1;
         RawType* currentLocationInput __attribute__((aligned(16))) = eigenspace + startIndex*(numberOfImages-numberOfPeople)*numberOfImages;
@@ -319,7 +321,6 @@
         
         [_operator addFloatMatrix:Sb toFloatMatrix:intermediate intoResultFloatMatrix:Sb columnHeight:(numberOfImages-numberOfPeople) rowWidth:(numberOfImages-numberOfPeople) freeInput:NO];
         
-        [self zeroBuffer:scatterBuffer numberOfValues:(numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)];
         
     }
     

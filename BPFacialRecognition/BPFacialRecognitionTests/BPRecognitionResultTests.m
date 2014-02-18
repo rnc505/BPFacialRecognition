@@ -9,6 +9,8 @@
 #import <XCTest/XCTest.h>
 #import "BPRecognitionResult.h"
 #import "BPPerson.h"
+#import "Defines.h"
+
 @interface BPRecognitionResultTests : XCTestCase
 
 @property (nonatomic, retain) BPPerson* person;
@@ -32,19 +34,22 @@
 {
     [super tearDown];
 }
-
+#ifdef NON_IMAGE_TESTS
 -(void)testResultCreation
 {
     XCTAssertNotNil(self.result, @"Result object should not be nil");
 }
-
+#endif
+#ifdef NON_IMAGE_TESTS
 - (void) testPerson {
     XCTAssertNotNil([self.result person], @"Passed person shouldn't be nil");
     XCTAssertTrue([self.person isEqual:[self.result person]], @"People should be equal");
 }
-
+#endif
+#ifdef NON_IMAGE_TESTS
 - (void) testConfidence {
     XCTAssertEqual(self.confidence, [self.result confidence], @"Confidence values should be equal");
 }
+#endif
 
 @end

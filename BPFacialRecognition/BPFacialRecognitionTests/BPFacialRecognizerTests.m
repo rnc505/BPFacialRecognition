@@ -16,6 +16,7 @@
 
  */
 
+#import "Defines.h"
 #import <XCTest/XCTest.h>
 #import "BPFacialRecognizer.h"
 #import "BPPerson.h"
@@ -51,7 +52,7 @@
     
 }
 
-
+#ifdef IMAGE_TESTS
 - (void) testTrainingCompilesTest {
     BOOL failure = NO;
     
@@ -109,6 +110,7 @@
     [self.recognizer train];
     
 }
+#endif
 
 - (void) testKeyValueCodingSumTest {
     

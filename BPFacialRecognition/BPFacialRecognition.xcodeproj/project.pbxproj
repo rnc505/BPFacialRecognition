@@ -167,6 +167,7 @@
 		D5BC408018B1E2F20025EE7D /* Utilities.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Utilities.h; sourceTree = "<group>"; };
 		D5BC408218B1E4820025EE7D /* Utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Utilities.c; sourceTree = "<group>"; };
 		D5C7349B189EEFF100198654 /* BPFacialRecognition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPFacialRecognition.h; sourceTree = "<group>"; };
+		D5D4E02718B3BFDA000FDD23 /* Defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defines.h; sourceTree = "<group>"; };
 		D5DFC99B18A339C30024FC6B /* BPRecognizerOperator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPRecognizerOperator.h; sourceTree = "<group>"; };
 		D5DFC99C18A33E830024FC6B /* BPRecognizerCPUOperator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPRecognizerCPUOperator.h; sourceTree = "<group>"; };
 		D5DFC99D18A33E830024FC6B /* BPRecognizerCPUOperator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BPRecognizerCPUOperator.m; sourceTree = "<group>"; };
@@ -280,6 +281,7 @@
 				D5AF860F18917838009A42D0 /* BPPersonTests.m */,
 				D5AF86111891784C009A42D0 /* BPRecognitionResultTests.m */,
 				D5DFC99F18A341FA0024FC6B /* BPRecognizerOperatorTests.m */,
+				D5D4E02718B3BFDA000FDD23 /* Defines.h */,
 			);
 			path = BPFacialRecognitionTests;
 			sourceTree = "<group>";

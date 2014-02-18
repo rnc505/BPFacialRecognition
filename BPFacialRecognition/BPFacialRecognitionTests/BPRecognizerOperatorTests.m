@@ -9,6 +9,8 @@
 #import <XCTest/XCTest.h>
 #import "BPRecognizerCPUOperator.h"
 #import "UIImage+Utils.h"
+#import "Defines.h"
+
 @interface BPRecognizerOperatorTests : XCTestCase
 
 @property (nonatomic, retain) BPRecognizerCPUOperator *operator;
@@ -37,7 +39,7 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
     // Put teardown code here; it will be run once, after the last test case.
     [super tearDown];
 }
-
+#ifdef NON_IMAGE_TESTS
 - (void) testCopySingleVectorCorrectly {
     Byte* input = calloc(kSizeDimension*kSizeDimension, sizeof(Byte));
     for (int i = 0; i < kSizeDimension*kSizeDimension; i++) {
@@ -53,8 +55,11 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
         }
     }
     XCTAssertTrue(!failed, @"vector copy incorrect");
+    free(output);
+    free(input);
 }
-
+#endif
+#ifdef NON_IMAGE_TESTS
 - (void) testCopyMultipleVectorsCorrectly {
     float* input1 = calloc(kSizeDimension*kSizeDimension, sizeof(float));
     for (int i = 0; i < kSizeDimension*kSizeDimension; i++) {
@@ -95,8 +100,13 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
                 }
     }
     XCTAssertTrue(!failed, @"vector copy incorrect");
+    free(output);
+    free(input3);
+    free(input2);
+    free(input1);
 }
-
+#endif
+#ifdef IMAGE_TESTS
 - (void) testCalculatingMeanImage {
     UIImage *face1 = [[UIImage imageWithFilename:@"face_image" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:kSizeDimension];
     UIImage *face2 = [[UIImage imageWithFilename:@"face_image2" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:kSizeDimension];
@@ -111,7 +121,7 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
     
     RawType* meanFace = calloc(kSizeDimension*kSizeDimension, sizeof(RawType));
 
-    [_operator columnWiseMeanOfFloatMatrix:twoImages toFloatVector:meanFace columnHeight:kSizeDimension*kSizeDimension rowWidth:2 freeInput:YES];
+    [_operator columnWiseMeanOfFloatMatrix:twoImages toFloatVector:meanFace columnHeight:kSizeDimension*kSizeDimension rowWidth:2 freeInput:NO];
     
     UIImage *outputImage = [UIImage imageWithRawFloatFloats:meanFace WithFloatAndOfSquareDimension:kSizeDimension];
     
@@ -126,7 +136,11 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
 	[data1 writeToFile:pngFilePath atomically:YES];
     
     free(meanFace);
+    free(twoImages);
+    free(face2Buffer);
+    free(face1Buffer);
 }
+#endif
 
 //- (void) testResize {
 //    UIImage *face1 = [[UIImage imageWithFilename:@"face_image" withExtension:@"png"] resizedSquareImageOfDimension:kSizeDimension];
@@ -149,7 +163,7 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
 //	yes = [data1 writeToFile:pngFilePath1 atomically:YES];
 //    yes = [data2 writeToFile:pngFilePath2 atomically:YES];
 //}
-
+#ifdef IMAGE_TESTS
 - (void) testSubtractMeanFromVector {
     UIImage *face1 = [[UIImage imageWithFilename:@"face_image" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:kSizeDimension];
     UIImage *face2 = [[UIImage imageWithFilename:@"face_image2" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:kSizeDimension];
@@ -186,9 +200,14 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
 	yes = [data1 writeToFile:pngFilePath1 atomically:YES];
     yes = [data2 writeToFile:pngFilePath2 atomically:YES];
     
+    free(meanFace);
     free(twoImages);
+    free(face2Buffer);
+    free(face1Buffer);
 }
+#endif
 
+#ifdef NON_IMAGE_TESTS
 - (void) testAtransposeTimesA {
     RawType* A = calloc(kSizeDimension*kSizeDimension, sizeof(RawType));
     RawType* Atranspose = calloc(kSizeDimension*kSizeDimension, sizeof(RawType));
@@ -214,11 +233,18 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
     XCTAssertEqualWithAccuracy(answer, *output, .5,@"At x A doesn't work");
     
     free(output);
+    free(Atranspose);
+    free(A);
 }
+#endif
 
+#ifdef NON_IMAGE_TESTS
 - (void) testEigendecompose {
     int num = 5, important = 3;
-    RawType* A = calloc(num*num, sizeof(RawType));
+    
+    RawType* A __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&A, 16, num*num*sizeof(RawType)));
+//    RawType* A = calloc(num*num, sizeof(RawType));
     for (int i = 0; i < num*num; ++i) {
         if(i % 6 == 0) {
             A[i] = 1;
@@ -245,7 +271,15 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
             4  6  7  1  9
             5  7  9  9  1
      */
-    RawType eigenvalues[important], eigenvectors[num*important];
+    
+    RawType* eigenvalues __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&eigenvalues, 16, important*sizeof(RawType)));
+    
+    RawType* eigenvectors __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&eigenvectors, 16, num*important*sizeof(RawType)));
+    
+//    RawType eigenvalues[important] __attribute__((aligned(16)));
+//    RawType eigenvectors[num*important] __attribute__((aligned(16)));
     [_operator eigendecomposeSymmetricFloatMatrix:A intoEigenvalues:eigenvalues eigenvectors:eigenvectors numberOfImportantValues:important matrixDimension:num freeInput:NO];
     
     /*
@@ -263,11 +297,17 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
     
     
     /* Print eigenvalues */
-//   print_matrix( "Selected eigenvalues", 1, important, eigenvalues, 1 );
+   print_matrix( "Selected eigenvalues", 1, important, eigenvalues, 1 );
     /* Print eigenvectors */
-//   print_matrix( "Selected eigenvectors (stored columnwise)", num, important, eigenvectors, num );
+   print_matrix( "Selected eigenvectors (stored columnwise)", num, important, eigenvectors, num );
+    
+    free(eigenvectors);
+    free(eigenvalues);
+    free(A);
 }
+#endif
 
+#ifdef IMAGE_TESTS
 - (void) testEigenvalueCalculationOfFaces {
     UIImage *face1 = [[UIImage imageWithFilename:@"face_image" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:kSizeDimension];
     UIImage *face2 = [[UIImage imageWithFilename:@"face_image2" withExtension:@"png"] resizedAndGrayscaledSquareImageOfDimension:kSizeDimension];
@@ -275,32 +315,52 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
     float* face1Buffer = [face1 vImageDataWithFloats];
     float* face2Buffer = [face2 vImageDataWithFloats];
     
-    RawType* twoImages = calloc(kSizeDimension*kSizeDimension*2, sizeof(RawType));
+//    RawType* twoImages = calloc(kSizeDimension*kSizeDimension*2, sizeof(RawType));
+    
+    RawType* twoImages __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&twoImages, 16, kSizeDimension*kSizeDimension*2*sizeof(RawType)));
     
     [_operator copyVector:face1Buffer toVector:twoImages numberOfElements:kSizeDimension*kSizeDimension offset:0 sizeOfType:sizeof(RawType)];
     [_operator copyVector:face2Buffer toVector:twoImages numberOfElements:kSizeDimension*kSizeDimension offset:1 sizeOfType:sizeof(RawType)];
     
-    RawType* meanFace = calloc(kSizeDimension*kSizeDimension, sizeof(RawType));
+    RawType* meanFace __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&meanFace, 16, kSizeDimension*kSizeDimension*sizeof(RawType)));
+    
+//    RawType* meanFace = calloc(kSizeDimension*kSizeDimension, sizeof(RawType));
     
     [_operator columnWiseMeanOfFloatMatrix:twoImages toFloatVector:meanFace columnHeight:kSizeDimension*kSizeDimension rowWidth:2 freeInput:NO];
     [_operator subtractFloatVector:meanFace fromFloatVector:twoImages numberOfElements:kSizeDimension*kSizeDimension freeInput:NO];
     [_operator subtractFloatVector:meanFace fromFloatVector:(twoImages+kSizeDimension*kSizeDimension) numberOfElements:kSizeDimension*kSizeDimension freeInput:YES];
     
-    RawType* AtransposeTIMESA = calloc(2*2,sizeof(RawType));
+    RawType* AtransposeTIMESA __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&AtransposeTIMESA, 16, 2*2*sizeof(RawType)));
     
-    RawType* twoImagesTranspose = calloc(kSizeDimension*kSizeDimension*2, sizeof(RawType));
+//    RawType* AtransposeTIMESA = calloc(2*2,sizeof(RawType));
+    
+//    RawType* twoImagesTranspose = calloc(kSizeDimension*kSizeDimension*2, sizeof(RawType));
+    
+    RawType* twoImagesTranspose __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&twoImagesTranspose, 16, kSizeDimension*kSizeDimension*2*sizeof(RawType)));
+    
     [_operator transposeFloatMatrix:twoImages transposed:twoImagesTranspose columnHeight:kSizeDimension*kSizeDimension rowWidth:2 freeInput:NO];
     
     [_operator multiplyFloatMatrix:twoImagesTranspose withFloatMatrix:twoImages product:AtransposeTIMESA matrixOneColumnHeight:2 matrixOneRowWidth:kSizeDimension*kSizeDimension matrixTwoRowWidth:2 freeInputs:NO];
     
-    RawType eigenvalues[2], eigenvectors[4];
+    RawType eigenvalues[2] __attribute__((aligned(16))), eigenvectors[4] __attribute__((aligned(16)));
     
     [_operator eigendecomposeSymmetricFloatMatrix:AtransposeTIMESA intoEigenvalues:eigenvalues eigenvectors:eigenvectors numberOfImportantValues:2 matrixDimension:2 freeInput:NO];
-//    print_matrix( "Selected eigenvalues", 1, 2, eigenvalues, 1 );
+    print_matrix( "Selected eigenvalues", 1, 2, eigenvalues, 1 );
     /* Print eigenvectors */
-//    print_matrix( "Selected eigenvectors (stored columnwise)", 2, 2, eigenvectors, 2 );
+    print_matrix( "Selected eigenvectors (stored columnwise)", 2, 2, eigenvectors, 2 );
+    free(twoImagesTranspose);
+    free(AtransposeTIMESA);
+    free(meanFace);
+    free(twoImages);
+    free(face2Buffer);
+    free(face1Buffer);
 }
-
+#endif
+#ifdef NON_IMAGE_TESTS
 - (void) testEnumeration {
     NSArray *array = @[@"One",@"Two",@"Three"];
     int i = 0;
@@ -323,7 +383,8 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
         ++i;
     }
 }
-
+#endif
+#ifdef NON_IMAGE_TESTS
 - (void) testFloatToNSDataAndBackConversion {
     float* array = calloc(10, sizeof(float));
     for(int i = 0; i < 10; ++i) {
@@ -334,7 +395,10 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
     for (int i = 0; i < 10; ++i) {
         XCTAssertEqual(powf(2.5f, i), oldArray[i], @"should be equal");
     }
+    free(array);
+    free(oldArray);
 }
+#endif
 
 
 @end

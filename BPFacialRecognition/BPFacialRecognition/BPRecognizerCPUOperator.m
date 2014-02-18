@@ -71,25 +71,37 @@
 //    __CLPK_integer il = dimension - numberOfImportantValues + 1;
 //    __CLPK_integer ul = dimension;
     __CLPK_integer il = 1;
-    __CLPK_integer ul = dimension - numberOfImportantValues+1;
+    __CLPK_integer ul = numberOfImportantValues;
     __CLPK_real abstol = -1,vl,vu;
     __CLPK_integer foundEigenvalues, info;
-    __CLPK_integer* iwork = calloc(1, sizeof(__CLPK_integer));
-    __CLPK_integer* isuppz = calloc(dimension, sizeof(__CLPK_integer));
+//    __CLPK_integer* iwork = calloc(1, sizeof(__CLPK_integer));
+    __CLPK_integer iwork = 0;
+//    __CLPK_integer* isuppz = calloc(dimension, sizeof(__CLPK_integer));
+    __CLPK_integer *isuppz __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&isuppz, 16, dimension*sizeof(__CLPK_integer)));
     __CLPK_integer lwork = -1, liwork = -1, n = dimension, lda = dimension;
-    __CLPK_real* work = calloc(1, sizeof(__CLPK_real));
-    ssyevr_("V", "I", "U", &n, inputMatrix, &lda, &vl, &vu, &il, &ul, &abstol, &foundEigenvalues, eigenvalues, eigenvectors, &n, isuppz, work, &lwork, iwork, &liwork, &info);
-    lwork = (int)*work;
-    work = (float*)reallocf(work, lwork*sizeof(float) );
-    liwork = *iwork;
-    iwork = (long*)reallocf(iwork, liwork*sizeof(long) );
+//    __CLPK_real* work = calloc(1, sizeof(__CLPK_real));
+    
+    __CLPK_real work = 0.f;
+    
+    ssyevr_("V", "I", "U", &n, inputMatrix, &lda, &vl, &vu, &il, &ul, &abstol, &foundEigenvalues, eigenvalues, eigenvectors, &n, isuppz, &work, &lwork, &iwork, &liwork, &info);
+    lwork = (int)work;
+//    work = (float*)reallocf(work, lwork*sizeof(float) );
+    __CLPK_real *WORK_PTR __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&WORK_PTR, 16, lwork*sizeof(__CLPK_real)));
+    liwork = iwork;
+//    iwork = (long*)reallocf(iwork, liwork*sizeof(long) );
+    __CLPK_integer *I_WORK_PTR __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&I_WORK_PTR, 16, liwork*sizeof(__CLPK_integer)));
 
-    ssyevr_("V", "I", "U", &n, inputMatrix, &lda, &vl, &vu, &il, &n, &abstol, &foundEigenvalues, eigenvalues, eigenvectors, &n, isuppz, work, &lwork, iwork, &liwork, &info);
+    ssyevr_("V", "I", "U", &n, inputMatrix, &lda, &vl, &vu, &il, &n, &abstol, &foundEigenvalues, eigenvalues, eigenvectors, &n, isuppz, WORK_PTR, &lwork, I_WORK_PTR, &liwork, &info);
     
     if(info > 0) {
         NSLog(@"failed to computer eigenvalues");
     }
-    free(iwork); free(work); free(isuppz);
+    free(I_WORK_PTR);
+    free(WORK_PTR);
+    free(isuppz);
     if(shouldFreeInput) {
         free(inputMatrix);
     }
@@ -97,15 +109,19 @@
 
 -(void)eigendecomposeFloatMatrix:(float*)inputMatrix intoEigenvalues:(float*)eigenvalues eigenvectors:(float*)eigenvectors numberOfImportantValues:(NSUInteger)numberOfImportantValues matrixDimension:(NSUInteger)dimension freeInput:(BOOL)shouldFreeInput {
     __CLPK_integer n = dimension, lda = dimension, info,lwork =-1;
-    __CLPK_real wr[n], wi[n], wkopt = -1, *work = calloc(1, sizeof(__CLPK_real));
+    __CLPK_real wr[n], wi[n], wkopt = -1;
+//    __CLPK_real work = calloc(1, sizeof(__CLPK_real));
+   
     sgeev_("N", "V", &n, inputMatrix, &lda, wr, wi, NULL, &n, eigenvectors, &n, &wkopt, &lwork, &info);
     lwork = (int)wkopt;
-    work = (float*)reallocf(work, lwork*sizeof(float) );
-    sgeev_("N", "V", &n, inputMatrix, &lda, wr, wi, NULL, &n, eigenvectors, &n, work, &lwork, &info);
+//    work = (float*)reallocf(work, lwork*sizeof(float) );
+    __CLPK_real *WORK_PTR __attribute__((aligned(16))) = NULL;
+    check_alloc_error(posix_memalign((void**)&WORK_PTR, 16, lwork*sizeof(__CLPK_real)));
+    sgeev_("N", "V", &n, inputMatrix, &lda, wr, wi, NULL, &n, eigenvectors, &n, WORK_PTR, &lwork, &info);
     if(info > 0) {
         NSLog(@"failed to computer eigenvalues");
     }
-    free(work);
+    free(WORK_PTR);
     if (shouldFreeInput) {
         free(inputMatrix);
     }
