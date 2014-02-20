@@ -56,7 +56,7 @@
     return [person isEqual:[matched person]];
 }
 -(NSSet *)peopleInRecognizer {
-    return [_people copy];
+    return [NSSet setWithArray:_people];
 }
 
 #pragma BPPersonDelegate Methods
@@ -74,7 +74,7 @@
         NSSet* images = [person getPersonsImages];
         [retVal addObjectsFromArray:[images allObjects]];
     }
-    return [retVal copy];
+    return retVal;
 }
 
 -(NSUInteger)totalNumberOfPeople {
@@ -83,13 +83,18 @@
 
 -(NSArray*)personImageIndexes {
     NSMutableArray *retVal = [NSMutableArray new];
-    NSUInteger index = 0;
+    NSInteger index = 0;
     for (BPPerson *person in _people) {
-        [retVal addObject:[NSNumber numberWithUnsignedInt:index]];
+        [retVal addObject:[NSNumber numberWithInt:index]];
         index += [[person getPersonsImages] count];
     }
     // endpost
-    [retVal addObject:[NSNumber numberWithUnsignedInt:index]];
+    [retVal addObject:[NSNumber numberWithInt:index]];
+    for (int i = 0; i < retVal.count; ++i) {
+        if([retVal[0] intValue] < 0) {
+            NSLog(@"asfasdfaSF");
+        }
+    }
     return retVal;
 }
 

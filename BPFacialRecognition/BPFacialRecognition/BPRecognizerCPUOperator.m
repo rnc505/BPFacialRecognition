@@ -25,15 +25,16 @@
     for (int i = 0; i < cHeight; ++i) {
         vDSP_meanv(inputMatrix + i, cHeight, outputVector+i, rWidth);
     }
-    if(shouldFreeInput)
-        free(inputMatrix);
+    if(shouldFreeInput) {
+        free(inputMatrix); inputMatrix = NULL;
+    }
     
 }
 -(void)subtractFloatVector:(float*)subtrahend fromFloatVector:(float*)minuend numberOfElements:(NSUInteger)elements freeInput:(BOOL)shouldFreeInput{
     
     vDSP_vsub(subtrahend, 1, minuend, 1, minuend, 1, elements);
     if (shouldFreeInput) {
-        free(subtrahend);
+        free(subtrahend); subtrahend = NULL;
     }
     
 }
@@ -42,15 +43,15 @@
     
     vadd(inputMatrixOne, 1, inputMatrixTwo, 1, outputMatrix, 1, cHeight*rWidth);
     if(shouldFreeInput) {
-        free(inputMatrixOne);
-        free(inputMatrixTwo);
+        free(inputMatrixOne); inputMatrixOne = NULL;
+        free(inputMatrixTwo); inputMatrixTwo = NULL;
     }
 }
 -(void)transposeFloatMatrix:(float*)inputMatrix transposed:(float*)outputMatrix columnHeight:(NSUInteger)cHeight rowWidth:(NSUInteger)rWidth freeInput:(BOOL)shouldFreeInput {
     
     vDSP_mtrans(inputMatrix, 1, outputMatrix, 1, rWidth, cHeight);
     if (shouldFreeInput) {
-        free(inputMatrix);
+        free(inputMatrix); inputMatrix = NULL;
     }
     
 }
@@ -58,8 +59,8 @@
     
     vDSP_mmul(inputMatrixOne, 1, inputMatrixTwo, 1, product, 1, cOneHeight, rTwoWidth, rOneWidth);
     if (shouldFreeInputs) {
-        free(inputMatrixOne);
-        free(inputMatrixTwo);
+        free(inputMatrixOne); inputMatrixOne = NULL;
+        free(inputMatrixTwo); inputMatrixTwo = NULL;
     }
 }
 
@@ -77,8 +78,8 @@
 //    __CLPK_integer* iwork = calloc(1, sizeof(__CLPK_integer));
     __CLPK_integer iwork = 0;
 //    __CLPK_integer* isuppz = calloc(dimension, sizeof(__CLPK_integer));
-    __CLPK_integer *isuppz __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&isuppz, 16, dimension*sizeof(__CLPK_integer)));
+    __CLPK_integer *isuppz __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&isuppz, kAlignment, dimension*sizeof(__CLPK_integer)));
     __CLPK_integer lwork = -1, liwork = -1, n = dimension, lda = dimension;
 //    __CLPK_real* work = calloc(1, sizeof(__CLPK_real));
     
@@ -87,43 +88,43 @@
     ssyevr_("V", "I", "U", &n, inputMatrix, &lda, &vl, &vu, &il, &ul, &abstol, &foundEigenvalues, eigenvalues, eigenvectors, &n, isuppz, &work, &lwork, &iwork, &liwork, &info);
     lwork = (int)work;
 //    work = (float*)reallocf(work, lwork*sizeof(float) );
-    __CLPK_real *WORK_PTR __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&WORK_PTR, 16, lwork*sizeof(__CLPK_real)));
+    __CLPK_real *WORK_PTR __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&WORK_PTR, kAlignment, lwork*sizeof(__CLPK_real)));
     liwork = iwork;
 //    iwork = (long*)reallocf(iwork, liwork*sizeof(long) );
-    __CLPK_integer *I_WORK_PTR __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&I_WORK_PTR, 16, liwork*sizeof(__CLPK_integer)));
+    __CLPK_integer *I_WORK_PTR __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&I_WORK_PTR, kAlignment, liwork*sizeof(__CLPK_integer)));
 
-    ssyevr_("V", "I", "U", &n, inputMatrix, &lda, &vl, &vu, &il, &n, &abstol, &foundEigenvalues, eigenvalues, eigenvectors, &n, isuppz, WORK_PTR, &lwork, I_WORK_PTR, &liwork, &info);
+    ssyevr_("V", "I", "U", &n, inputMatrix, &lda, &vl, &vu, &il, &ul, &abstol, &foundEigenvalues, eigenvalues, eigenvectors, &n, isuppz, WORK_PTR, &lwork, I_WORK_PTR, &liwork, &info);
     
     if(info > 0) {
         NSLog(@"failed to computer eigenvalues");
     }
-    free(I_WORK_PTR);
-    free(WORK_PTR);
-    free(isuppz);
+    free(I_WORK_PTR); I_WORK_PTR = NULL;
+    free(WORK_PTR); WORK_PTR = NULL;
+    free(isuppz); isuppz = NULL;
     if(shouldFreeInput) {
-        free(inputMatrix);
+        free(inputMatrix); inputMatrix = NULL;
     }
 }
 
 -(void)eigendecomposeFloatMatrix:(float*)inputMatrix intoEigenvalues:(float*)eigenvalues eigenvectors:(float*)eigenvectors numberOfImportantValues:(NSUInteger)numberOfImportantValues matrixDimension:(NSUInteger)dimension freeInput:(BOOL)shouldFreeInput {
     __CLPK_integer n = dimension, lda = dimension, info,lwork =-1;
-    __CLPK_real wr[n], wi[n], wkopt = -1;
+    __CLPK_real wi[n] __attribute__((aligned(kAlignment))), wkopt = -1;
 //    __CLPK_real work = calloc(1, sizeof(__CLPK_real));
    
-    sgeev_("N", "V", &n, inputMatrix, &lda, wr, wi, NULL, &n, eigenvectors, &n, &wkopt, &lwork, &info);
+    sgeev_("N", "V", &n, inputMatrix, &lda, eigenvalues, wi, NULL, &n, eigenvectors, &n, &wkopt, &lwork, &info);
     lwork = (int)wkopt;
 //    work = (float*)reallocf(work, lwork*sizeof(float) );
-    __CLPK_real *WORK_PTR __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&WORK_PTR, 16, lwork*sizeof(__CLPK_real)));
-    sgeev_("N", "V", &n, inputMatrix, &lda, wr, wi, NULL, &n, eigenvectors, &n, WORK_PTR, &lwork, &info);
+    __CLPK_real *WORK_PTR __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&WORK_PTR, kAlignment, lwork*sizeof(__CLPK_real)));
+    sgeev_("N", "V", &n, inputMatrix, &lda, eigenvalues, wi, NULL, &n, eigenvectors, &n, WORK_PTR, &lwork, &info);
     if(info > 0) {
         NSLog(@"failed to computer eigenvalues");
     }
-    free(WORK_PTR);
+    free(WORK_PTR); WORK_PTR = NULL;
     if (shouldFreeInput) {
-        free(inputMatrix);
+        free(inputMatrix); inputMatrix = NULL;
     }
     
 }
@@ -141,13 +142,15 @@
     __CLPK_real WORK[LWORK]  __attribute__ ((aligned));
     __CLPK_integer INFO, N = dimension;
     
-    sgetrf_(&N,&N,inputMatrix,&N,IPIV,&INFO);
-    sgetri_(&N,inputMatrix,&N,IPIV,WORK,&LWORK,&INFO);
+    [self transposeFloatMatrix:inputMatrix transposed:outputMatrix columnHeight:dimension rowWidth:dimension freeInput:NO];
+    
+    sgetrf_(&N,&N,outputMatrix,&N,IPIV,&INFO);
+    sgetri_(&N,outputMatrix,&N,IPIV,WORK,&LWORK,&INFO);
     
     //free(IPIV);
     //free(WORK);
     if(shouldFreeInput) {
-        free(inputMatrix);
+        free(inputMatrix); inputMatrix = NULL;
     }
 }
 

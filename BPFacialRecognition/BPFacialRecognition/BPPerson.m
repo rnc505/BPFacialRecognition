@@ -67,7 +67,7 @@
 }
 
 -(NSSet *)getPersonsImages {
-    return [_grayscaledImages copy];
+    return _grayscaledImages;
 }
 
 -(NSNumber*)count {

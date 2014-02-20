@@ -9,8 +9,8 @@
 #import <Foundation/Foundation.h>
 
 #define RawType float
+#define kAlignment 16
 static const NSUInteger kSizeDimension = 180;
-
 
 
 @interface BPUtil : NSObject

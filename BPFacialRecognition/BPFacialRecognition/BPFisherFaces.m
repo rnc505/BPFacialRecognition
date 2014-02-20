@@ -85,13 +85,13 @@
      
      */
     
-    RawType* scatterWithin __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&scatterWithin, 16, (numberOfImages-[_dataSource totalNumberOfPeople])*(numberOfImages-[_dataSource totalNumberOfPeople])*sizeof(RawType)));
+    RawType* scatterWithin __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&scatterWithin, kAlignment, (numberOfImages-[_dataSource totalNumberOfPeople])*(numberOfImages-[_dataSource totalNumberOfPeople])*sizeof(RawType)));
     
 //    RawType *scatterWithin = calloc((numberOfImages-[_dataSource totalNumberOfPeople])*(numberOfImages-[_dataSource totalNumberOfPeople]), sizeof(RawType));
     
-    RawType* scatterBetween __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&scatterBetween, 16, (numberOfImages-[_dataSource totalNumberOfPeople])*(numberOfImages-[_dataSource totalNumberOfPeople])));
+    RawType* scatterBetween __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&scatterBetween, kAlignment, (numberOfImages-[_dataSource totalNumberOfPeople])*(numberOfImages-[_dataSource totalNumberOfPeople])));
     
 //    RawType *scatterBetween = calloc((numberOfImages-[_dataSource totalNumberOfPeople])*(numberOfImages-[_dataSource totalNumberOfPeople]), sizeof(RawType));
     
@@ -121,15 +121,15 @@
     _projectedImages = [NSData dataWithBytes:Projected_Images length:([_dataSource totalNumberOfPeople] - 1)*numberOfImages];
     
     
-    free(Projected_Images);
-    free(J_Eigenvectors);
-    free(scatterBetween);
-    free(scatterWithin);
-    free(PCA_Projection);
-    free(eigenvectors);
-    free(surrogateCovariance);
-    free(mean);
-    free(oneDVector);
+    free(Projected_Images); Projected_Images = NULL;
+    free(J_Eigenvectors); J_Eigenvectors = NULL;
+    free(scatterBetween); scatterBetween = NULL;
+    free(scatterWithin); scatterWithin = NULL;
+    free(PCA_Projection); PCA_Projection = NULL;
+    free(eigenvectors); eigenvectors = NULL;
+    free(surrogateCovariance); surrogateCovariance = NULL;
+    free(mean); mean = NULL;
+    free(oneDVector); oneDVector = NULL;
 }
 
 -(BPRecognitionResult *)recognizeImage:(UIImage *)image {
@@ -137,22 +137,22 @@
 }
 
 -(RawType*)createImageMatrixWithNumberOfImages:(NSUInteger)numberOfImages {
-    RawType* retVal __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&retVal, 16, kSizeDimension * kSizeDimension * numberOfImages*sizeof(RawType)));
+    RawType* retVal __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&retVal, kAlignment, kSizeDimension * kSizeDimension * numberOfImages*sizeof(RawType)));
     
 //    RawType* retVal = (RawType*) calloc(kSizeDimension * kSizeDimension * numberOfImages, sizeof(float));
     int currentPosition = 0;
     for (UIImage* img in [_dataSource totalImageSet]) {
-        float* vImg __attribute__((aligned(16))) = [img vImageDataWithFloats];
+        float* vImg __attribute__((aligned(kAlignment))) = [img vImageDataWithFloats];
         [_operator copyVector:vImg toVector:retVal numberOfElements:kSizeDimension*kSizeDimension offset:currentPosition sizeOfType:sizeof(RawType)];
         ++currentPosition;
-        free(vImg);
+        free(vImg); vImg = NULL;
     }
     return retVal;
 }
 -(RawType*)normalizeImageMatrix:(RawType*)matrix withNumberOfImages:(NSUInteger)numberOfImages {
-    RawType* mean __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&mean, 16, kSizeDimension*kSizeDimension*sizeof(float)));
+    RawType* mean __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&mean, kAlignment, kSizeDimension*kSizeDimension*sizeof(float)));
 //    RawType* mean = (RawType*) calloc(kSizeDimension*kSizeDimension, sizeof(float));
     [_operator columnWiseMeanOfFloatMatrix:matrix toFloatVector:mean columnHeight:kSizeDimension*kSizeDimension rowWidth:numberOfImages freeInput:NO];
     for (int i = 0; i < numberOfImages; ++i) {
@@ -161,43 +161,48 @@
     return mean;
 }
 -(RawType*)createSurrogateCovarianceFromMatrix:(RawType*)matrix withNumberOfImages:(NSUInteger)numberOfImages {
-    RawType* surrogate __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&surrogate, 16, numberOfImages*numberOfImages*sizeof(float)));
+    RawType* surrogate __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&surrogate, kAlignment, numberOfImages*numberOfImages*sizeof(float)));
     
 //    RawType* surrogate = (RawType*) calloc(numberOfImages*numberOfImages, sizeof(float));
     
-    RawType* matrixTranspose __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&matrixTranspose, 16, kSizeDimension*kSizeDimension*numberOfImages*sizeof(RawType)));
+    RawType* matrixTranspose __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&matrixTranspose, kAlignment, kSizeDimension*kSizeDimension*numberOfImages*sizeof(RawType)));
     
 //    RawType* matrixTranspose = calloc(kSizeDimension*kSizeDimension*numberOfImages, sizeof(RawType));
     [_operator transposeFloatMatrix:matrix transposed:matrixTranspose columnHeight:kSizeDimension*kSizeDimension rowWidth:numberOfImages freeInput:NO];
     [_operator multiplyFloatMatrix:matrixTranspose withFloatMatrix:matrix product:surrogate matrixOneColumnHeight:numberOfImages matrixOneRowWidth:kSizeDimension*kSizeDimension matrixTwoRowWidth:numberOfImages freeInputs:NO];
-    free(matrixTranspose);
+    free(matrixTranspose); matrixTranspose = NULL;
     return surrogate;
 }
 
 -(RawType*)calculateEigenvectorsFromSymmetricInputMatrix:(RawType*)matrix fromCovarianceMatrix:(RawType*)covariance withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople {
     
-    RawType* eigenvalues __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&eigenvalues, 16, (numberOfImages-numberOfPeople)*sizeof(RawType)));
+    RawType* eigenvalues __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&eigenvalues, kAlignment, (numberOfImages-numberOfPeople)*sizeof(RawType)));
     
 //    RawType* eigenvalues = calloc(numberOfImages-numberOfPeople, sizeof(RawType));
     
-    RawType* eigenvectors __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&eigenvectors, 16, (numberOfImages-numberOfPeople)*numberOfImages*sizeof(RawType)));
+    RawType* eigenvectors __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&eigenvectors, kAlignment, (numberOfImages-numberOfPeople)*numberOfImages*sizeof(RawType)));
     
 //    RawType* eigenvectors = calloc((numberOfImages-numberOfPeople)*numberOfImages, sizeof(RawType));
     
+    
+    
+//    [_operator transposeFloatMatrix:covariance transposed:covariance columnHeight:numberOfImages rowWidth:numberOfImages freeInput:NO];
+    
     [self calculateEigenvalues:eigenvalues eigenvectors:eigenvectors fromSymmetricInputMatrix:covariance withNumberOfImages:numberOfImages withNumberOfPeople:numberOfPeople];
     
-    RawType* outputEigenvectors __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&outputEigenvectors, 16, kSizeDimension*kSizeDimension*(numberOfImages-numberOfPeople)*sizeof(RawType)));
+    RawType* outputEigenvectors __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&outputEigenvectors, kAlignment, kSizeDimension*kSizeDimension*(numberOfImages-numberOfPeople)*sizeof(RawType)));
     
 //    RawType* outputEigenvectors = calloc(kSizeDimension*kSizeDimension*(numberOfImages-numberOfPeople), sizeof(RawType));
     
     [_operator clearFloatMatrix:outputEigenvectors numberOfElements:kSizeDimension*kSizeDimension*(numberOfImages-numberOfPeople)];
     [_operator multiplyFloatMatrix:matrix withFloatMatrix:eigenvectors product:outputEigenvectors matrixOneColumnHeight:kSizeDimension*kSizeDimension matrixOneRowWidth:numberOfImages matrixTwoRowWidth:(numberOfImages-numberOfPeople) freeInputs:NO];
-    free(eigenvalues); free(eigenvectors);
+    free(eigenvalues); eigenvalues = NULL;
+    free(eigenvectors); eigenvectors = NULL;
     return outputEigenvectors;
     
 }
@@ -210,13 +215,13 @@
 
 -(RawType*)projectImageVectors:(RawType*)matrix ontoEigenspace:(RawType*)eigenspace withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople withEigenspaceDimensions:(CGSize)dimensions
  {
-     RawType* projection __attribute__((aligned(16))) = NULL;
-     check_alloc_error(posix_memalign((void**)&projection, 16, (numberOfImages-numberOfPeople)*numberOfImages*sizeof(RawType)));
+     RawType* projection __attribute__((aligned(kAlignment))) = NULL;
+     check_alloc_error(posix_memalign((void**)&projection, kAlignment, (numberOfImages-numberOfPeople)*numberOfImages*sizeof(RawType)));
      
 //    RawType* projection = calloc((numberOfImages - numberOfPeople)*numberOfImages, sizeof(RawType));
      
-     RawType* eigenspaceTranspose __attribute__((aligned(16))) = NULL;
-     check_alloc_error(posix_memalign((void**)&eigenspaceTranspose, 16, dimensions.width*dimensions.height*sizeof(RawType)));
+     RawType* eigenspaceTranspose __attribute__((aligned(kAlignment))) = NULL;
+     check_alloc_error(posix_memalign((void**)&eigenspaceTranspose, kAlignment, dimensions.width*dimensions.height*sizeof(RawType)));
      
 //     RawType* eigenspaceTranspose = calloc(dimensions.width * dimensions.height, sizeof(RawType));
      
@@ -224,7 +229,7 @@
      
      [_operator multiplyFloatMatrix:eigenspaceTranspose withFloatMatrix:matrix product:projection matrixOneColumnHeight:dimensions.width matrixOneRowWidth:kSizeDimension*kSizeDimension matrixTwoRowWidth:numberOfImages freeInputs:NO];
      
-     free(eigenspaceTranspose);
+     free(eigenspaceTranspose); eigenspaceTranspose = NULL;
      return projection;
 }
 
@@ -235,18 +240,21 @@
 
 -(RawType*)calculateEigenvectorsFromNonsymmetricInputMatrix:(RawType*)matrix withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople {
     
-    RawType* eigenvalues __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&eigenvalues, 16, (numberOfImages-numberOfPeople)*sizeof(RawType)));
+    RawType* eigenvalues __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&eigenvalues, kAlignment, (numberOfImages-numberOfPeople)*sizeof(RawType)));
     
 //    RawType* eigenvalues = calloc(numberOfImages-numberOfPeople, sizeof(RawType));
     
-    RawType* eigenvectors __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&eigenvectors, 16, (numberOfImages-numberOfPeople)*(numberOfImages-numberOfPeople)*sizeof(RawType)));
-                      
+    RawType* eigenvectors __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&eigenvectors, kAlignment, (numberOfImages-numberOfPeople)*(numberOfImages-numberOfPeople)*sizeof(RawType)));
+    
+    RawType* matrixT __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&matrixT, kAlignment, (numberOfImages-numberOfPeople)*(numberOfImages-numberOfPeople)*sizeof(RawType)));
+    
                       
 //    RawType* eigenvectors = calloc((numberOfImages-numberOfPeople)*(numberOfImages-numberOfPeople), sizeof(RawType));
-    [self calculateEigenvalue:eigenvalues eigenvectors:eigenvectors fromNonsymmetricInputMatrix:matrix withNumberOfImages:numberOfImages withNumberOfPeople:numberOfPeople];
-    free(eigenvalues);
+    [self calculateEigenvalue:eigenvalues eigenvectors:eigenvectors fromNonsymmetricInputMatrix:matrixT withNumberOfImages:numberOfImages withNumberOfPeople:numberOfPeople];
+    free(eigenvalues); eigenvalues = NULL;
     return eigenvectors;
     
 }
@@ -257,46 +265,46 @@
 
 -(void)calculateMeanOfEachClassFromEigenspace:(RawType*)eigenspace intoScatterWithinMatrix:(RawType*)Sw intoScatterBetweenMatrix:(RawType*)Sb withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople {
     
-    RawType* eigenspaceMean __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&eigenspaceMean, 16, (numberOfImages - numberOfPeople)*sizeof(RawType)));
+    RawType* eigenspaceMean __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&eigenspaceMean, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
     
 //    RawType* eigenspaceMean = calloc(numberOfImages - numberOfPeople, sizeof(RawType));
     [_operator columnWiseMeanOfFloatMatrix:eigenspace toFloatVector:eigenspaceMean columnHeight:(numberOfImages - numberOfPeople) rowWidth:numberOfImages freeInput:NO];
     
-    RawType* innerMean __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&innerMean, 16, (numberOfImages - numberOfPeople)*numberOfPeople*sizeof(RawType)));
+    RawType* innerMean __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&innerMean, kAlignment, (numberOfImages - numberOfPeople)*numberOfPeople*sizeof(RawType)));
     
 //    RawType* innerMean = calloc((numberOfImages - numberOfPeople)*numberOfPeople, sizeof(RawType));
     
     
-    RawType* scatterBuffer __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&scatterBuffer, 16, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
+    RawType* scatterBuffer __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&scatterBuffer, kAlignment, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* scatterBuffer = calloc((numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople), sizeof(RawType));
     
-    RawType* intermediate __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&intermediate, 16, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
+    RawType* intermediate __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&intermediate, kAlignment, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* intermediate = calloc((numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople), sizeof(RawType));
     
-    RawType* multiplicationTemporary __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&multiplicationTemporary, 16, (numberOfImages - numberOfPeople)*sizeof(RawType)));
+    RawType* multiplicationTemporary __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&multiplicationTemporary, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* multiplicationTemporary = calloc((numberOfImages - numberOfPeople), sizeof(RawType));
     
-    RawType* multiplicationTemporaryTranspose __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&multiplicationTemporaryTranspose, 16, (numberOfImages - numberOfPeople)*sizeof(RawType)));
+    RawType* multiplicationTemporaryTranspose __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&multiplicationTemporaryTranspose, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* multiplicationTemporaryTranspose = calloc((numberOfImages - numberOfPeople), sizeof(RawType));
     
-    RawType* scatterBetweenBuffer __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&scatterBetweenBuffer, 16, (numberOfImages - numberOfPeople)*sizeof(RawType)));
+    RawType* scatterBetweenBuffer __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&scatterBetweenBuffer, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* scatterBetweenBuffer = calloc(numberOfImages - numberOfPeople, sizeof(RawType));
     
-    NSArray* indices = [[_dataSource personImageIndexes] copy];
+    NSArray* indices = [[NSArray alloc] initWithArray:[_dataSource personImageIndexes] copyItems:YES];
     for (int i = 0; i < numberOfPeople; ++i) {
         [self zeroBuffer:scatterBuffer numberOfValues:(numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)];
 
-        int startIndex = [indices[i] unsignedIntegerValue];
-        int endIndex = [indices[i+1] unsignedIntegerValue] - 1;
-        RawType* currentLocationInput __attribute__((aligned(16))) = eigenspace + startIndex*(numberOfImages-numberOfPeople)*numberOfImages;
-        RawType* currentLocationOutput __attribute__((aligned(16))) = innerMean + startIndex*(numberOfImages-numberOfPeople);
+        int startIndex = [[indices objectAtIndex:i] integerValue];
+        int endIndex = [[indices objectAtIndex:i+1] integerValue] - 1;
+        RawType* currentLocationInput __attribute__((aligned(kAlignment))) = eigenspace + startIndex*(numberOfImages-numberOfPeople)*numberOfImages;
+        RawType* currentLocationOutput __attribute__((aligned(kAlignment))) = innerMean + startIndex*(numberOfImages-numberOfPeople);
         [_operator columnWiseMeanOfFloatMatrix:currentLocationInput toFloatVector:currentLocationOutput columnHeight:(numberOfImages-numberOfPeople) rowWidth:(endIndex-startIndex) freeInput:NO];
         for(int j = startIndex; j <= endIndex; ++j) {
             [_operator copyVector:eigenspace+j*(numberOfImages-numberOfPeople) toVector:multiplicationTemporary numberOfElements:(numberOfImages-numberOfPeople) offset:0 sizeOfType:sizeof(RawType)];
@@ -324,25 +332,25 @@
         
     }
     
-    free(scatterBetweenBuffer);
-    free(multiplicationTemporaryTranspose);
-    free(multiplicationTemporary);
-    free(intermediate);
-    free(scatterBuffer);
-    free(innerMean);
-    free(eigenspaceMean);
+    free(scatterBetweenBuffer); scatterBetweenBuffer = NULL;
+    free(multiplicationTemporaryTranspose); multiplicationTemporaryTranspose = NULL;
+    free(multiplicationTemporary); multiplicationTemporary = NULL;
+    free(intermediate); intermediate = NULL;
+    free(scatterBuffer); scatterBuffer = NULL;
+    free(innerMean); innerMean = NULL;
+    free(eigenspaceMean); eigenspaceMean = NULL;
 }
 
 -(RawType*)calculateEigenvectorsFromScatterWithin:(RawType*)Sw fromScatterBetween:(RawType*)Sb withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople {
     
-    RawType* SwInverted __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&SwInverted, 16, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
+    RawType* SwInverted __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&SwInverted, kAlignment, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
     
 //    RawType* SwInverted = calloc((numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople), sizeof(RawType));
     [_operator invertFloatMatrix:Sw intoResult:SwInverted matrixDimension:(numberOfImages - numberOfPeople) freeInput:NO];
     
-    RawType* JCostFunction __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&JCostFunction, 16, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
+    RawType* JCostFunction __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&JCostFunction, kAlignment, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
     
 //    RawType* JCostFunction = calloc((numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople), sizeof(RawType));
     [_operator multiplyFloatMatrix:SwInverted withFloatMatrix:Sb product:JCostFunction matrixOneColumnHeight:(numberOfImages - numberOfPeople) matrixOneRowWidth:(numberOfImages - numberOfPeople) matrixTwoRowWidth:(numberOfImages - numberOfPeople) freeInputs:NO];
@@ -350,8 +358,8 @@
     
     RawType* eigenvectors = [self calculateEigenvectorsFromNonsymmetricInputMatrix:JCostFunction withNumberOfImages:numberOfImages withNumberOfPeople:numberOfPeople];
     
-    RawType* outputEigenvectors __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&outputEigenvectors, 16, (numberOfImages-numberOfPeople)*(numberOfPeople-1)*sizeof(RawType)));
+    RawType* outputEigenvectors __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&outputEigenvectors, kAlignment, (numberOfImages-numberOfPeople)*(numberOfPeople-1)*sizeof(RawType)));
     
 //    RawType *outputEigenvectors = calloc((numberOfImages-numberOfPeople)*(numberOfPeople-1), sizeof(RawType));
     
@@ -363,9 +371,9 @@
         }
     }
     
-    free(eigenvectors);
-    free(JCostFunction);
-    free(SwInverted);
+    free(eigenvectors); eigenvectors = NULL;
+    free(JCostFunction); JCostFunction = NULL;
+    free(SwInverted); SwInverted = NULL;
     
     return outputEigenvectors;
     
@@ -373,21 +381,21 @@
 
 -(RawType*)projectImageVectors:(float*)matrix ontoFisherLinearSpace:(float*)fisherSpace withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople {
     
-    RawType* fisherEigenvectorsTranspose __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&fisherEigenvectorsTranspose, 16, (numberOfPeople-1)*(numberOfImages-numberOfPeople)*sizeof(RawType)));
+    RawType* fisherEigenvectorsTranspose __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&fisherEigenvectorsTranspose, kAlignment, (numberOfPeople-1)*(numberOfImages-numberOfPeople)*sizeof(RawType)));
     
 //    RawType* fisherEigenvectorsTranspose = calloc((numberOfPeople-1)*(numberOfImages-numberOfPeople), sizeof(RawType));
     
     [_operator transposeFloatMatrix:fisherSpace transposed:fisherEigenvectorsTranspose columnHeight:(numberOfImages-numberOfPeople) rowWidth:(numberOfPeople-1) freeInput:NO];
     
-    RawType* projectedImages __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&projectedImages, 16, (numberOfPeople-1)*numberOfImages*sizeof(RawType)));
+    RawType* projectedImages __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&projectedImages, kAlignment, (numberOfPeople-1)*numberOfImages*sizeof(RawType)));
     
 //    RawType* projectedImages = calloc((numberOfPeople-1)*numberOfImages, sizeof(RawType));
     
     [_operator multiplyFloatMatrix:fisherEigenvectorsTranspose withFloatMatrix:matrix product:projectedImages matrixOneColumnHeight:(numberOfPeople-1) matrixOneRowWidth:(numberOfImages-numberOfPeople) matrixTwoRowWidth:numberOfImages freeInputs:NO];
     
-    free(fisherEigenvectorsTranspose);
+    free(fisherEigenvectorsTranspose); fisherEigenvectorsTranspose = NULL;
     return projectedImages;
     
 }

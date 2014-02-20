@@ -52,8 +52,8 @@
 #endif
 #ifdef NON_IMAGE_TESTS
 - (void) testAddImageWithoutFace {
-    NSString *imagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"car_image" ofType:@"png"];
-    UIImage *car = [UIImage imageWithContentsOfFile:imagePath];
+//    NSString *imagePath = [[NSBundle bundleForClass:[self class]] pathForResource:@"car_image" ofType:@"png"];
+//    UIImage *car = [UIImage imageWithContentsOfFile:imagePath];
 //    XCTAssertFalse([self.Robby detectFaceAndAddImage:car], @"Face detected");
 }
 #endif

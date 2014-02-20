@@ -49,20 +49,19 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = ""
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = "MallocStackLogging"
+            key = "MallocStackLoggingNoCompact"
             value = "1"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "MallocStackLoggingNoCompact"
+            key = "MallocCorruptionAbort"
+            value = "1"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "MallocCheckHeapAbort"
             value = "1"
             isEnabled = "YES">
          </EnvironmentVariable>
@@ -89,7 +88,7 @@
          <EnvironmentVariable
             key = "MallocGuardEdges"
             value = "1"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
       <AdditionalOptions>

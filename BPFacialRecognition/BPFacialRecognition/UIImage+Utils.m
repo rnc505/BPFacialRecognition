@@ -34,9 +34,9 @@
     UIImage *newImage = [UIImage imageWithCGImage:imageRef];
     
     // Release colorspace, context and bitmap information
-    CGColorSpaceRelease(colorSpace);
-    CGContextRelease(context);
-    CFRelease(imageRef);
+//    CGColorSpaceRelease(colorSpace);
+//    CGContextRelease(context);
+//    CFRelease(imageRef);
     
     // Return the new grayscale image
     return newImage;
@@ -62,8 +62,8 @@
     {
         fprintf(stderr, "Error allocating color space\n");
     }
-    void* bitmapData __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign(&bitmapData, 16, size.width*size.height));
+    void* bitmapData __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign(&bitmapData, kAlignment, size.width*size.height));
 //    void *bitmapData = malloc(size.width * size.height);
     if (bitmapData == NULL)
     {
@@ -72,7 +72,7 @@
     }
     
     CGContextRef context = CGBitmapContextCreate (bitmapData, size.width, size.height, 8, size.width * 1, colorSpace, kCGBitmapByteOrderDefault);
-    CGColorSpaceRelease(colorSpace );
+//    CGColorSpaceRelease(colorSpace );
     if (context == NULL)
     {
         fprintf (stderr, "Error: Context not created!");
@@ -81,17 +81,17 @@
     
     CGRect rect = (CGRect){.size = size};
     CGContextDrawImage(context, rect, self.CGImage);
-    Byte *byteData __attribute__((aligned(16))) = CGBitmapContextGetData (context);
-    CGContextRelease(context);
+    Byte *byteData __attribute__((aligned(kAlignment))) = CGBitmapContextGetData (context);
+//    CGContextRelease(context);
     
     NSData *data = [NSData dataWithBytes:byteData length:(size.width * size.height * 1)];
-    free(bitmapData);
+//    free(bitmapData);
     
-    Byte* intermediateData __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&intermediateData, 16, [data length]*sizeof(Byte)));
+    Byte* intermediateData __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&intermediateData, kAlignment, [data length]*sizeof(Byte)));
     
-    float* returnData __attribute__((aligned(16))) = NULL;
-    check_alloc_error(posix_memalign((void**)&returnData, 16, [data length]*sizeof(float)));
+    float* returnData __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&returnData, kAlignment, [data length]*sizeof(float)));
 //    Byte* intermediateData = calloc([data length], sizeof(Byte));
 //    float* returnData = calloc([data length], sizeof(float));
     
@@ -111,9 +111,9 @@
     //returnValue.rowBytes = sizeof(float);
     //returnValue.data = returnData;
     
-    //free(byteData);
-    free(intermediateData);
-    //free(returnData);
+//    free(byteData);
+//    free(intermediateData);
+//    free(returnData);
     
     
     return returnData; // returns in the PlanarF format -- single channel, 32-floating points, range 0 - 255
@@ -144,7 +144,8 @@
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
     if (colorSpace == NULL)
     {
-        fprintf(stderr, "Error allocating color space\n");\
+        fprintf(stderr, "Error allocating color space\n");
+        exit(-1);
     }
     
     // Create the bitmap context
@@ -153,6 +154,7 @@
     {
         fprintf (stderr, "Error: Context not created!");
         //CGColorSpaceRelease(colorSpace );
+        exit(-1);
     }
     
     // Convert to image
@@ -160,10 +162,11 @@
     UIImage *image = [UIImage imageWithCGImage:imageRef];
     
     // Clean up
-    CGColorSpaceRelease(colorSpace );
-    free(CGBitmapContextGetData(context)); // frees bytes
-    CGContextRelease(context);
-    CFRelease(imageRef);
+//    CFRelease(imageRef);
+//    CGColorSpaceRelease(colorSpace );
+//    free(CGBitmapContextGetData(context)); // frees bytes
+//    CGContextRelease(context);
+//    CFRelease(imageRef);/
     
     return image;
 }
