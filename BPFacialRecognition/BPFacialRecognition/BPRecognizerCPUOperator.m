@@ -8,6 +8,16 @@
 
 #import "BPRecognizerCPUOperator.h"
 
+extern void vDSP_vadd(
+                      const float *__vDSP_A,
+                      vDSP_Stride  __vDSP_IA,
+                      const float *__vDSP_B,
+                      vDSP_Stride  __vDSP_IB,
+                      float       *__vDSP_C,
+                      vDSP_Stride  __vDSP_IC,
+                      vDSP_Length  __vDSP_N)
+__OSX_AVAILABLE_STARTING(__MAC_10_0, __IPHONE_4_0);
+
 @implementation BPRecognizerCPUOperator
 -(void)copyVector:(void*)inputVector toVector:(void*)outputVector numberOfElements:(NSUInteger)elements offset:(NSUInteger)offset sizeOfType:(NSUInteger)typeSize {
     
@@ -72,7 +82,7 @@
 //    __CLPK_integer il = dimension - numberOfImportantValues + 1;
 //    __CLPK_integer ul = dimension;
     __CLPK_integer il = 1;
-    __CLPK_integer ul = numberOfImportantValues;
+    __CLPK_integer ul = (int)numberOfImportantValues;
     __CLPK_real abstol = -1,vl,vu;
     __CLPK_integer foundEigenvalues, info;
 //    __CLPK_integer* iwork = calloc(1, sizeof(__CLPK_integer));
@@ -80,7 +90,7 @@
 //    __CLPK_integer* isuppz = calloc(dimension, sizeof(__CLPK_integer));
     __CLPK_integer *isuppz __attribute__((aligned(kAlignment))) = NULL;
     check_alloc_error(posix_memalign((void**)&isuppz, kAlignment, dimension*sizeof(__CLPK_integer)));
-    __CLPK_integer lwork = -1, liwork = -1, n = dimension, lda = dimension;
+    __CLPK_integer lwork = -1, liwork = -1, n = (int)dimension, lda = (int)dimension;
 //    __CLPK_real* work = calloc(1, sizeof(__CLPK_real));
     
     __CLPK_real work = 0.f;
@@ -109,7 +119,7 @@
 }
 
 -(void)eigendecomposeFloatMatrix:(float*)inputMatrix intoEigenvalues:(float*)eigenvalues eigenvectors:(float*)eigenvectors numberOfImportantValues:(NSUInteger)numberOfImportantValues matrixDimension:(NSUInteger)dimension freeInput:(BOOL)shouldFreeInput {
-    __CLPK_integer n = dimension, lda = dimension, info,lwork =-1;
+    __CLPK_integer n = (int)dimension, lda = (int)dimension, info,lwork =-1;
     __CLPK_real wi[n] __attribute__((aligned(kAlignment))), wkopt = -1;
 //    __CLPK_real work = calloc(1, sizeof(__CLPK_real));
    
@@ -137,10 +147,10 @@
     
 //    __CLPK_integer *IPIV = calloc(dimension+1, sizeof(__CLPK_integer));
     __CLPK_integer IPIV[dimension+1]  __attribute__ ((aligned));
-    __CLPK_integer LWORK = dimension*dimension;
+    __CLPK_integer LWORK = (int)dimension*dimension;
 //    __CLPK_real *WORK = calloc(LWORK, sizeof(__CLPK_real));
     __CLPK_real WORK[LWORK]  __attribute__ ((aligned));
-    __CLPK_integer INFO, N = dimension;
+    __CLPK_integer INFO, N = (int) dimension;
     
     [self transposeFloatMatrix:inputMatrix transposed:outputMatrix columnHeight:dimension rowWidth:dimension freeInput:NO];
     

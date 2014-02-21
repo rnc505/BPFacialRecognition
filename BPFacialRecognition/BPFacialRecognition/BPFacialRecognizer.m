@@ -82,7 +82,7 @@
 }
 
 -(int*)personImageIndexes {
-    int LENGTH = [_people count];
+    int LENGTH = (int)[_people count];
     int *retVal = (int*)calloc(LENGTH+1, sizeof(int));
 //    NSMutableArray *retVal = [NSMutableArray new];
     int index = 0;

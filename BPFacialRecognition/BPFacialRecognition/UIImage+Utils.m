@@ -34,9 +34,9 @@
     UIImage *newImage = [UIImage imageWithCGImage:imageRef];
     
     // Release colorspace, context and bitmap information
-//    CGColorSpaceRelease(colorSpace);
-//    CGContextRelease(context);
-//    CFRelease(imageRef);
+    CGColorSpaceRelease(colorSpace);
+    CGContextRelease(context);
+    CFRelease(imageRef);
     
     // Return the new grayscale image
     return newImage;
@@ -72,7 +72,7 @@
     }
     
     CGContextRef context = CGBitmapContextCreate (bitmapData, size.width, size.height, 8, size.width * 1, colorSpace, kCGBitmapByteOrderDefault);
-//    CGColorSpaceRelease(colorSpace );
+    CGColorSpaceRelease(colorSpace );
     if (context == NULL)
     {
         fprintf (stderr, "Error: Context not created!");
@@ -82,10 +82,10 @@
     CGRect rect = (CGRect){.size = size};
     CGContextDrawImage(context, rect, self.CGImage);
     Byte *byteData __attribute__((aligned(kAlignment))) = CGBitmapContextGetData (context);
-//    CGContextRelease(context);
+    CGContextRelease(context);
     
     NSData *data = [NSData dataWithBytes:byteData length:(size.width * size.height * 1)];
-//    free(bitmapData);
+    free(bitmapData);
     
     Byte* intermediateData __attribute__((aligned(kAlignment))) = NULL;
     check_alloc_error(posix_memalign((void**)&intermediateData, kAlignment, [data length]*sizeof(Byte)));
@@ -162,11 +162,10 @@
     UIImage *image = [UIImage imageWithCGImage:imageRef];
     
     // Clean up
-//    CFRelease(imageRef);
-//    CGColorSpaceRelease(colorSpace );
-//    free(CGBitmapContextGetData(context)); // frees bytes
-//    CGContextRelease(context);
-//    CFRelease(imageRef);/
+    CFRelease(imageRef);
+    CGColorSpaceRelease(colorSpace );
+    free(CGBitmapContextGetData(context)); // frees bytes
+    CGContextRelease(context);
     
     return image;
 }

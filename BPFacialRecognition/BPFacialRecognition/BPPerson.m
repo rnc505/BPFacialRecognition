@@ -71,7 +71,7 @@
 }
 
 -(NSNumber*)count {
-    return [NSNumber numberWithUnsignedInt:[_grayscaledImages count]];
+    return [NSNumber numberWithUnsignedLong:[_grayscaledImages count]];
 }
 
 @end

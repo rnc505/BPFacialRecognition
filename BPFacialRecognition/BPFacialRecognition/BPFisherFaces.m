@@ -364,7 +364,7 @@
     
 //    RawType *outputEigenvectors = calloc((numberOfImages-numberOfPeople)*(numberOfPeople-1), sizeof(RawType));
     
-    int inputOffset = ((numberOfImages-numberOfPeople)-(numberOfPeople))*(numberOfImages-numberOfPeople)*sizeof(RawType);
+    NSUInteger inputOffset = ((numberOfImages-numberOfPeople)-(numberOfPeople))*(numberOfImages-numberOfPeople)*sizeof(RawType);
     
     
     memcpy(outputEigenvectors, eigenvectors+inputOffset, (numberOfImages-numberOfPeople)*(numberOfPeople-1)*sizeof(RawType));
