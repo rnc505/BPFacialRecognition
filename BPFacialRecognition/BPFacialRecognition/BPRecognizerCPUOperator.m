@@ -42,7 +42,7 @@
 
 -(void)addFloatMatrix:(float*)inputMatrixOne toFloatMatrix:(float*)inputMatrixTwo intoResultFloatMatrix:(float*)outputMatrix columnHeight:(NSUInteger)cHeight rowWidth:(NSUInteger)rWidth freeInput:(BOOL)shouldFreeInput {
     
-    vadd(inputMatrixOne, 1, inputMatrixTwo, 1, outputMatrix, 1, cHeight*rWidth);
+    vDSP_vadd(inputMatrixOne, 1, inputMatrixTwo, 1, outputMatrix, 1, cHeight*rWidth);
     if(shouldFreeInput) {
         free(inputMatrixOne); inputMatrixOne = NULL;
         free(inputMatrixTwo); inputMatrixTwo = NULL;
