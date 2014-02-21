@@ -8,15 +8,6 @@
 
 #import "BPRecognizerCPUOperator.h"
 
-extern void vDSP_vadd(
-                      const float *__vDSP_A,
-                      vDSP_Stride  __vDSP_IA,
-                      const float *__vDSP_B,
-                      vDSP_Stride  __vDSP_IB,
-                      float       *__vDSP_C,
-                      vDSP_Stride  __vDSP_IC,
-                      vDSP_Length  __vDSP_N)
-__OSX_AVAILABLE_STARTING(__MAC_10_0, __IPHONE_4_0);
 
 @implementation BPRecognizerCPUOperator
 -(void)copyVector:(void*)inputVector toVector:(void*)outputVector numberOfElements:(NSUInteger)elements offset:(NSUInteger)offset sizeOfType:(NSUInteger)typeSize {
@@ -147,7 +138,7 @@ __OSX_AVAILABLE_STARTING(__MAC_10_0, __IPHONE_4_0);
     
 //    __CLPK_integer *IPIV = calloc(dimension+1, sizeof(__CLPK_integer));
     __CLPK_integer IPIV[dimension+1]  __attribute__ ((aligned));
-    __CLPK_integer LWORK = (int)dimension*dimension;
+    __CLPK_integer LWORK = ((int)dimension*((int)dimension));
 //    __CLPK_real *WORK = calloc(LWORK, sizeof(__CLPK_real));
     __CLPK_real WORK[LWORK]  __attribute__ ((aligned));
     __CLPK_integer INFO, N = (int) dimension;
