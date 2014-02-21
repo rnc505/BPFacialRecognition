@@ -473,5 +473,25 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
 }
 #endif
 
+#ifdef NON_IMAGE_TESTS
+-(void)testInPlaceVectorAddition {
+    RawType* a = calloc(100, sizeof(RawType));
+    RawType* b = calloc(100, sizeof(RawType));
+    int product = 0, result = 0;
+    for (int i = 0; i < 100; ++i) {
+        a[i] = i*2;
+        b[i] = (i+1)*3;
+        product += i*2 + (i+1)*3;
+    }
+    [_operator addFloatMatrix:a toFloatMatrix:b intoResultFloatMatrix:a columnHeight:10 rowWidth:10 freeInput:NO];
+    for(int i = 0; i < 100; ++i) {
+        result += a[i];
+    }
+    
+    XCTAssertEqual(product, result, @"Should've added in place correctly");
+    
+    
+}
+#endif
 
 @end

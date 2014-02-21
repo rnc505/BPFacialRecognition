@@ -91,7 +91,7 @@
 //    RawType *scatterWithin = calloc((numberOfImages-[_dataSource totalNumberOfPeople])*(numberOfImages-[_dataSource totalNumberOfPeople]), sizeof(RawType));
     
     RawType* scatterBetween __attribute__((aligned(kAlignment))) = NULL;
-    check_alloc_error(posix_memalign((void**)&scatterBetween, kAlignment, (numberOfImages-[_dataSource totalNumberOfPeople])*(numberOfImages-[_dataSource totalNumberOfPeople])));
+    check_alloc_error(posix_memalign((void**)&scatterBetween, kAlignment, (numberOfImages-[_dataSource totalNumberOfPeople])*(numberOfImages-[_dataSource totalNumberOfPeople])*sizeof(RawType)));
     
 //    RawType *scatterBetween = calloc((numberOfImages-[_dataSource totalNumberOfPeople])*(numberOfImages-[_dataSource totalNumberOfPeople]), sizeof(RawType));
     
@@ -118,7 +118,7 @@
     _meanImage = [NSData dataWithBytes:mean length:sizeof(RawType)*kSizeDimension*kSizeDimension];
     _covarianceEigenvectors = [NSData dataWithBytes:eigenvectors length:sizeof(RawType)*kSizeDimension*kSizeDimension*(numberOfImages-[_dataSource totalNumberOfPeople])];
     _largestEigenvectorsOfWork = [NSData dataWithBytes:J_Eigenvectors length:sizeof(RawType)*(numberOfImages-[_dataSource totalNumberOfPeople])*([_dataSource totalNumberOfPeople] - 1)];
-    _projectedImages = [NSData dataWithBytes:Projected_Images length:([_dataSource totalNumberOfPeople] - 1)*numberOfImages];
+    _projectedImages = [NSData dataWithBytes:Projected_Images length:([_dataSource totalNumberOfPeople] - 1)*numberOfImages*sizeof(RawType)];
     
     
     free(Projected_Images); Projected_Images = NULL;
@@ -297,15 +297,16 @@
     check_alloc_error(posix_memalign((void**)&scatterBetweenBuffer, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* scatterBetweenBuffer = calloc(numberOfImages - numberOfPeople, sizeof(RawType));
     
-    NSArray* indices = [[NSArray alloc] initWithArray:[_dataSource personImageIndexes] copyItems:YES];
+//    NSArray* indices = [[NSArray alloc] initWithArray:[_dataSource personImageIndexes] copyItems:YES];
+    int *indices = [_dataSource personImageIndexes];
     for (int i = 0; i < numberOfPeople; ++i) {
         [self zeroBuffer:scatterBuffer numberOfValues:(numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)];
 
-        int startIndex = [[indices objectAtIndex:i] integerValue];
-        int endIndex = [[indices objectAtIndex:i+1] integerValue] - 1;
-        RawType* currentLocationInput __attribute__((aligned(kAlignment))) = eigenspace + startIndex*(numberOfImages-numberOfPeople)*numberOfImages;
-        RawType* currentLocationOutput __attribute__((aligned(kAlignment))) = innerMean + startIndex*(numberOfImages-numberOfPeople);
-        [_operator columnWiseMeanOfFloatMatrix:currentLocationInput toFloatVector:currentLocationOutput columnHeight:(numberOfImages-numberOfPeople) rowWidth:(endIndex-startIndex) freeInput:NO];
+        int startIndex = indices[i];
+        int endIndex = indices[i+1] - 1;
+        RawType* currentLocationInput __attribute__((aligned(kAlignment))) = eigenspace + startIndex*(numberOfImages-numberOfPeople);
+        RawType* currentLocationOutput __attribute__((aligned(kAlignment))) = innerMean + startIndex;
+        [_operator columnWiseMeanOfFloatMatrix:currentLocationInput toFloatVector:currentLocationOutput columnHeight:(numberOfImages-numberOfPeople) rowWidth:(endIndex-startIndex)+1 freeInput:NO];
         for(int j = startIndex; j <= endIndex; ++j) {
             [_operator copyVector:eigenspace+j*(numberOfImages-numberOfPeople) toVector:multiplicationTemporary numberOfElements:(numberOfImages-numberOfPeople) offset:0 sizeOfType:sizeof(RawType)];
             
@@ -331,7 +332,7 @@
         
         
     }
-    
+    free(indices); indices = NULL;
     free(scatterBetweenBuffer); scatterBetweenBuffer = NULL;
     free(multiplicationTemporaryTranspose); multiplicationTemporaryTranspose = NULL;
     free(multiplicationTemporary); multiplicationTemporary = NULL;
@@ -363,13 +364,18 @@
     
 //    RawType *outputEigenvectors = calloc((numberOfImages-numberOfPeople)*(numberOfPeople-1), sizeof(RawType));
     
-    for (int i = ((numberOfImages-numberOfPeople)-(numberOfPeople-1)); i < (numberOfImages-numberOfPeople); ++i) {
-        for (int j = 0; j < (numberOfImages-numberOfPeople)*(numberOfImages-numberOfPeople); j+=(numberOfImages-numberOfPeople)) {
-            
-            outputEigenvectors[i+j] = eigenvectors[i+j];
-            
-        }
-    }
+    int inputOffset = ((numberOfImages-numberOfPeople)-(numberOfPeople))*(numberOfImages-numberOfPeople)*sizeof(RawType);
+    
+    
+    memcpy(outputEigenvectors, eigenvectors+inputOffset, (numberOfImages-numberOfPeople)*(numberOfPeople-1)*sizeof(RawType));
+    
+//    for (int i = ((numberOfImages-numberOfPeople)-(numberOfPeople-1)); i < (numberOfImages-numberOfPeople); ++i) {
+//        for (int j = 0; j < (numberOfImages-numberOfPeople)*(numberOfImages-numberOfPeople); j+=(numberOfImages-numberOfPeople)) {
+//            
+////            outputEigenvectors[i+j] = eigenvectors[i+j];
+//            
+//        }
+//    }
     
     free(eigenvectors); eigenvectors = NULL;
     free(JCostFunction); JCostFunction = NULL;

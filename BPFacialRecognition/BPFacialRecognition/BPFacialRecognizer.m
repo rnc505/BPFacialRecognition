@@ -81,20 +81,23 @@
     return [_people count];
 }
 
--(NSArray*)personImageIndexes {
-    NSMutableArray *retVal = [NSMutableArray new];
-    NSInteger index = 0;
-    for (BPPerson *person in _people) {
-        [retVal addObject:[NSNumber numberWithInt:index]];
-        index += [[person getPersonsImages] count];
+-(int*)personImageIndexes {
+    int LENGTH = [_people count];
+    int *retVal = (int*)calloc(LENGTH+1, sizeof(int));
+//    NSMutableArray *retVal = [NSMutableArray new];
+    int index = 0;
+//    retVal[0] = [_people count]+2; // store the size within the array
+    for (int i = 0; i < LENGTH; ++i) {
+        retVal[i] = index;
+        index += (int)[[_people[i] getPersonsImages] count];
     }
-    // endpost
-    [retVal addObject:[NSNumber numberWithInt:index]];
-    for (int i = 0; i < retVal.count; ++i) {
-        if([retVal[0] intValue] < 0) {
-            NSLog(@"asfasdfaSF");
-        }
-    }
+//    for (BPPerson *person in _people) {
+//        
+////        [retVal addObject:[NSNumber numberWithInt:index]];
+////        index += [[person getPersonsImages] count];
+//    }
+    retVal[LENGTH] = index;  // endpost
+//    [retVal addObject:[NSNumber numberWithInt:index]];
     return retVal;
 }
 
