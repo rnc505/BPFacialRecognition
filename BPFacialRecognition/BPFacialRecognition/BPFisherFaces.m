@@ -11,6 +11,7 @@
 #import <UIKit/UIKit.h>
 #import "BPRecognizerCPUOperator.h"
 #import "UIImage+Utils.h"
+#pragma mark - Private Interface
 @interface BPFisherFaces ()
 @property (nonatomic, weak) id<BPFisherFacesDataSource> dataSource;
 @property (nonatomic, retain) BPRecognizerCPUOperator *operator;
@@ -19,7 +20,11 @@
 @property (nonatomic, retain) NSData *largestEigenvectorsOfWork;
 @property (nonatomic, retain) NSData *projectedImages;
 
+#pragma mark -  Private Recognizer Interface
+-(RawType*)projectImageToRecognize:(RawType*)testImg withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople;
+-(RawType*)euclideanDistancesBetweenProjectedTestImage:(RawType*)testImg projectedTrainingImages:(RawType*)training withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople;
 
+#pragma mark - Private Trainer Interface
 -(RawType*)createImageMatrixWithNumberOfImages:(NSUInteger)numberOfImages;
 -(RawType*)normalizeImageMatrix:(RawType*)matrix withNumberOfImages:(NSUInteger)numberOfImages;
 -(RawType*)createSurrogateCovarianceFromMatrix:(RawType*)matrix withNumberOfImages:(NSUInteger)numberOfImages;
@@ -31,8 +36,9 @@
 -(RawType*)calculateEigenvectorsFromNonsymmetricInputMatrix:(RawType*)matrix withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople;
 -(RawType*)calculateEigenvectorsFromScatterWithin:(RawType*)Sw fromScatterBetween:(RawType*)Sb withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople;
 -(RawType*)projectImageVectors:(float*)matrix ontoFisherLinearSpace:(float*)fisherSpace withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople;
-@end
 
+@end
+#pragma mark - Public Implementation
 @implementation BPFisherFaces
 +(BPFisherFaces *)createFisherFaceAlgorithmWithDataSource:(id<BPFisherFacesDataSource>)dataSource {
     
@@ -132,9 +138,98 @@
     free(oneDVector); oneDVector = NULL;
 }
 
--(BPRecognitionResult *)recognizeImage:(UIImage *)image {
-    return nil;
+-(RecResult)recognizeImage:(UIImage *)image {
+    NSInteger numberOfPeople = [_dataSource totalNumberOfPeople];
+    RawType* imageData __attribute__((aligned(kAlignment))) = [[image resizedAndGrayscaledSquareImageOfDimension:kSizeDimension] vImageDataWithFloats];
+    
+    
+    /*
+            Normalize the input image
+     */
+    [_operator subtractFloatVector:(RawType*)[_meanImage bytes] fromFloatVector:imageData numberOfElements:kSizeDimension*kSizeDimension freeInput:NO];
+    
+    /*
+            Project the image to recognize and get the feature vector.
+     */
+    
+    RawType* projectedImage __attribute__((aligned(kAlignment))) = [self projectImageToRecognize:imageData withNumberOfImages:[_dataSource totalNumberOfImages] withNumberOfPeople:numberOfPeople];
+    
+    /*
+     
+            Get the Euclidean distances between the test image and all of the training images
+     */
+    
+    RawType* distances __attribute__((aligned(kAlignment))) = [self euclideanDistancesBetweenProjectedTestImage:projectedImage projectedTrainingImages:(void*)[_projectedImages bytes] withNumberOfImages:[_dataSource totalNumberOfImages] withNumberOfPeople:numberOfPeople];
+    
+    RawType minDist = 0.f; unsigned long minIndex = 0;
+    vDSP_minvi(distances, 1, &minDist, &minIndex, numberOfPeople-1);
+    
+    //minIndex contains the index of the person who it is
+    RecResult result;
+    result.position = minIndex;
+    result.distance = minDist;
+    return result;
 }
+
+#pragma mark - Private Recognizer Implementation
+
+
+-(RawType *)projectImageToRecognize:(RawType *)testImg withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople {
+    RawType* LargestEigenvectorsTranspose __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&LargestEigenvectorsTranspose, kAlignment, (numberOfImages-numberOfPeople)*(numberOfPeople-1)*sizeof(RawType)));
+    
+    [_operator transposeFloatMatrix:(RawType*)[_largestEigenvectorsOfWork bytes] transposed:LargestEigenvectorsTranspose columnHeight:(numberOfImages-numberOfPeople) rowWidth:(numberOfPeople-1) freeInput:NO];
+    
+    RawType* CovarianceEigenvectorsTranspose __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&CovarianceEigenvectorsTranspose, kAlignment, (numberOfImages-numberOfPeople)*kSizeDimension*kSizeDimension*sizeof(RawType)));
+    
+    [_operator transposeFloatMatrix:(RawType*)[_covarianceEigenvectors bytes] transposed:CovarianceEigenvectorsTranspose columnHeight:kSizeDimension*kSizeDimension rowWidth:(numberOfImages-numberOfPeople) freeInput:NO];
+    
+    RawType* intermediateMultiplication __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&intermediateMultiplication, kAlignment, (numberOfImages-numberOfPeople)*kSizeDimension*kSizeDimension*sizeof(RawType)));
+    
+    [_operator multiplyFloatMatrix:LargestEigenvectorsTranspose withFloatMatrix:CovarianceEigenvectorsTranspose product:intermediateMultiplication matrixOneColumnHeight:numberOfImages-numberOfPeople matrixOneRowWidth:numberOfPeople-1 matrixTwoRowWidth:kSizeDimension*kSizeDimension freeInputs:NO];
+    
+    RawType* retVal __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&retVal, kAlignment, (numberOfImages-numberOfPeople)*sizeof(RawType)));
+    
+    [_operator multiplyFloatMatrix:intermediateMultiplication withFloatMatrix:testImg product:retVal matrixOneColumnHeight:numberOfImages-numberOfPeople matrixOneRowWidth:kSizeDimension*kSizeDimension matrixTwoRowWidth:1 freeInputs:NO];
+    
+    free(intermediateMultiplication); intermediateMultiplication = NULL;
+    free(CovarianceEigenvectorsTranspose); CovarianceEigenvectorsTranspose = NULL;
+    free(LargestEigenvectorsTranspose); LargestEigenvectorsTranspose = NULL;
+    
+    return retVal;
+    
+}
+
+-(RawType *)euclideanDistancesBetweenProjectedTestImage:(RawType *)testImg projectedTrainingImages:(RawType *)training withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople {
+    
+    RawType* distances __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&distances, kAlignment, numberOfImages*sizeof(RawType)));
+    
+    RawType* currentTraining __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&currentTraining, kAlignment, (numberOfImages-1)*sizeof(RawType)));
+    
+    RawType* tmpTest __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&tmpTest, kAlignment, (numberOfPeople-1)*sizeof(RawType)));
+    
+    for (int i = 0; i < numberOfImages; ++i) {
+        [_operator copyVector:training+i*(numberOfPeople-1) toVector:currentTraining numberOfElements:numberOfPeople-1 sizeOfType:sizeof(RawType)];
+        [_operator copyVector:testImg toVector:tmpTest numberOfElements:numberOfPeople-1 sizeOfType:sizeof(RawType)];
+        
+        [_operator subtractFloatVector:currentTraining fromFloatVector:tmpTest numberOfElements:numberOfPeople-1 freeInput:NO];
+        
+        cblas_sscal(numberOfPeople-1, 1.0 / cblas_snrm2(numberOfPeople-1, testImg, 1), testImg, 1); // NORMALIZE VECTOR
+        
+        vsq(testImg, 1, testImg, 1, numberOfPeople-1); // square each element
+        vDSP_sve(testImg, 1, distances+1, numberOfPeople-1); // sum and add this euclidean distance to the array
+    }
+    
+    
+    return distances;
+}
+#pragma mark - Private Trainer Implementation
 
 -(RawType*)createImageMatrixWithNumberOfImages:(NSUInteger)numberOfImages {
     RawType* retVal __attribute__((aligned(kAlignment))) = NULL;
@@ -143,7 +238,7 @@
 //    RawType* retVal = (RawType*) calloc(kSizeDimension * kSizeDimension * numberOfImages, sizeof(float));
     int currentPosition = 0;
     for (UIImage* img in [_dataSource totalImageSet]) {
-        float* vImg __attribute__((aligned(kAlignment))) = [img vImageDataWithFloats];
+        RawType* vImg __attribute__((aligned(kAlignment))) = [img vImageDataWithFloats];
         [_operator copyVector:vImg toVector:retVal numberOfElements:kSizeDimension*kSizeDimension offset:currentPosition sizeOfType:sizeof(RawType)];
         ++currentPosition;
         free(vImg); vImg = NULL;

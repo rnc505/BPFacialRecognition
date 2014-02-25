@@ -74,4 +74,8 @@
     return [NSNumber numberWithUnsignedLong:[_grayscaledImages count]];
 }
 
+-(NSString *)description {
+    return  [NSString stringWithFormat:@"Person: %@",_name];
+}
+
 @end

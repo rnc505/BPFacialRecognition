@@ -11,7 +11,6 @@
 @interface BPRecognitionResult : NSObject
 
 +(BPRecognitionResult*)resultWithPerson:(BPPerson*)person withConfidence:(double)confidence;
-
 -(BPPerson*)person;
 -(double)confidence;
 

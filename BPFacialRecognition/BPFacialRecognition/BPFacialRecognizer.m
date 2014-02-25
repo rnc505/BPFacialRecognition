@@ -44,8 +44,8 @@
         NSLog(@"Recognizer needs to be trained before recongizing. Please call -train on on Recognizer. Returning nil.");
         return nil;
     }
-    
-    return [_operator recognizeImage:image];
+    RecResult result = [_operator recognizeImage:image];
+    return [BPRecognitionResult resultWithPerson:_people[result.position] withConfidence:result.distance];
 }
 
 -(BOOL)doesUnknownImage:(UIImage*)image matchPerson:(BPPerson*)person {

@@ -19,5 +19,5 @@
 @interface BPFisherFaces : NSObject
 +(BPFisherFaces*)createFisherFaceAlgorithmWithDataSource:(id<BPFisherFacesDataSource>)dataSource;
 -(void)train;
--(BPRecognitionResult*)recognizeImage:(UIImage*)image;
+-(RecResult)recognizeImage:(UIImage*)image;
 @end
