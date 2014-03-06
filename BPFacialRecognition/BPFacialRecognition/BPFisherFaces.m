@@ -164,6 +164,9 @@
     RawType minDist = 0.f; unsigned long minIndex = 0;
     vDSP_minvi(distances, 1, &minDist, &minIndex, numberOfPeople-1);
     
+    free(distances); distances = NULL;
+    free(projectedImage); projectedImage = NULL;
+    free(imageData); projectedImage = NULL;
     //minIndex contains the index of the person who it is
     RecResult result;
     result.position = minIndex;

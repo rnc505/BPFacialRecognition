@@ -172,7 +172,8 @@
     BPRecognitionResult* result = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test1" withExtension:@"png"]];
     XCTAssertEqualObjects(Jack, [result person], @"People don't equal");
     BPRecognitionResult* result1 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test2" withExtension:@"png"]];
-    XCTAssertEqualObjects(Fred, [result1 person], @"People don't equal.");
+    XCTAssertEqualObjects(Fred, [result1 person], @"People don't equal");
+    NSLog(@" ");
 }
 #endif
 
