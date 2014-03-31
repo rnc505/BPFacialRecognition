@@ -468,7 +468,7 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
 -(void)testUnderstandingImageRawData {
     UIImage *img = [UIImage imageWithFilename:@"face_image" withExtension:@"png"];
     NSData* data = UIImagePNGRepresentation(img);
-    NSLog(@"number of bytes: %d", [data length]);
+    NSLog(@"number of bytes: %lu", (unsigned long)[data length]);
     NSLog(@"image dimensions: %@", NSStringFromCGSize(img.size));
 }
 #endif

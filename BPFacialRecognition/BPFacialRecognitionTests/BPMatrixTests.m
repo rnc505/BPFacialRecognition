@@ -244,6 +244,35 @@
 
 }
 
+- (void)testInvertMatrix2 {
+    BPMatrix* A = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    //Inverse[{{1, 3, 2}, {5, 1, 9}, {8, 8, 3}}]
+    APointer[0] = 1.f;
+    APointer[1] = 3.f;
+    APointer[2] = 2.f;
+    APointer[3] = 5.f;
+    APointer[4] = 1.f;
+    APointer[5] = 9.f;
+    APointer[6] = 8.f;
+    APointer[7] = 8.f;
+    APointer[8] = 3.f;
+    [A invertMatrix]; APointer = [A getMutableData];
+    //{{-69/166, 7/166, 25/166}, {57/166, -13/166, 1/166}, {16/83, 8/83, -7/83}}
+    XCTAssertEqualWithAccuracy(-69.f/166, APointer[0], .01, @"Inversion occured incorrectly");
+    XCTAssertEqualWithAccuracy(7.f/166, APointer[1], .01, @"Inversion occured incorrectly");
+    XCTAssertEqualWithAccuracy(25.f/166, APointer[2], .01, @"Inversion occured incorrectly");
+    
+    XCTAssertEqualWithAccuracy(57.f/166, APointer[3], .01, @"Inversion occured incorrectly");
+    XCTAssertEqualWithAccuracy(-13.f/166, APointer[4], .01, @"Inversion occured incorrectly");
+    XCTAssertEqualWithAccuracy(1.f/166, APointer[5], .01, @"Inversion occured incorrectly");
+    
+    XCTAssertEqualWithAccuracy(16.f/83, APointer[6], .01, @"Inversion occured incorrectly");
+    XCTAssertEqualWithAccuracy(8.f/83, APointer[7], .01, @"Inversion occured incorrectly");
+    XCTAssertEqualWithAccuracy(-7.f/83, APointer[8], .01, @"Inversion occured incorrectly");
+
+}
+
 - (void)testEigendecomposeSymmetric {
     BPMatrix* A = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
     RawType* APointer = [A getMutableData];
@@ -262,5 +291,35 @@
     
     // we are going to assume vectors are correct, but if shit breaks, we gotta write a test for it #TODO
 }
+
+- (void)testEigendecomposeNonsymmetric {
+    BPMatrix* A = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    //Inverse[{{1, 3, 2}, {5, 1, 9}, {8, 8, 3}}]
+    APointer[0] = 1.f;
+    APointer[1] = 3.f;
+    APointer[2] = 2.f;
+    APointer[3] = 5.f;
+    APointer[4] = 1.f;
+    APointer[5] = 9.f;
+    APointer[6] = 8.f;
+    APointer[7] = 8.f;
+    APointer[8] = 3.f;
+    [A eigendecomposeIsSymmetric:NO withNumberOfValues:3 withNumberOfVectors:9];
+    
+    BPMatrix *eigenvalues = [A eigenvalues];
+    RawType* eigenvaluesPointer = (void*)[eigenvalues getData];
+    //BPMatrix* eigenvectors = [A eigenvectors];
+    //RawType* eigenvectorsPointer = (void*)[eigenvectors getData];
+
+    XCTAssertEqualWithAccuracy(13.215, eigenvaluesPointer[0], 0.01, @"Eigendecompose occured incorrectly");
+    XCTAssertEqualWithAccuracy(-2.03142, eigenvaluesPointer[1], 0.01, @"Eigendecompose occured incorrectly");
+    XCTAssertEqualWithAccuracy(-6.18359, eigenvaluesPointer[2], 0.01, @"Eigendecompose occured incorrectly");
+    
+    // we are going to assume vectors are correct, but if shit breaks, we gotta write a test for it #TODO
+    
+}
+
+
 
 @end

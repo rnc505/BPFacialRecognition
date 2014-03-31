@@ -11,6 +11,7 @@
 #import <UIKit/UIKit.h>
 #import "BPRecognizerCPUOperator.h"
 #import "UIImage+Utils.h"
+#import "BPMatrix.h"
 #pragma mark - Private Interface
 @interface BPFisherFaces ()
 @property (nonatomic, weak) id<BPFisherFacesDataSource> dataSource;
