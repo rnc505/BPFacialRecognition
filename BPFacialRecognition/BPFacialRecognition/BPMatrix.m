@@ -18,6 +18,7 @@
 -(id)initWithWidth:(NSUInteger)width withHeight:(NSUInteger)height withPrimitiveSize:(NSUInteger)size;
 -(id)initWithWidth:(NSUInteger)width withHeight:(NSUInteger)height withPrimitiveSize:(NSUInteger)size withMemory:(void*)memory;
 -(void*)allocateNewMemoryOfDimension:(CGSize)dimensions ofPrimitiveSize:(NSUInteger)size;
+-(BPMatrix*)_internalTranspose;
 @end
 @implementation BPMatrix
 
@@ -57,12 +58,20 @@
 -(const void *)getData {
     return [_data bytes];
 }
+-(void *)getMutableData {
+    return [_data mutableBytes];
+}
 
 -(BPMatrix*)transpose {
+    [self _internalTranspose];
+    swap(_width, _height);
+    return self;
+}
+
+-(BPMatrix*)_internalTranspose {
     void* newMemory = [self allocateNewMemoryOfDimension:CGSizeMake(_height, _width) ofPrimitiveSize:_size];
     [_operator transposeFloatMatrix:(void*)[self getData] transposed:newMemory columnHeight:_height rowWidth:_width freeInput:NO];
     _data = [NSData dataWithBytesNoCopy:newMemory length:_height*_width*_size freeWhenDone:YES];
-    swap(_width, _height);
     return self;
 }
 
