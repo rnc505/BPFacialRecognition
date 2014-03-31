@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D512B47318E5E6B500601738 /* BPMatrix.m in Sources */ = {isa = PBXBuildFile; fileRef = D512B47218E5E6B500601738 /* BPMatrix.m */; };
+		D512B47818E9142A00601738 /* BPMatrixTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D512B47718E9142A00601738 /* BPMatrixTests.m */; };
 		D535A7D918E277B40012F6D1 /* BPUtil.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D59AC8DA18A43A41007772EF /* BPUtil.h */; };
 		D535A7DA18E277BB0012F6D1 /* BPFisherFaces.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D56F0C7C18A87EDF008E4ECE /* BPFisherFaces.h */; };
 		D535A7DB18E277C00012F6D1 /* Defines.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D5D4E02718B3BFDA000FDD23 /* Defines.h */; };
@@ -116,6 +117,7 @@
 /* Begin PBXFileReference section */
 		D512B47118E5E6B500601738 /* BPMatrix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPMatrix.h; sourceTree = "<group>"; };
 		D512B47218E5E6B500601738 /* BPMatrix.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BPMatrix.m; sourceTree = "<group>"; };
+		D512B47718E9142A00601738 /* BPMatrixTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BPMatrixTests.m; sourceTree = "<group>"; };
 		D535A7DF18E279440012F6D1 /* BPPreRecognitionResult.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BPPreRecognitionResult.h; sourceTree = "<group>"; };
 		D535A7E018E279440012F6D1 /* BPPreRecognitionResult.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BPPreRecognitionResult.m; sourceTree = "<group>"; };
 		D539E4B0189B626F00958964 /* face_image2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = face_image2.png; sourceTree = "<group>"; };
@@ -300,6 +302,7 @@
 				D5AF86111891784C009A42D0 /* BPRecognitionResultTests.m */,
 				D5DFC99F18A341FA0024FC6B /* BPRecognizerOperatorTests.m */,
 				D5D4E02718B3BFDA000FDD23 /* Defines.h */,
+				D512B47718E9142A00601738 /* BPMatrixTests.m */,
 			);
 			path = BPFacialRecognitionTests;
 			sourceTree = "<group>";
@@ -491,6 +494,7 @@
 			files = (
 				D5DFC9A018A341FA0024FC6B /* BPRecognizerOperatorTests.m in Sources */,
 				D5AF861018917838009A42D0 /* BPPersonTests.m in Sources */,
+				D512B47818E9142A00601738 /* BPMatrixTests.m in Sources */,
 				D5999EF21892D8F80000CF6C /* BPFacialRecognizerTests.m in Sources */,
 				D5999EF31892D8FD0000CF6C /* BPRecognitionResultTests.m in Sources */,
 			);

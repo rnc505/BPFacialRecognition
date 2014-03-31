@@ -419,7 +419,7 @@ void print_matrix( char* desc, int m, int n, float* a, int lda ) {
     check_alloc_error(posix_memalign((void**)&Ainverse, kAlignment, num*num*sizeof(RawType)));
     
     [_operator invertFloatMatrix:A intoResult:Ainverse matrixDimension:num freeInput:NO];
-    print_matrix("Inverted Matrix", num, num, Ainverse, num);
+    //print_matrix("Inverted Matrix", num, num, Ainverse, num);
     
 }
 #endif

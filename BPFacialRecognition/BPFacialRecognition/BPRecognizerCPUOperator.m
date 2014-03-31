@@ -80,7 +80,7 @@
     __CLPK_integer iwork = 0;
 //    __CLPK_integer* isuppz = calloc(dimension, sizeof(__CLPK_integer));
     __CLPK_integer *isuppz __attribute__((aligned(kAlignment))) = NULL;
-    check_alloc_error(posix_memalign((void**)&isuppz, kAlignment, dimension*sizeof(__CLPK_integer)));
+    check_alloc_error(posix_memalign((void**)&isuppz, kAlignment, 2*dimension*sizeof(__CLPK_integer)));
     __CLPK_integer lwork = -1, liwork = -1, n = (int)dimension, lda = (int)dimension;
 //    __CLPK_real* work = calloc(1, sizeof(__CLPK_real));
     
@@ -138,15 +138,17 @@
     
 //    __CLPK_integer *IPIV = calloc(dimension+1, sizeof(__CLPK_integer));
     __CLPK_integer IPIV[dimension+1]  __attribute__ ((aligned));
-    __CLPK_integer LWORK = ((int)dimension*((int)dimension));
+    __CLPK_integer LWORK = ((__CLPK_integer)dimension*((__CLPK_integer)dimension));
 //    __CLPK_real *WORK = calloc(LWORK, sizeof(__CLPK_real));
     __CLPK_real WORK[LWORK]  __attribute__ ((aligned));
-    __CLPK_integer INFO, N = (int) dimension;
+    __CLPK_integer INFO, N = (__CLPK_integer) dimension;
     
-    [self transposeFloatMatrix:inputMatrix transposed:outputMatrix columnHeight:dimension rowWidth:dimension freeInput:NO];
-    
+//    [self transposeFloatMatrix:inputMatrix transposed:outputMatrix columnHeight:dimension rowWidth:dimension freeInput:NO];
+    [self copyVector:inputMatrix toVector:outputMatrix numberOfElements:dimension*dimension sizeOfType:sizeof(RawType)];
     sgetrf_(&N,&N,outputMatrix,&N,IPIV,&INFO);
     sgetri_(&N,outputMatrix,&N,IPIV,WORK,&LWORK,&INFO);
+    
+//    [self transposeFloatMatrix:outputMatrix transposed:outputMatrix columnHeight:dimension rowWidth:dimension freeInput:NO];
     
     //free(IPIV);
     //free(WORK);

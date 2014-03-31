@@ -27,9 +27,10 @@
 -(BPMatrix*)duplicate;
 -(BPMatrix*)meanOfRows;
 -(BPMatrix*)subtractedBy:(BPMatrix*)rightMatrix;
--(BPMatrix*)eigendecompose:(BOOL)isSymmetric withNumberOfValues:(NSUInteger)eigenval withNumberOfVectors:(NSUInteger)eigenvec;
+-(BPMatrix*)eigendecomposeIsSymmetric:(BOOL)isSymmetric withNumberOfValues:(NSUInteger)eigenval withNumberOfVectors:(NSUInteger)eigenvec;
 -(BPMatrix*)addBy:(BPMatrix*)rightMatrix;
 -(BPMatrix*)zeroOutData;
 -(BPMatrix*)invertMatrix;
+
 
 @end

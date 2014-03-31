@@ -44,7 +44,7 @@
         _width = width;
         _height = height;
         _size = size;
-        _data = [NSData dataWithBytesNoCopy:memory length:_width*_height*_size freeWhenDone:YES];
+        _data = [NSMutableData dataWithBytesNoCopy:memory length:_width*_height*_size freeWhenDone:YES];
         _operator = [BPRecognizerCPUOperator new];
         _eigenvalues = nil;
         _eigenvectors = nil;
@@ -71,7 +71,7 @@
 -(BPMatrix*)_internalTranspose {
     void* newMemory = [self allocateNewMemoryOfDimension:CGSizeMake(_height, _width) ofPrimitiveSize:_size];
     [_operator transposeFloatMatrix:(void*)[self getData] transposed:newMemory columnHeight:_height rowWidth:_width freeInput:NO];
-    _data = [NSData dataWithBytesNoCopy:newMemory length:_height*_width*_size freeWhenDone:YES];
+    _data = [NSMutableData dataWithBytesNoCopy:newMemory length:_height*_width*_size freeWhenDone:YES];
     return self;
 }
 
@@ -95,7 +95,7 @@
     void* newMem = [self allocateNewMemoryOfDimension:CGSizeMake(_height, [rightMatrix width]) ofPrimitiveSize:_size];
     [_operator multiplyFloatMatrix:(void*)[self getData] withFloatMatrix:(void*)[rightMatrix getData] product:newMem matrixOneColumnHeight:_height matrixOneRowWidth:_width matrixTwoRowWidth:[rightMatrix width] freeInputs:NO];
     _width = [rightMatrix width];
-    _data = [NSData dataWithBytesNoCopy:newMem length:_height*_width*_size freeWhenDone:YES];
+    _data = [NSMutableData dataWithBytesNoCopy:newMem length:_height*_width*_size freeWhenDone:YES];
     return self;
 }
 
@@ -114,20 +114,22 @@
     [_operator subtractFloatVector:(void*)[rightMatrix getData] fromFloatVector:[self getMutableData] numberOfElements:_height*_width freeInput:NO];
     return self;
 }
--(BPMatrix*)eigendecompose:(BOOL)isSymmetric withNumberOfValues:(NSUInteger)eigenval withNumberOfVectors:(NSUInteger)eigenvec{
+-(BPMatrix*)eigendecomposeIsSymmetric:(BOOL)isSymmetric withNumberOfValues:(NSUInteger)eigenval withNumberOfVectors:(NSUInteger)eigenvec{
     void *newEigenvalues = [self allocateNewMemoryOfDimension:CGSizeMake(eigenval, 1) ofPrimitiveSize:_size];
     void *newEigenvectors = [self allocateNewMemoryOfDimension:CGSizeMake(eigenval, eigenvec/eigenval) ofPrimitiveSize:_size];
     if(isSymmetric) {
-        [_operator eigendecomposeSymmetricFloatMatrix:(void*)[self getData] intoEigenvalues:newEigenvalues eigenvectors:newEigenvectors numberOfImportantValues:eigenval matrixDimension:eigenvec/eigenval freeInput:NO];
+        // into newEigenvalues = [smallest, 2nd smallest,..., largest]
+        // into newEigenvectors = [smallestEV1, smallestEV2,...smallestEVn, 2nd smallestEV1, 2nd smallestEV2,... 2nd smallestEVn,... largestEV1, largestEV2,...largestEVn]
+        [_operator eigendecomposeSymmetricFloatMatrix:(void*)[self getMutableData] intoEigenvalues:newEigenvalues eigenvectors:newEigenvectors numberOfImportantValues:eigenval matrixDimension:eigenvec/eigenval freeInput:NO];
     } else {
-        [_operator eigendecomposeFloatMatrix:(void*)[self getData] intoEigenvalues:newEigenvalues eigenvectors:newEigenvectors numberOfImportantValues:eigenval matrixDimension:eigenvec/eigenval freeInput:NO];
+        [_operator eigendecomposeFloatMatrix:(void*)[self getMutableData] intoEigenvalues:newEigenvalues eigenvectors:newEigenvectors numberOfImportantValues:eigenval matrixDimension:eigenvec/eigenval freeInput:NO];
     }
     [self setEigenvalues:[[BPMatrix alloc] initWithWidth:eigenval withHeight:1 withPrimitiveSize:_size withMemory:newEigenvalues]];
-    [self setEigenvalues:[[BPMatrix alloc] initWithWidth:eigenval withHeight:eigenvec/eigenval withPrimitiveSize:_size withMemory:newEigenvectors]];
+    [self setEigenvectors:[[BPMatrix alloc] initWithWidth:eigenval withHeight:eigenvec/eigenval withPrimitiveSize:_size withMemory:newEigenvectors]];
     return self;
 }
 -(BPMatrix*)addBy:(BPMatrix*)rightMatrix {
-    [_operator addFloatMatrix:(void*)[self getData] toFloatMatrix:(void*)[self getData] intoResultFloatMatrix:(void*)[self getMutableData] columnHeight:_height rowWidth:_width freeInput:NO];
+    [_operator addFloatMatrix:(void*)[self getData] toFloatMatrix:(void*)[rightMatrix getData] intoResultFloatMatrix:(void*)[self getMutableData] columnHeight:_height rowWidth:_width freeInput:NO];
     return self;
 }
 -(BPMatrix*)zeroOutData {
@@ -138,6 +140,5 @@
     [_operator invertFloatMatrix:(void*)[self getData] intoResult:(void*)[self getMutableData] matrixDimension:_width freeInput:NO];
     return self;
 }
-
 
 @end
