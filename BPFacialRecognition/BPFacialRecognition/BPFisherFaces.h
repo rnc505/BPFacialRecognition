@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "BPRecognitionResult.h"
+#import "BPPreRecognitionResult.h"
 @class UIImage;
 @protocol BPFisherFacesDataSource <NSObject>
 -(NSUInteger)totalNumberOfImages;
@@ -19,5 +20,5 @@
 @interface BPFisherFaces : NSObject
 +(BPFisherFaces*)createFisherFaceAlgorithmWithDataSource:(id<BPFisherFacesDataSource>)dataSource;
 -(void)train;
--(RecResult)recognizeImage:(UIImage*)image;
+-(BPPreRecognitionResult*)recognizeImage:(UIImage*)image;
 @end

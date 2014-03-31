@@ -138,7 +138,7 @@
     free(oneDVector); oneDVector = NULL;
 }
 
--(RecResult)recognizeImage:(UIImage *)image {
+-(BPPreRecognitionResult*)recognizeImage:(UIImage *)image {
     NSInteger numberOfPeople = [_dataSource totalNumberOfPeople];
     RawType* imageData __attribute__((aligned(kAlignment))) = [[image resizedAndGrayscaledSquareImageOfDimension:kSizeDimension] vImageDataWithFloats];
     
@@ -168,7 +168,7 @@
     free(projectedImage); projectedImage = NULL;
     free(imageData); projectedImage = NULL;
     //minIndex contains the index of the person who it is
-    RecResult result;
+    BPPreRecognitionResult *result = [BPPreRecognitionResult new];
     result.position = minIndex;
     result.distance = minDist;
     return result;
@@ -223,9 +223,9 @@
         
         [_operator subtractFloatVector:currentTraining fromFloatVector:tmpTest numberOfElements:numberOfPeople-1 freeInput:NO];
         
-        cblas_sscal(numberOfPeople-1, 1.0 / cblas_snrm2(numberOfPeople-1, testImg, 1), testImg, 1); // NORMALIZE VECTOR
+        cblas_sscal((int)numberOfPeople-1u, 1.0 / cblas_snrm2((int)numberOfPeople - 1u, testImg, 1), testImg, 1); // NORMALIZE VECTOR
         
-        vsq(testImg, 1, testImg, 1, numberOfPeople-1); // square each element
+        vDSP_vsq(testImg, 1, testImg, 1, numberOfPeople-1); // square each element
         vDSP_sve(testImg, 1, distances+1, numberOfPeople-1); // sum and add this euclidean distance to the array
     }
     

@@ -11,10 +11,7 @@
 #define RawType float
 #define kAlignment 16
 static const NSUInteger kSizeDimension = 180;
-typedef struct RecognitionResult {
-    unsigned long position;
-    int distance;
-} RecResult;
+
 
 @interface BPUtil : NSObject
 @end

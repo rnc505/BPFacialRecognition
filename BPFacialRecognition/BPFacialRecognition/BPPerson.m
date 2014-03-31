@@ -60,8 +60,10 @@
     CIImage* image1 = [CIImage imageWithCGImage:[image CGImage]];
     CIDetector *faceDetector = [CIDetector detectorOfType:CIDetectorTypeFace context:nil options:[NSDictionary dictionaryWithObject:CIDetectorAccuracyHigh forKey:CIDetectorAccuracy]];
     NSArray* features = [faceDetector featuresInImage:image1];
-    for(CIFaceFeature* feature in features) {
-        return YES;
+    for(int i = 0; i < features.count; ++i){
+        if ([features[i] isKindOfClass:[CIFaceFeature class]]) {
+            return YES;
+        }
     }
     return NO;
 }
