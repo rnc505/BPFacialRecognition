@@ -10,3 +10,4 @@
 #import "BPRecognitionResult.h"
 #import "BPPerson.h"
 #import "BPUtil.h"
+#import "UIImage+Utils.h"
