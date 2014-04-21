@@ -194,12 +194,27 @@
     APointer = (RawType*)[A getData];
     XCTAssertEqual(2, [A width], @"Width didn't update");
     XCTAssertEqual(5, [A height], @"Height didn't update");
-    for (int i = 0; i < 10; ++i) {
-        if(i % 2 == 0)
-            XCTAssertEqual(i/2, APointer[i], @"Transpose occured incorrectly");
-        else
-            XCTAssertEqual(i/2 + 5, APointer[i], @"Transpose occured incorrectly");
+    XCTAssertEqual(0, APointer[0], @"Transpose occured incorrectly");
+    XCTAssertEqual(5, APointer[1], @"Transpose occured incorrectly");
+    XCTAssertEqual(1, APointer[2], @"Transpose occured incorrectly");
+    XCTAssertEqual(6, APointer[3], @"Transpose occured incorrectly");
+    XCTAssertEqual(2, APointer[4], @"Transpose occured incorrectly");
+    XCTAssertEqual(7, APointer[5], @"Transpose occured incorrectly");
+    XCTAssertEqual(3, APointer[6], @"Transpose occured incorrectly");
+    XCTAssertEqual(8, APointer[7], @"Transpose occured incorrectly");
+    XCTAssertEqual(4, APointer[8], @"Transpose occured incorrectly");
+    XCTAssertEqual(9, APointer[9], @"Transpose occured incorrectly");
+    
+    for(int i = 0; i < 10; ++i) {
+        NSLog(@"%f",APointer[i]);
     }
+    
+//    for (int i = 0; i < 10; ++i) {
+//        if(i % 2 == 0)
+//            XCTAssertEqual(i/2, APointer[i], @"Transpose occured incorrectly");
+//        else
+//            XCTAssertEqual(i/2 + 5, APointer[i], @"Transpose occured incorrectly");
+//    }
     
     A = [BPMatrix matrixWithDimensions:CGSizeMake(2, 2) withPrimitiveSize:sizeof(RawType)];
     APointer = [A getMutableData];
