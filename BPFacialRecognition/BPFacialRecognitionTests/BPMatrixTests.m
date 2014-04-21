@@ -320,6 +320,26 @@
     
 }
 
+- (void)testMeanOfRows {
+    BPMatrix* A = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    //Inverse[{{1, 3, 2}, {5, 1, 9}, {8, 8, 3}}]
+    APointer[0] = 1.f;
+    APointer[1] = 3.f;
+    APointer[2] = 2.f;
+    APointer[3] = 5.f;
+    APointer[4] = 1.f;
+    APointer[5] = 9.f;
+    APointer[6] = 8.f;
+    APointer[7] = 8.f;
+    APointer[8] = 3.f;
+    BPMatrix* meanOfRows = [A meanOfRows];
+    RawType* MeanPointer = (void*)[meanOfRows getData];
+    XCTAssertEqual(14.f/3, MeanPointer[0], @"Mean of rows was incorrect");
+    XCTAssertEqual(12.f/3, MeanPointer[1], @"Mean of rows was incorrect");
+    XCTAssertEqual(14.f/3, MeanPointer[2], @"Mean of rows was incorrect");
+}
+
 
 
 @end

@@ -50,7 +50,7 @@
 }
 -(void)transposeFloatMatrix:(float*)inputMatrix transposed:(float*)outputMatrix columnHeight:(NSUInteger)cHeight rowWidth:(NSUInteger)rWidth freeInput:(BOOL)shouldFreeInput {
     
-    vDSP_mtrans(inputMatrix, 1, outputMatrix, 1, rWidth, cHeight);
+    vDSP_mtrans(inputMatrix, 1, outputMatrix, 1, cHeight, rWidth);
     if (shouldFreeInput) {
         free(inputMatrix); inputMatrix = NULL;
     }

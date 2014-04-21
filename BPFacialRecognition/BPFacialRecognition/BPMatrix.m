@@ -62,6 +62,12 @@
     return [_data mutableBytes];
 }
 
+-(BPMatrix *)transposedNew {
+    void* newMemory = [self allocateNewMemoryOfDimension:CGSizeMake(_height, _width) ofPrimitiveSize:_size];
+    [_operator transposeFloatMatrix:(void*)[self getData] transposed:newMemory columnHeight:_height rowWidth:_width freeInput:NO];
+    return [[BPMatrix alloc] initWithWidth:_height withHeight:_width withPrimitiveSize:_size withMemory:newMemory];
+}
+
 -(BPMatrix*)transpose {
     [self _internalTranspose];
     swap(_width, _height);
@@ -92,6 +98,9 @@
 }
 
 -(BPMatrix*)multiplyBy:(BPMatrix *)rightMatrix {
+    if([self width] != [rightMatrix height]) {
+        [NSException raise:@"Dimension mismatch" format:@"Width of receiver must match height of rightMatrix. Receiver: (%lu, %lu), rightMatrix: (%lu, %lu)", (unsigned long)[self width], (unsigned long)[self height], (unsigned long)[rightMatrix width], (unsigned long)[rightMatrix height]];
+    }
     void* newMem = [self allocateNewMemoryOfDimension:CGSizeMake(_height, [rightMatrix width]) ofPrimitiveSize:_size];
     [_operator multiplyFloatMatrix:(void*)[self getData] withFloatMatrix:(void*)[rightMatrix getData] product:newMem matrixOneColumnHeight:_height matrixOneRowWidth:_width matrixTwoRowWidth:[rightMatrix width] freeInputs:NO];
     _width = [rightMatrix width];
@@ -111,10 +120,18 @@
     return [[BPMatrix alloc] initWithWidth:1 withHeight:_height withPrimitiveSize:_size withMemory:newMemory];
 }
 -(BPMatrix*)subtractedBy:(BPMatrix*)rightMatrix {
+    if([self width] != [rightMatrix width] || [self height] != [rightMatrix height]) {
+        [NSException raise:@"Dimension mismatch" format:@"Dimensions weren't the same. Receiver: (%lu, %lu), rightMatrix: (%lu, %lu).", (unsigned long)[self width], (unsigned long)[self height], (unsigned long)[rightMatrix width], (unsigned long)[rightMatrix height]];
+    }
     [_operator subtractFloatVector:(void*)[rightMatrix getData] fromFloatVector:[self getMutableData] numberOfElements:_height*_width freeInput:NO];
     return self;
 }
 -(BPMatrix*)eigendecomposeIsSymmetric:(BOOL)isSymmetric withNumberOfValues:(NSUInteger)eigenval withNumberOfVectors:(NSUInteger)eigenvec{
+    
+    if([self width] != [self height]) {
+        [NSException raise:@"Dimension mismatch" format:@"Only square matrices can be eigendecomposed. Dimensions: (%lu, %lu).", (unsigned long)[self width], (unsigned long)[self height]];
+    }
+    
     void *newEigenvalues = [self allocateNewMemoryOfDimension:CGSizeMake(eigenval, 1) ofPrimitiveSize:_size];
     void *newEigenvectors = [self allocateNewMemoryOfDimension:CGSizeMake(eigenval, eigenvec/eigenval) ofPrimitiveSize:_size];
     if(isSymmetric) {
@@ -131,6 +148,9 @@
     return self;
 }
 -(BPMatrix*)addBy:(BPMatrix*)rightMatrix {
+    if([self width] != [rightMatrix width] || [self height] != [rightMatrix height]) {
+        [NSException raise:@"Dimension mismatch" format:@"Dimensions weren't the same. Receiver: (%lu, %lu), rightMatrix: (%lu, %lu).", (unsigned long)[self width], (unsigned long)[self height], (unsigned long)[rightMatrix width], (unsigned long)[rightMatrix height]];
+    }
     [_operator addFloatMatrix:(void*)[self getData] toFloatMatrix:(void*)[rightMatrix getData] intoResultFloatMatrix:(void*)[self getMutableData] columnHeight:_height rowWidth:_width freeInput:NO];
     return self;
 }
@@ -139,8 +159,18 @@
     return self;
 }
 -(BPMatrix*)invertMatrix {
+    if([self width] != [self height]) {
+        [NSException raise:@"Dimension mismatch" format:@"Only square matrices can be inverted. Dimensions: (%lu, %lu).", (unsigned long)[self width], (unsigned long)[self height]];
+    }
     [_operator invertFloatMatrix:(void*)[self getData] intoResult:(void*)[self getMutableData] matrixDimension:_width freeInput:NO];
     return self;
+}
+
+- (id)objectAtIndexedSubscript:(NSUInteger)idx {
+    return [NSNumber numberWithFloat:*(((float*)[self getMutableData]+idx))];
+}
+- (void)setObject:(id)obj atIndexedSubscript:(NSUInteger)idx {
+    ((float*)[self getMutableData])[idx] = [obj floatValue];
 }
 
 @end

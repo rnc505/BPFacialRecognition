@@ -23,6 +23,7 @@
 -(void*)getMutableData;
 
 -(BPMatrix*)transpose;
+-(BPMatrix*)transposedNew;
 -(BPMatrix*)multiplyBy:(BPMatrix*)rightMatrix;
 -(BPMatrix*)duplicate;
 -(BPMatrix*)meanOfRows;
