@@ -358,8 +358,17 @@
     
 //    RawType* outputEigenvectors = calloc(kSizeDimension*kSizeDimension*(numberOfImages-numberOfPeople), sizeof(RawType));
     
+<<<<<<< Updated upstream
 //    [_operator clearFloatMatrix:outputEigenvectors numberOfElements:kSizeDimension*kSizeDimension*(numberOfImages-numberOfPeople)];
 //    [_operator multiplyFloatMatrix:matrix withFloatMatrix:eigenvectors product:outputEigenvectors matrixOneColumnHeight:kSizeDimension*kSizeDimension matrixOneRowWidth:numberOfImages matrixTwoRowWidth:(numberOfImages-numberOfPeople) freeInputs:NO];
+=======
+    [_operator clearFloatMatrix:outputEigenvectors numberOfElements:kSizeDimension*kSizeDimension*(numberOfImages-numberOfPeople)];
+    [_operator multiplyFloatMatrix:matrix
+ withFloatMatrix:eigenvectors product:outputEigenvectors matrixOneColumnHeight:kSizeDimension*kSizeDimension matrixOneRowWidth:numberOfImages matrixTwoRowWidth:(numberOfImages-numberOfPeople) freeInputs:NO];
+    free(eigenvalues); eigenvalues = NULL;
+    free(eigenvectors); eigenvectors = NULL;
+    return outputEigenvectors;
+>>>>>>> Stashed changes
     
     BPMatrix* outputEigenvectors = [BPMatrix matrixWithMultiplicationOfMatrixOne:matrix withMatrixTwo:[covariance eigenvectors]];
     

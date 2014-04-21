@@ -24,7 +24,7 @@
 -(void)columnWiseMeanOfFloatMatrix:(float*)inputMatrix toFloatVector:(float*)outputVector columnHeight:(NSUInteger)cHeight rowWidth:(NSUInteger)rWidth freeInput:(BOOL)shouldFreeInput {
     
     for (int i = 0; i < cHeight; ++i) {
-        vDSP_meanv(inputMatrix + i, cHeight, outputVector+i, rWidth);
+        vDSP_meanv(inputMatrix+i, cHeight, outputVector+i, rWidth);
     }
     if(shouldFreeInput) {
         free(inputMatrix); inputMatrix = NULL;
@@ -58,11 +58,24 @@
 }
 -(void)multiplyFloatMatrix:(float*)inputMatrixOne withFloatMatrix:(float*)inputMatrixTwo product:(float*)product matrixOneColumnHeight:(NSUInteger)cOneHeight matrixOneRowWidth:(NSUInteger)rOneWidth matrixTwoRowWidth:(NSUInteger)rTwoWidth freeInputs:(BOOL)shouldFreeInputs {
     
-    vDSP_mmul(inputMatrixOne, 1, inputMatrixTwo, 1, product, 1, cOneHeight, rTwoWidth, rOneWidth);
+    double* m1D __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&m1D, kAlignment, cOneHeight*rOneWidth*sizeof(double)));
+    
+    double* m2D __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&m2D, kAlignment, rOneWidth*rTwoWidth*sizeof(double)));
+    double* pD __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&pD, kAlignment, cOneHeight*rTwoWidth*sizeof(double)));
+    
+    vDSP_vspdp(inputMatrixOne, 1, m1D, 1, cOneHeight*rOneWidth);
+    vDSP_vspdp(inputMatrixTwo, 1, m2D, 1, rOneWidth*rTwoWidth);
+    
+    vDSP_mmulD(m1D, 1, m2D, 1, pD, 1, cOneHeight, rTwoWidth, rOneWidth);
     if (shouldFreeInputs) {
         free(inputMatrixOne); inputMatrixOne = NULL;
         free(inputMatrixTwo); inputMatrixTwo = NULL;
     }
+    
+    vDSP_vdpsp(pD,1, product, 1, cOneHeight*rTwoWidth);
 }
 
 -(void)eigendecomposeSymmetricFloatMatrix:(float*)inputMatrix intoEigenvalues:(float*)eigenvalues eigenvectors:(float*)eigenvectors numberOfImportantValues:(NSUInteger)numberOfImportantValues matrixDimension:(NSUInteger)dimension freeInput:(BOOL)shouldFreeInput {

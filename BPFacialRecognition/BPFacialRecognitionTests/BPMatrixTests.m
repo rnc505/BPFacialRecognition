@@ -323,7 +323,11 @@
 - (void)testMeanOfRows {
     BPMatrix* A = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
     RawType* APointer = [A getMutableData];
+<<<<<<< Updated upstream
     //Inverse[{{1, 3, 2}, {5, 1, 9}, {8, 8, 3}}]
+=======
+    
+>>>>>>> Stashed changes
     APointer[0] = 1.f;
     APointer[1] = 3.f;
     APointer[2] = 2.f;
@@ -333,6 +337,7 @@
     APointer[6] = 8.f;
     APointer[7] = 8.f;
     APointer[8] = 3.f;
+<<<<<<< Updated upstream
     BPMatrix* meanOfRows = [A meanOfRows];
     RawType* MeanPointer = (void*)[meanOfRows getData];
     XCTAssertEqual(14.f/3, MeanPointer[0], @"Mean of rows was incorrect");
@@ -340,6 +345,30 @@
     XCTAssertEqual(14.f/3, MeanPointer[2], @"Mean of rows was incorrect");
 }
 
+=======
+    
+    // A is:
+    // 1 3 2
+    // 5 1 9
+    // 8 8 3
+    
+    
+    BPMatrix* meanOfRows = [A meanOfRows];
+    const RawType* meanPointer = [meanOfRows getData];
+    // output of meanOfRows should be
+    // 2
+    // 5
+    // 6.333333
+    // dimensions should be 3 rows by 1 column
+    
+    XCTAssertEqual(2, meanPointer[0], @"mean of rows failed");
+    XCTAssertEqual(5, meanPointer[1], @"mean of rows failed");
+    XCTAssertEqualWithAccuracy(6.3333333, meanPointer[2], .01, @"mean of rows failed");
+    
+    XCTAssertEqual(1, meanOfRows.width, @"width incorrect");
+    XCTAssertEqual(3, meanOfRows.height, @"height incorrect");
+}
+>>>>>>> Stashed changes
 
 
 @end
