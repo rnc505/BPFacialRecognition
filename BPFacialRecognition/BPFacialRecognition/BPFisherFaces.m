@@ -104,8 +104,8 @@
 //    RawType* scatterBetween __attribute__((aligned(kAlignment))) = NULL;
 //    check_alloc_error(posix_memalign((void**)&scatterBetween, kAlignment, (numberOfImages-numberOfPeople)*(numberOfImages-numberOfPeople)*sizeof(RawType)));
     
-    BPMatrix* scatterWithin = nil;
-    BPMatrix* scatterBetween = nil;
+    BPMatrix* scatterWithin = [BPMatrix matrixWithDimensions:CGSizeMake((numberOfImages-numberOfPeople), (numberOfImages-numberOfPeople)) withPrimitiveSize:sizeof(RawType)];
+    BPMatrix* scatterBetween = [BPMatrix matrixWithDimensions:CGSizeMake((numberOfImages-numberOfPeople), (numberOfImages-numberOfPeople)) withPrimitiveSize:sizeof(RawType)];
     
     
 //    RawType *scatterBetween = calloc((numberOfImages-numberOfPeople)*(numberOfImages-numberOfPeople), sizeof(RawType));
@@ -150,7 +150,7 @@
     NSInteger numberOfPeople = [_dataSource totalNumberOfPeople];
     RawType* imageDataRaw __attribute__((aligned(kAlignment))) = [[image resizedAndGrayscaledSquareImageOfDimension:kSizeDimension] vImageDataWithFloats];
     
-    BPMatrix* theImage = [BPMatrix matrixWithDimensions:CGSizeMake(kSizeDimension, kSizeDimension) withPrimitiveSize:sizeof(RawType)];
+    BPMatrix* theImage = [BPMatrix matrixWithDimensions:CGSizeMake(1, kSizeDimension*kSizeDimension) withPrimitiveSize:sizeof(RawType)];
     
     [_operator copyVector:imageDataRaw toVector:[theImage getMutableData] numberOfElements:kSizeDimension*kSizeDimension sizeOfType:sizeof(RawType)];
     
@@ -242,28 +242,30 @@
 //    RawType* tmpTest __attribute__((aligned(kAlignment))) = NULL;
 //    check_alloc_error(posix_memalign((void**)&tmpTest, kAlignment, (numberOfPeople-1)*sizeof(RawType)));
     
-    BPMatrix* currentTraining = [BPMatrix matrixWithDimensions:CGSizeMake((numberOfImages-1), 1) withPrimitiveSize:sizeof(RawType)];
-    BPMatrix* tmpTest = [BPMatrix matrixWithDimensions:CGSizeMake((numberOfPeople-1), 1) withPrimitiveSize:sizeof(RawType)];
+    BPMatrix* currentTraining = nil;//[BPMatrix matrixWithDimensions:CGSizeMake((numberOfPeople-1), 1) withPrimitiveSize:sizeof(RawType)];
+    BPMatrix* tmpTest = nil;//[BPMatrix matrixWithDimensions:CGSizeMake((numberOfPeople-1), 1) withPrimitiveSize:sizeof(RawType)];
     BPMatrix* distances = [BPMatrix matrixWithDimensions:CGSizeMake(numberOfImages, 1) withPrimitiveSize:sizeof(RawType)];
     for (int i = 0; i < numberOfImages; ++i) {
         
-        [currentTraining zeroOutData];
-        RawType* cTPointer = [currentTraining getMutableData];
+//        [currentTraining zeroOutData];
+//        RawType* cTPointer = [currentTraining getMutableData];
+        currentTraining = [training getColumnAtIndex:i];
+        tmpTest = [testImg duplicate];
+//        [tmpTest zeroOutData];
+//        RawType* tTPointer = [tmpTest getMutableData];
         
-        [tmpTest zeroOutData];
-        RawType* tTPointer = [tmpTest getMutableData];
-        
-        [_operator copyVector:[training getMutableData]+i*(numberOfPeople-1) toVector:cTPointer numberOfElements:numberOfPeople-1 sizeOfType:sizeof(RawType)];
-        [_operator copyVector:[testImg getMutableData] toVector:tTPointer numberOfElements:numberOfPeople-1 sizeOfType:sizeof(RawType)];
+//        [_operator copyVector:[training getMutableData]+i*(numberOfPeople-1) toVector:cTPointer numberOfElements:numberOfPeople-1 sizeOfType:sizeof(RawType)];
+//        [_operator copyVector:[testImg getMutableData] toVector:tTPointer numberOfElements:numberOfPeople-1 sizeOfType:sizeof(RawType)];
         
         [tmpTest subtractedBy:currentTraining];
         
 //        [_operator subtractFloatVector:currentTraining fromFloatVector:tmpTest numberOfElements:numberOfPeople-1 freeInput:NO];
         
-        cblas_sscal((int)numberOfPeople-1u, 1.0 / cblas_snrm2((int)numberOfPeople - 1u, [tmpTest getData], 1), [tmpTest getMutableData], 1); // NORMALIZE VECTOR
-        
-        vDSP_vsq([tmpTest getData], 1, [tmpTest getMutableData], 1, numberOfPeople-1); // square each element
-        vDSP_sve([tmpTest getData], 1, [distances getMutableData]+i, numberOfPeople-1); // sum and add this euclidean distance to the array
+//        cblas_sscal((int)numberOfPeople-1u, 1.0 / cblas_snrm2((int)numberOfPeople - 1u, [tmpTest getData], 1), [tmpTest getMutableData], 1); // NORMALIZE VECTOR
+//        
+//        vDSP_vsq([tmpTest getData], 1, [tmpTest getMutableData], 1, numberOfPeople-1); // square each element
+//        vDSP_sve([tmpTest getData], 1, (RawType*)[distances getMutableData]+i, numberOfPeople-1); // sum and add this euclidean distance to the array
+        distances[i] = @([BPMatrix euclideanDistanceBetweenMatrixOne:tmpTest andMatrixTwo:currentTraining]);
     }
     
     return distances;
@@ -399,8 +401,8 @@
      
      BPMatrix* projection = [BPMatrix matrixWithMultiplicationOfMatrixOne:eigenspaceTranspose withMatrixTwo:matrix];
      
-     if ([projection width] != numberOfImages || [projection height] != kSizeDimension*kSizeDimension) {
-         @throw @"Projection dimensions are wrong";
+     if ([projection width] != numberOfImages || [projection height] != (numberOfImages-numberOfPeople)) {
+         @throw [NSString stringWithFormat:@"Projection dimensions are wrong. Dimensions: (%lu, %lu). Should be: (%lu, %lu)",(unsigned long)projection.width, (unsigned long)projection.height,(unsigned long)numberOfImages,(numberOfImages-numberOfPeople)];
      }
      
 //     free(eigenspaceTranspose); eigenspaceTranspose = NULL;
@@ -568,6 +570,7 @@
 //    free(JCostFunction); JCostFunction = NULL;
 //    free(SwInverted); SwInverted = NULL;
     
+    [JCostFunction eigendecomposeIsSymmetric:NO withNumberOfValues:Sb.width withNumberOfVectors:Sb.width*Sb.height];
     return [JCostFunction eigenvectors];
     
 }
@@ -591,10 +594,10 @@
 //    [_operator multiplyFloatMatrix:fisherEigenvectorsTranspose withFloatMatrix:matrix product:projectedImages matrixOneColumnHeight:(numberOfPeople-1) matrixOneRowWidth:(numberOfImages-numberOfPeople) matrixTwoRowWidth:numberOfImages freeInputs:NO];
     
     BPMatrix* projectedImages = [BPMatrix matrixWithMultiplicationOfMatrixOne:fisherEigenvectorsTranspose withMatrixTwo:matrix];
-    
-    if([projectedImages width] != numberOfImages || [projectedImages height] != numberOfPeople-1) {
-        @throw @"ProjectedImages dimensions are wrong";
-    }
+//    
+//    if([projectedImages width] != numberOfImages || [projectedImages height] != numberOfPeople-1) {
+//        @throw @"ProjectedImages dimensions are wrong";
+//    }
     
 //    free(fisherEigenvectorsTranspose); fisherEigenvectorsTranspose = NULL;
     return projectedImages;

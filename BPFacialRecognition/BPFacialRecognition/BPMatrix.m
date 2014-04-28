@@ -173,4 +173,65 @@
     ((float*)[self getMutableData])[idx] = [obj floatValue];
 }
 
++(BPMatrix *)null {
+    return [BPMatrix matrixWithDimensions:CGSizeMake(1, 1) withPrimitiveSize:sizeof(RawType)];
+}
+
+-(BPMatrix*)getColumnAtIndex:(NSUInteger)index {
+    if(index >= _width) {
+        [NSException raise:@"Index out of Bounds" format:@"Tried to access Matrix Column at index %lu, but width is only %lu",index,_width];
+    }
+    BPMatrix* column = [BPMatrix matrixWithDimensions:CGSizeMake(1, _height) withPrimitiveSize:_size];
+    RawType* columnP = [column getMutableData];
+    const RawType* selfData = [_data bytes];
+//    [_operator copyVector:(void*)(selfData+index) toVector:columnP numberOfElements:_width offset:_width  sizeOfType:sizeof(RawType)];
+    for (int i = 0; i < _height; ++i) {
+        columnP[i] = selfData[index + i*_width];
+    }
+    return column;
+}
+-(BPMatrix*)getRowAtIndex:(NSUInteger)index {
+    if(index >= _height) {
+        [NSException raise:@"Index out of Bounds" format:@"Tried to access Matrix Row at index %lu, but height is only %lu",index,_height];
+    }
+    BPMatrix* row = [BPMatrix matrixWithDimensions:CGSizeMake(_width, 1) withPrimitiveSize:_size];
+    RawType* rowP = [row getMutableData];
+    const RawType* selfData = [_data bytes];
+    [_operator copyVector:(void*)(selfData+index*_width) toVector:rowP numberOfElements:_width  sizeOfType:sizeof(RawType)];
+    
+    
+//    for (int i = 0; i < _width; ++i) {
+//        rowP[i] = selfData[i + index*_width];
+//    }
+    return row;
+}
++(RawType)euclideanDistanceBetweenMatrixOne:(BPMatrix*)matrixOne andMatrixTwo:(BPMatrix*)matrixTwo {
+    
+    if(matrixOne.width != matrixTwo.width || matrixOne.height != matrixTwo.height) {
+        [NSException raise:@"Dimension Mismatch" format:@"Matrix one's dimesions: (%lu, %lu); Matrix two's dimensions: (%lu, %lu)",matrixOne.width,matrixOne.height,matrixTwo.width,matrixTwo.height];
+    }
+    
+    if(matrixOne.height != 1 && matrixOne.width != 1) {
+        [NSException raise:@"Illegal Argument" format:@"The matrices must be either row or column vectors. Matrices' dimensions:(%lu, %lu).", matrixOne.width,matrixTwo.height];
+    }
+    
+//    BPMatrix* one = matrixOne;
+//    BPMatrix* two = matrixTwo;
+//    if(matrixOne.width == 1) {
+//        one = [matrixOne transposedNew];
+//        two = [matrixTwo transposedNew];
+//    }
+//    BPMatrix* subtraction = [BPMatrix matrixWithSubtractionOfMatrixOne:one byMatrixTwo:two];
+//    one = nil; two = nil;
+    
+//    cblas_sscal((int)subtraction.width, 1.0 / cblas_snrm2((int)subtraction.width, [subtraction getData], 1), [subtraction getMutableData], 1); // NORMALIZE VECTOR
+    
+//    vDSP_vsq([subtraction getData], 1, [subtraction getMutableData], 1, subtraction.width); // square each element
+    
+    RawType retVal;
+//    vDSP_sve([subtraction getData], 1, &retVal, subtraction.width); // sum and add this euclidean distance to the array
+    vDSP_distancesq([matrixOne getData], 1, [matrixTwo getData], 1, &retVal, matrixOne.width*matrixOne.height);
+    return sqrt(retVal);
+}
+
 @end

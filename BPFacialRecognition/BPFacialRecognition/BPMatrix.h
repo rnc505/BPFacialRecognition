@@ -15,13 +15,14 @@
 @property (nonatomic, retain, readonly) BPMatrix* eigenvalues;
 @property (nonatomic, retain, readonly) BPMatrix* eigenvectors;
 +(id)matrixWithDimensions:(CGSize)dimension withPrimitiveSize:(NSUInteger)size;
++(BPMatrix*)null;
 +(BPMatrix*)matrixWithMultiplicationOfMatrixOne:(BPMatrix*)matrixOne withMatrixTwo:(BPMatrix*)matrixTwo;
 +(BPMatrix*)matrixWithSubtractionOfMatrixOne:(BPMatrix*)matrixOne byMatrixTwo:(BPMatrix*)matrixTwo;
 +(BPMatrix*)matrixWithAdditionOfMatrixOne:(BPMatrix*)matrixOne WithMatrixTwo:(BPMatrix*)matrixTwo;
++(RawType)euclideanDistanceBetweenMatrixOne:(BPMatrix*)matrixOne andMatrixTwo:(BPMatrix*)matrixTwo;
 
 -(const void*)getData;
 -(void*)getMutableData;
-
 -(BPMatrix*)transpose;
 -(BPMatrix*)transposedNew;
 -(BPMatrix*)multiplyBy:(BPMatrix*)rightMatrix;
@@ -33,5 +34,9 @@
 -(BPMatrix*)zeroOutData;
 -(BPMatrix*)invertMatrix;
 
+-(BPMatrix*)getColumnAtIndex:(NSUInteger)index;
+-(BPMatrix*)getRowAtIndex:(NSUInteger)index;
 
+- (id)objectAtIndexedSubscript:(NSUInteger)idx;
+- (void)setObject:(id)obj atIndexedSubscript:(NSUInteger)idx;
 @end

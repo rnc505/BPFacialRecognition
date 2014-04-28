@@ -355,6 +355,80 @@
     XCTAssertEqual(14.f/3, MeanPointer[2], @"Mean of rows was incorrect");
 }
 
+- (void)testGetColumn {
+    BPMatrix *A = [BPMatrix matrixWithDimensions:CGSizeMake(7, 3) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    for (int i = 0; i < A.width*A.height; ++i) {
+        APointer[i] = (RawType)i;
+    }
+    BPMatrix *columnVec = [A getColumnAtIndex:2];
+    RawType* ColumnPointer = (void*)[columnVec getData];
+    
+    XCTAssertEqual(1, columnVec.width, @"getColumn was incorrect");
+    XCTAssertEqual(3, columnVec.height, @"getColumn was incorrect");
+    
+    XCTAssertEqual(2.f, ColumnPointer[0], @"getColumn was incorrect");
+    XCTAssertEqual(9.f, ColumnPointer[1], @"getColumn was incorrect");
+    XCTAssertEqual(16.f, ColumnPointer[2], @"getColumn was incorrect");
+    
+
+}
+
+- (void)testGetRow {
+    BPMatrix *A = [BPMatrix matrixWithDimensions:CGSizeMake(7, 3) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    for (int i = 0; i < A.width*A.height; ++i) {
+        APointer[i] = (RawType)i;
+    }
+    BPMatrix *columnVec = [A getRowAtIndex:2];
+    RawType* ColumnPointer = (void*)[columnVec getData];
+    
+    XCTAssertEqual(7, columnVec.width, @"getColumn was incorrect");
+    XCTAssertEqual(1, columnVec.height, @"getColumn was incorrect");
+    
+    XCTAssertEqual(14.f, ColumnPointer[0], @"getColumn was incorrect");
+    XCTAssertEqual(15.f, ColumnPointer[1], @"getColumn was incorrect");
+    XCTAssertEqual(16.f, ColumnPointer[2], @"getColumn was incorrect");
+    XCTAssertEqual(17.f, ColumnPointer[3], @"getColumn was incorrect");
+    XCTAssertEqual(18.f, ColumnPointer[4], @"getColumn was incorrect");
+    XCTAssertEqual(19.f, ColumnPointer[5], @"getColumn was incorrect");
+    XCTAssertEqual(20.f, ColumnPointer[6], @"getColumn was incorrect");
+}
+
+
+- (void)testEuclideanDistanceRowVector {
+    BPMatrix *A = [BPMatrix matrixWithDimensions:CGSizeMake(7, 1) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    for (int i = 0; i < A.width*A.height; ++i) {
+        APointer[i] = (RawType)i;
+    }
+    
+    BPMatrix *B = [BPMatrix matrixWithDimensions:CGSizeMake(7, 1) withPrimitiveSize:sizeof(RawType)];
+    RawType* BPointer = [B getMutableData];
+    for (int i = 0; i < B.width*B.height; ++i) {
+        BPointer[i] = (RawType)(i+10);
+    }
+
+    XCTAssertEqualWithAccuracy(26.4575f, [BPMatrix euclideanDistanceBetweenMatrixOne:A andMatrixTwo:B], .01, @"EuclideanDistance didn't work");
+    
+}
+
+- (void)testEuclideanDistanceColumnVector {
+    BPMatrix *A = [BPMatrix matrixWithDimensions:CGSizeMake(1, 7) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    for (int i = 0; i < A.width*A.height; ++i) {
+        APointer[i] = (RawType)i;
+    }
+    
+    BPMatrix *B = [BPMatrix matrixWithDimensions:CGSizeMake(1, 7) withPrimitiveSize:sizeof(RawType)];
+    RawType* BPointer = [B getMutableData];
+    for (int i = 0; i < B.width*B.height; ++i) {
+        BPointer[i] = (RawType)(i+10);
+    }
+    
+    XCTAssertEqualWithAccuracy(26.4575f, [BPMatrix euclideanDistanceBetweenMatrixOne:A andMatrixTwo:B], .01, @"EuclideanDistance didn't work");
+    
+}
 
 
 @end
