@@ -137,10 +137,10 @@
     if(isSymmetric) {
         // into newEigenvalues = [smallest, 2nd smallest,..., largest]
         // into newEigenvectors = [smallestEV1, smallestEV2,...smallestEVn, 2nd smallestEV1, 2nd smallestEV2,... 2nd smallestEVn,... largestEV1, largestEV2,...largestEVn]
-        [_operator eigendecomposeSymmetricFloatMatrix:(void*)[self getMutableData] intoEigenvalues:newEigenvalues eigenvectors:newEigenvectors numberOfImportantValues:eigenval matrixDimension:eigenvec/eigenval freeInput:NO];
+        [_operator eigendecomposeSymmetricFloatMatrix:(void*)[[self duplicate] getMutableData] intoEigenvalues:newEigenvalues eigenvectors:newEigenvectors numberOfImportantValues:eigenval matrixDimension:eigenvec/eigenval freeInput:NO];
     } else {
         [self _internalTranspose];
-        [_operator eigendecomposeFloatMatrix:(void*)[self getMutableData] intoEigenvalues:newEigenvalues eigenvectors:newEigenvectors numberOfImportantValues:eigenval matrixDimension:eigenvec/eigenval freeInput:NO];
+        [_operator eigendecomposeFloatMatrix:(void*)[[self duplicate] getMutableData] intoEigenvalues:newEigenvalues eigenvectors:newEigenvectors numberOfImportantValues:eigenval matrixDimension:eigenvec/eigenval freeInput:NO];
         [self _internalTranspose];
     }
     [self setEigenvalues:[[BPMatrix alloc] initWithWidth:eigenval withHeight:1 withPrimitiveSize:_size withMemory:newEigenvalues]];
@@ -234,4 +234,30 @@
     return sqrt(retVal);
 }
 
+-(BPMatrix *)getColumnsFromIndex:(NSUInteger)index1 toIndex:(NSUInteger)index2 {
+    BPMatrix* retVal = [BPMatrix matrixWithDimensions:CGSizeMake(index2-index1+1, _height) withPrimitiveSize:_size];
+    BPMatrix* tempCol = nil;
+    for (NSUInteger i = index1; i <= index2; ++i) {
+        tempCol = [self getColumnAtIndex:i];
+        for(NSUInteger j = 0; j < _height; ++j) {
+            retVal[j*(index2-index1+1) + (i-index1)] = tempCol[j];
+        }
+    }
+    return retVal;
+}
+
+-(BPMatrix *)stretchByNumberOfRows:(NSUInteger)numRows {
+    if(self.width != 1) {
+        [NSException raise:@"Dimensions Not Allowed" format:@"Must be a column vector. Width: %lu",self.width];
+    }
+    BPMatrix*retVal = [BPMatrix matrixWithDimensions:CGSizeMake(numRows, _height) withPrimitiveSize:sizeof(RawType)];
+    
+    for (int i = 0; i < _height; ++i) {
+        for (int j = 0; j < numRows; ++j) {
+            retVal[j+i*numRows] = self[i];
+        }
+    }
+    
+    return retVal;
+}
 @end

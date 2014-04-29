@@ -37,6 +37,10 @@
 -(BPMatrix*)getColumnAtIndex:(NSUInteger)index;
 -(BPMatrix*)getRowAtIndex:(NSUInteger)index;
 
+-(BPMatrix*)getColumnsFromIndex:(NSUInteger)index1 toIndex:(NSUInteger)index2;
+
+-(BPMatrix*)stretchByNumberOfRows:(NSUInteger)numRows;
+
 - (id)objectAtIndexedSubscript:(NSUInteger)idx;
 - (void)setObject:(id)obj atIndexedSubscript:(NSUInteger)idx;
 @end

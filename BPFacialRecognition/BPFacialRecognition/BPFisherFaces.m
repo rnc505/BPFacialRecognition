@@ -176,15 +176,26 @@
     BPMatrix* distances __attribute__((aligned(kAlignment))) = [self euclideanDistancesBetweenProjectedTestImage:projectedImage projectedTrainingImages:_projectedImages withNumberOfImages:[_dataSource totalNumberOfImages] withNumberOfPeople:numberOfPeople];
     
     RawType minDist = 0.f; unsigned long minIndex = 0;
-    vDSP_minvi([distances getData], 1, &minDist, &minIndex, numberOfPeople-1);
+    vDSP_minvi([distances getData], 1, &minDist, &minIndex, distances.width);
     
 //    free(distances); distances = NULL;
 //    free(projectedImage); projectedImage = NULL;
 //    free(imageData); projectedImage = NULL;
     //minIndex contains the index of the person who it is
+    int * bleb = [_dataSource personImageIndexes];
+    
+    for (int i = 0; i < numberOfPeople; ++i) {
+        int START_INCLUSIVE_BOUND = bleb[i];
+        int END_INCLUSIVE_BOUND = bleb[i+1]-1;
+        if((unsigned)(minIndex-START_INCLUSIVE_BOUND) <= (END_INCLUSIVE_BOUND-START_INCLUSIVE_BOUND)) {
+            minIndex = i;
+            break;
+        }
+    }
     BPPreRecognitionResult *result = [BPPreRecognitionResult new];
     result.position = minIndex;
     result.distance = minDist;
+    free(bleb); bleb = NULL;
     return result;
 }
 
@@ -274,7 +285,7 @@
 
 -(BPMatrix*)createImageMatrixWithNumberOfImages:(NSUInteger)numberOfImages {
     
-    BPMatrix* returnValue = [BPMatrix matrixWithDimensions:CGSizeMake(numberOfImages, kSizeDimension*kSizeDimension) withPrimitiveSize:sizeof(RawType)];
+    BPMatrix* returnValue = [BPMatrix matrixWithDimensions:CGSizeMake(kSizeDimension*kSizeDimension,numberOfImages) withPrimitiveSize:sizeof(RawType)];
     
     RawType* retVal __attribute__((aligned(kAlignment))) = [returnValue getMutableData];
     //check_alloc_error(posix_memalign((void**)&retVal, kAlignment, kSizeDimension * kSizeDimension * numberOfImages*sizeof(RawType)));
@@ -288,15 +299,23 @@
         ++currentPosition;
         free(vImg); vImg = NULL;
     }
-    return returnValue;
+    return [returnValue transpose];
 }
 -(BPMatrix*)normalizeImageMatrix:(BPMatrix*)matrix withNumberOfImages:(NSUInteger)numberOfImages {
     
     BPMatrix* mean = [matrix meanOfRows];
-    for (int i = 0; i < numberOfImages; ++i) {
-//        [matrix subtractedBy:mean];
-        [_operator subtractFloatVector:(void*)[mean getData] fromFloatVector:[matrix getMutableData]+i*matrix.height numberOfElements:matrix.height freeInput:NO];
-    }
+    [matrix subtractedBy:[mean stretchByNumberOfRows:numberOfImages]];
+//        [_operator subtractFloatVector:(void*)[mean getData] fromFloatVector:[matrix getMutableData]+i*matrix.height numberOfElements:matrix.height freeInput:NO];
+        
+        /**
+         *   matrix subtracted by mean dupped
+         *
+         *  @param alignedkAlignment <#alignedkAlignment description#>
+         *
+         *  @return <#return value description#>
+         */
+        
+    
     
 //    RawType* mean __attribute__((aligned(kAlignment))) = NULL;
 //    check_alloc_error(posix_memalign((void**)&mean, kAlignment, kSizeDimension*kSizeDimension*sizeof(float)));
@@ -453,76 +472,90 @@
     BPMatrix* eigenspaceMean = [eigenspace meanOfRows];
     
     
-    RawType* innerMean __attribute__((aligned(kAlignment))) = NULL;
-    check_alloc_error(posix_memalign((void**)&innerMean, kAlignment, (numberOfImages - numberOfPeople)*numberOfPeople*sizeof(RawType)));
+//    RawType* innerMean __attribute__((aligned(kAlignment))) = NULL;
+//    check_alloc_error(posix_memalign((void**)&innerMean, kAlignment, (numberOfImages - numberOfPeople)*numberOfPeople*sizeof(RawType)));
     
 //    RawType* innerMean = calloc((numberOfImages - numberOfPeople)*numberOfPeople, sizeof(RawType));
     
     
-    RawType* scatterBuffer __attribute__((aligned(kAlignment))) = NULL;
-    check_alloc_error(posix_memalign((void**)&scatterBuffer, kAlignment, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
+//    RawType* scatterBuffer __attribute__((aligned(kAlignment))) = NULL;
+//    check_alloc_error(posix_memalign((void**)&scatterBuffer, kAlignment, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* scatterBuffer = calloc((numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople), sizeof(RawType));
     
     
-    RawType* intermediate __attribute__((aligned(kAlignment))) = NULL;
-    check_alloc_error(posix_memalign((void**)&intermediate, kAlignment, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
+//    RawType* intermediate __attribute__((aligned(kAlignment))) = NULL;
+//    check_alloc_error(posix_memalign((void**)&intermediate, kAlignment, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* intermediate = calloc((numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople), sizeof(RawType));
     
-    RawType* multiplicationTemporary __attribute__((aligned(kAlignment))) = NULL;
-    check_alloc_error(posix_memalign((void**)&multiplicationTemporary, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
+//    RawType* multiplicationTemporary __attribute__((aligned(kAlignment))) = NULL;
+//    check_alloc_error(posix_memalign((void**)&multiplicationTemporary, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* multiplicationTemporary = calloc((numberOfImages - numberOfPeople), sizeof(RawType));
     
-    RawType* multiplicationTemporaryTranspose __attribute__((aligned(kAlignment))) = NULL;
-    check_alloc_error(posix_memalign((void**)&multiplicationTemporaryTranspose, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
+//    RawType* multiplicationTemporaryTranspose __attribute__((aligned(kAlignment))) = NULL;
+//    check_alloc_error(posix_memalign((void**)&multiplicationTemporaryTranspose, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* multiplicationTemporaryTranspose = calloc((numberOfImages - numberOfPeople), sizeof(RawType));
     
-    RawType* scatterBetweenBuffer __attribute__((aligned(kAlignment))) = NULL;
-    check_alloc_error(posix_memalign((void**)&scatterBetweenBuffer, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
+//    RawType* scatterBetweenBuffer __attribute__((aligned(kAlignment))) = NULL;
+//    check_alloc_error(posix_memalign((void**)&scatterBetweenBuffer, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
 //    RawType* scatterBetweenBuffer = calloc(numberOfImages - numberOfPeople, sizeof(RawType));
     
 //    NSArray* indices = [[NSArray alloc] initWithArray:[_dataSource personImageIndexes] copyItems:YES];
+    
+    BPMatrix* innerMean = nil;
     int *indices = [_dataSource personImageIndexes];
     for (int i = 0; i < numberOfPeople; ++i) {
-        [self zeroBuffer:scatterBuffer numberOfValues:(numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)];
+//        [self zeroBuffer:scatterBuffer numberOfValues:(numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)];
+        
 
         int startIndex = indices[i];
         int endIndex = indices[i+1] - 1;
-        RawType* currentLocationInput __attribute__((aligned(kAlignment))) = [eigenspace getMutableData] + startIndex*(numberOfImages-numberOfPeople);
-        RawType* currentLocationOutput __attribute__((aligned(kAlignment))) = innerMean + startIndex;
-        [_operator columnWiseMeanOfFloatMatrix:currentLocationInput toFloatVector:currentLocationOutput columnHeight:(numberOfImages-numberOfPeople) rowWidth:(endIndex-startIndex)+1 freeInput:NO];
+        innerMean = [[eigenspace getColumnsFromIndex:startIndex toIndex:endIndex] meanOfRows];
+//        RawType* currentLocationInput __attribute__((aligned(kAlignment))) = [eigenspace getMutableData] + startIndex*(numberOfImages-numberOfPeople);
+//        RawType* currentLocationOutput __attribute__((aligned(kAlignment))) = innerMean + startIndex;
+//        [_operator columnWiseMeanOfFloatMatrix:currentLocationInput toFloatVector:currentLocationOutput columnHeight:(numberOfImages-numberOfPeople) rowWidth:(endIndex-startIndex)+1 freeInput:NO];
+        BPMatrix* scatterBuffer = [BPMatrix matrixWithDimensions:CGSizeMake(numberOfImages-numberOfPeople, numberOfImages-numberOfPeople) withPrimitiveSize:sizeof(RawType)];
         for(int j = startIndex; j <= endIndex; ++j) {
-            [_operator copyVector:[eigenspace getMutableData]+j*(numberOfImages-numberOfPeople) toVector:multiplicationTemporary numberOfElements:(numberOfImages-numberOfPeople) offset:0 sizeOfType:sizeof(RawType)];
+            BPMatrix* A = [BPMatrix matrixWithSubtractionOfMatrixOne:[eigenspace getColumnAtIndex:j] byMatrixTwo:innerMean];
+            BPMatrix* At = [A transposedNew];
+            [scatterBuffer addBy:[A multiplyBy:At]];
             
-            [_operator subtractFloatVector:currentLocationOutput fromFloatVector:multiplicationTemporary numberOfElements:(numberOfImages-numberOfPeople) freeInput:NO];
+//            [_operator copyVector:[eigenspace getMutableData]+j*(numberOfImages-numberOfPeople) toVector:multiplicationTemporary numberOfElements:(numberOfImages-numberOfPeople) offset:0 sizeOfType:sizeof(RawType)];
+            
+//            [_operator subtractFloatVector:currentLocationOutput fromFloatVector:multiplicationTemporary numberOfElements:(numberOfImages-numberOfPeople) freeInput:NO];
             
 //            [_operator transposeFloatMatrix:multiplicationTemporary transposed:multiplicationTemporaryTranspose columnHeight:(numberOfImages-numberOfPeople) rowWidth:1 freeInput:NO];
             
-            [_operator multiplyFloatMatrix:multiplicationTemporary withFloatMatrix:multiplicationTemporary product:intermediate matrixOneColumnHeight:(numberOfImages-numberOfPeople) matrixOneRowWidth:1 matrixTwoRowWidth:(numberOfImages-numberOfPeople) freeInputs:NO];
+//            [_operator multiplyFloatMatrix:multiplicationTemporary withFloatMatrix:multiplicationTemporary product:intermediate matrixOneColumnHeight:(numberOfImages-numberOfPeople) matrixOneRowWidth:1 matrixTwoRowWidth:(numberOfImages-numberOfPeople) freeInputs:NO];
             
-            [_operator addFloatMatrix:scatterBuffer toFloatMatrix:intermediate intoResultFloatMatrix:scatterBuffer columnHeight:(numberOfImages-numberOfPeople) rowWidth:(numberOfImages-numberOfPeople) freeInput:NO];
+//            [_operator addFloatMatrix:scatterBuffer toFloatMatrix:intermediate intoResultFloatMatrix:scatterBuffer columnHeight:(numberOfImages-numberOfPeople) rowWidth:(numberOfImages-numberOfPeople) freeInput:NO];
             
         }
-        [_operator addFloatMatrix:[Sw getMutableData] toFloatMatrix:scatterBuffer intoResultFloatMatrix:[Sw getMutableData] columnHeight:(numberOfImages-numberOfPeople) rowWidth:(numberOfImages-numberOfPeople) freeInput:NO];
-        
-        [_operator copyVector:innerMean+i*(numberOfImages-numberOfPeople) toVector:scatterBetweenBuffer numberOfElements:(numberOfImages-numberOfPeople) offset:0 sizeOfType:sizeof(RawType)];
-        
-        [_operator subtractFloatVector:[eigenspaceMean getMutableData] fromFloatVector:scatterBetweenBuffer numberOfElements:(numberOfImages-numberOfPeople) freeInput:NO];
-//        [_operator transposeFloatMatrix:multiplicationTemporary transposed:multiplicationTemporaryTranspose columnHeight:(numberOfImages-numberOfPeople) rowWidth:1 freeInput:NO];
-        
-        [_operator multiplyFloatMatrix:scatterBetweenBuffer withFloatMatrix:scatterBetweenBuffer product:intermediate matrixOneColumnHeight:(numberOfImages-numberOfPeople) matrixOneRowWidth:1 matrixTwoRowWidth:(numberOfImages-numberOfPeople) freeInputs:NO];
-        
-        [_operator addFloatMatrix:[Sb getMutableData] toFloatMatrix:intermediate intoResultFloatMatrix:[Sb getMutableData] columnHeight:(numberOfImages-numberOfPeople) rowWidth:(numberOfImages-numberOfPeople) freeInput:NO];
+        [Sw addBy:scatterBuffer];
+        BPMatrix* Atemp = [BPMatrix matrixWithSubtractionOfMatrixOne:innerMean byMatrixTwo:eigenspaceMean];
+        BPMatrix* AtempTranspose = [Atemp transposedNew];
+        [Sb addBy:[Atemp multiplyBy:AtempTranspose]];
+//        [_operator addFloatMatrix:[Sw getMutableData] toFloatMatrix:scatterBuffer intoResultFloatMatrix:[Sw getMutableData] columnHeight:(numberOfImages-numberOfPeople) rowWidth:(numberOfImages-numberOfPeople) freeInput:NO];
+//        
+//        [_operator copyVector:innerMean+i*(numberOfImages-numberOfPeople) toVector:scatterBetweenBuffer numberOfElements:(numberOfImages-numberOfPeople) offset:0 sizeOfType:sizeof(RawType)];
+//        
+//        [_operator subtractFloatVector:[eigenspaceMean getMutableData] fromFloatVector:scatterBetweenBuffer numberOfElements:(numberOfImages-numberOfPeople) freeInput:NO];
+////        [_operator transposeFloatMatrix:multiplicationTemporary transposed:multiplicationTemporaryTranspose columnHeight:(numberOfImages-numberOfPeople) rowWidth:1 freeInput:NO];
+//        
+//        [_operator multiplyFloatMatrix:scatterBetweenBuffer withFloatMatrix:scatterBetweenBuffer product:intermediate matrixOneColumnHeight:(numberOfImages-numberOfPeople) matrixOneRowWidth:1 matrixTwoRowWidth:(numberOfImages-numberOfPeople) freeInputs:NO];
+//        
+//        [_operator addFloatMatrix:[Sb getMutableData] toFloatMatrix:intermediate intoResultFloatMatrix:[Sb getMutableData] columnHeight:(numberOfImages-numberOfPeople) rowWidth:(numberOfImages-numberOfPeople) freeInput:NO];
         
         
     }
     free(indices); indices = NULL;
-    free(scatterBetweenBuffer); scatterBetweenBuffer = NULL;
-    free(multiplicationTemporaryTranspose); multiplicationTemporaryTranspose = NULL;
-    free(multiplicationTemporary); multiplicationTemporary = NULL;
-    free(intermediate); intermediate = NULL;
-    free(scatterBuffer); scatterBuffer = NULL;
-    free(innerMean); innerMean = NULL;
+//    free(scatterBetweenBuffer); scatterBetweenBuffer = NULL;
+//    free(multiplicationTemporaryTranspose); multiplicationTemporaryTranspose = NULL;
+//    free(multiplicationTemporary); multiplicationTemporary = NULL;
+//    free(intermediate); intermediate = NULL;
+//    free(scatterBuffer); scatterBuffer = NULL;
+//    free(innerMean); innerMean = NULL;
 //    free(eigenspaceMean); eigenspaceMean = NULL;
+     
 }
 
 -(BPMatrix*)calculateEigenvectorsFromScatterWithin:(BPMatrix*)Sw fromScatterBetween:(BPMatrix*)Sb withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople {
@@ -541,7 +574,7 @@
 //    RawType* JCostFunction = calloc((numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople), sizeof(RawType));
     
     BPMatrix* JCostFunction = [SwInverted multiplyBy:Sb];
-    [_operator multiplyFloatMatrix:[SwInverted getMutableData] withFloatMatrix:[Sb getMutableData] product:[JCostFunction getMutableData] matrixOneColumnHeight:(numberOfImages - numberOfPeople) matrixOneRowWidth:(numberOfImages - numberOfPeople) matrixTwoRowWidth:(numberOfImages - numberOfPeople) freeInputs:NO];
+//    [_operator multiplyFloatMatrix:[SwInverted getMutableData] withFloatMatrix:[Sb getMutableData] product:[JCostFunction getMutableData] matrixOneColumnHeight:(numberOfImages - numberOfPeople) matrixOneRowWidth:(numberOfImages - numberOfPeople) matrixTwoRowWidth:(numberOfImages - numberOfPeople) freeInputs:NO];
     
     
 //    BPMatrix* 

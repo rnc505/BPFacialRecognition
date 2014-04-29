@@ -86,6 +86,7 @@
     int *retVal = (int*)calloc(LENGTH+1, sizeof(int));
 //    NSMutableArray *retVal = [NSMutableArray new];
     int index = 0;
+//    retVal[0] = LENGTH;
 //    retVal[0] = [_people count]+2; // store the size within the array
     for (int i = 0; i < LENGTH; ++i) {
         retVal[i] = index;

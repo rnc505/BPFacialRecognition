@@ -114,7 +114,7 @@
 #endif
 
 #ifdef  IMAGE_TESTS
--(void)testRecognize {
+-(void)testRecognizeDummyData {
     BOOL failure = NO;
     
     BPPerson *Jack = [BPPerson personWithName:@"Jack"];
@@ -170,14 +170,32 @@
     
     [self.recognizer train];
     
-    BPRecognitionResult* result = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test1" withExtension:@"png"]];
-    XCTAssertEqualObjects(Jack, [result person], @"People don't equal");
-    BPRecognitionResult* result1 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test2" withExtension:@"png"]];
-    XCTAssertEqualObjects(Fred, [result1 person], @"People don't equal");
-    BPRecognitionResult* result2 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test3" withExtension:@"png"]];
-    XCTAssertEqualObjects(James, [result2 person], @"People don't equal");
-    BPRecognitionResult* result3 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test10" withExtension:@"png"]];
-    XCTAssertEqualObjects(SilentBob, [result3 person], @"People don't equal");
+    BPRecognitionResult* result1 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test1" withExtension:@"png"]];
+    XCTAssertEqualObjects(Jack, [result1 person], @"People don't equal");
+    
+    BPRecognitionResult* resultA = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"1" withExtension:@"png"]];
+    XCTAssertEqualObjects(Jack, [resultA person], @"People don't equal");
+    
+    
+    
+    BPRecognitionResult* result2 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test2" withExtension:@"png"]];
+    XCTAssertEqualObjects(Fred, [result2 person], @"People don't equal");
+    BPRecognitionResult* result3 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test3" withExtension:@"png"]];
+    XCTAssertEqualObjects(James, [result3 person], @"People don't equal");
+    BPRecognitionResult* result4 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test4" withExtension:@"png"]];
+    XCTAssertEqualObjects(Han, [result4 person], @"People don't equal");
+    BPRecognitionResult* result5 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test5" withExtension:@"png"]];
+    XCTAssertEqualObjects(Jane, [result5 person], @"People don't equal");
+    BPRecognitionResult* result6 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test6" withExtension:@"png"]];
+    XCTAssertEqualObjects(Alfred, [result6 person], @"People don't equal");
+    BPRecognitionResult* result7 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test7" withExtension:@"png"]];
+    XCTAssertEqualObjects(Jamal, [result7 person], @"People don't equal");
+    BPRecognitionResult* result8 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test8" withExtension:@"png"]];
+    XCTAssertEqualObjects(Vlad, [result8 person], @"People don't equal");
+    BPRecognitionResult* result9 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test9" withExtension:@"png"]];
+    XCTAssertEqualObjects(Mitch, [result9 person], @"People don't equal");
+    BPRecognitionResult* result10 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test10" withExtension:@"png"]];
+    XCTAssertEqualObjects(SilentBob, [result10 person], @"People don't equal");
     NSLog(@" ");
 }
 #endif

@@ -374,6 +374,30 @@
 
 }
 
+- (void)testGetColumns {
+    BPMatrix *A = [BPMatrix matrixWithDimensions:CGSizeMake(7, 3) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    for (int i = 0; i < A.width*A.height; ++i) {
+        APointer[i] = (RawType)i;
+    }
+    BPMatrix *columnVec = [A getColumnsFromIndex:2 toIndex:4];
+    RawType* ColumnPointer = (void*)[columnVec getData];
+    
+    XCTAssertEqual(3, columnVec.width, @"getColumn was incorrect");
+    XCTAssertEqual(3, columnVec.height, @"getColumn was incorrect");
+    
+    XCTAssertEqual(2.f, ColumnPointer[0], @"getColumn was incorrect");
+    XCTAssertEqual(3.f, ColumnPointer[1], @"getColumn was incorrect");
+    XCTAssertEqual(4.f, ColumnPointer[2], @"getColumn was incorrect");
+    XCTAssertEqual(9.f, ColumnPointer[3], @"getColumn was incorrect");
+    XCTAssertEqual(10.f, ColumnPointer[4], @"getColumn was incorrect");
+    XCTAssertEqual(11.f, ColumnPointer[5], @"getColumn was incorrect");
+    XCTAssertEqual(16.f, ColumnPointer[6], @"getColumn was incorrect");
+    XCTAssertEqual(17.f, ColumnPointer[7], @"getColumn was incorrect");
+    XCTAssertEqual(18.f, ColumnPointer[8], @"getColumn was incorrect");
+
+}
+
 - (void)testGetRow {
     BPMatrix *A = [BPMatrix matrixWithDimensions:CGSizeMake(7, 3) withPrimitiveSize:sizeof(RawType)];
     RawType* APointer = [A getMutableData];
@@ -430,5 +454,29 @@
     
 }
 
+- (void)testStretchColumnVector {
+    BPMatrix *A = [BPMatrix matrixWithDimensions:CGSizeMake(1, 4) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    for (int i = 0; i < A.width*A.height; ++i) {
+        APointer[i] = (RawType)i;
+    }
+    BPMatrix* stretchedA = [A stretchByNumberOfRows:3];
+    RawType* stetchedP = (void*)[stretchedA getData];
+    XCTAssertEqual(0, stetchedP[0], @"Stretched didn't work");
+    XCTAssertEqual(0, stetchedP[1], @"Stretched didn't work");
+    XCTAssertEqual(0, stetchedP[2], @"Stretched didn't work");
+    
+    XCTAssertEqual(1, stetchedP[3], @"Stretched didn't work");
+    XCTAssertEqual(1, stetchedP[4], @"Stretched didn't work");
+    XCTAssertEqual(1, stetchedP[5], @"Stretched didn't work");
+    
+    XCTAssertEqual(2, stetchedP[6], @"Stretched didn't work");
+    XCTAssertEqual(2, stetchedP[7], @"Stretched didn't work");
+    XCTAssertEqual(2, stetchedP[8], @"Stretched didn't work");
+    
+    XCTAssertEqual(3, stetchedP[9], @"Stretched didn't work");
+    XCTAssertEqual(3, stetchedP[10], @"Stretched didn't work");
+    XCTAssertEqual(3, stetchedP[11], @"Stretched didn't work");
+}
 
 @end
