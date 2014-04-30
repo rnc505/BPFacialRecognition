@@ -197,6 +197,10 @@
     BPRecognitionResult* result10 = [self.recognizer recognizeUnknownPerson:[UIImage imageWithFilename:@"test10" withExtension:@"png"]];
     XCTAssertEqualObjects(SilentBob, [result10 person], @"People don't equal");
     NSLog(@" ");
+    
+    BPMatrix* meanImage = [self.recognizer getMeanImage];
+    
+    UIImage *outputImage1 = [UIImage imageWithRawFloatFloats:[meanImage getData] WithFloatAndOfSquareDimension:kSizeDimension];
 }
 #endif
 
@@ -249,57 +253,86 @@
 }
 
 - (void)testExportData {
-    BOOL failure;
-    BPPerson *Jack = [BPPerson personWithName:@"Jack"];
-    failure = [Jack detectFaceAndAddImage:[UIImage imageWithFilename:@"1" withExtension:@"png"]];
-    failure = [Jack detectFaceAndAddImage:[UIImage imageWithFilename:@"2" withExtension:@"png"]];
+//    BOOL failure;
+//    BPPerson *Jack = [BPPerson personWithName:@"Jack"];
+//    failure = [Jack detectFaceAndAddImage:[UIImage imageWithFilename:@"1" withExtension:@"png"]];
+//    failure = [Jack detectFaceAndAddImage:[UIImage imageWithFilename:@"2" withExtension:@"png"]];
+//    
+//    BPPerson *Fred = [BPPerson personWithName:@"Fred"];
+//    failure = [Fred detectFaceAndAddImage:[UIImage imageWithFilename:@"3" withExtension:@"png"]];
+//    failure = [Fred detectFaceAndAddImage:[UIImage imageWithFilename:@"4" withExtension:@"png"]];
+//    
+//    BPPerson *James = [BPPerson personWithName:@"James"];
+//    failure = [James detectFaceAndAddImage:[UIImage imageWithFilename:@"5" withExtension:@"png"]];
+//    failure = [James detectFaceAndAddImage:[UIImage imageWithFilename:@"6" withExtension:@"png"]];
+//    
+//    BPPerson *Han = [BPPerson personWithName:@"Han"];
+//    failure = [Han detectFaceAndAddImage:[UIImage imageWithFilename:@"7" withExtension:@"png"]];
+//    failure = [Han detectFaceAndAddImage:[UIImage imageWithFilename:@"8" withExtension:@"png"]];
+//    
+//    BPPerson *Jane = [BPPerson personWithName:@"Jane"];
+//    failure = [Jane detectFaceAndAddImage:[UIImage imageWithFilename:@"9" withExtension:@"png"]];
+//    failure = [Jane detectFaceAndAddImage:[UIImage imageWithFilename:@"10" withExtension:@"png"]];
+//    
+//    BPPerson *Alfred = [BPPerson personWithName:@"Alfred"];
+//    failure = [Alfred detectFaceAndAddImage:[UIImage imageWithFilename:@"11" withExtension:@"png"]];
+//    failure = [Alfred detectFaceAndAddImage:[UIImage imageWithFilename:@"12" withExtension:@"png"]];
+//    
+//    BPPerson *Jamal = [BPPerson personWithName:@"Jamal"];
+//    failure = [Jamal detectFaceAndAddImage:[UIImage imageWithFilename:@"13" withExtension:@"png"]];
+//    failure = [Jamal detectFaceAndAddImage:[UIImage imageWithFilename:@"14" withExtension:@"png"]];
+//    
+//    BPPerson *Vlad = [BPPerson personWithName:@"Vlad"];
+//    failure = [Vlad detectFaceAndAddImage:[UIImage imageWithFilename:@"15" withExtension:@"png"]];
+//    failure = [Vlad detectFaceAndAddImage:[UIImage imageWithFilename:@"16" withExtension:@"png"]];
+//    
+//    BPPerson *Mitch = [BPPerson personWithName:@"Mitch"];
+//    failure = [Mitch detectFaceAndAddImage:[UIImage imageWithFilename:@"17" withExtension:@"png"]];
+//    failure = [Mitch detectFaceAndAddImage:[UIImage imageWithFilename:@"18" withExtension:@"png"]];
+//    
+//    BPPerson *SilentBob = [BPPerson personWithName:@"Silent Bob"];
+//    failure = [SilentBob detectFaceAndAddImage:[UIImage imageWithFilename:@"19" withExtension:@"png"]];
+//    failure = [SilentBob detectFaceAndAddImage:[UIImage imageWithFilename:@"20" withExtension:@"png"]];
+//    
+//    [self.recognizer addNewPerson:Jack];
+//    [self.recognizer addNewPerson:Fred];
+//    [self.recognizer addNewPerson:James];
+//    [self.recognizer addNewPerson:Han];
+//    [self.recognizer addNewPerson:Jane];
+//    [self.recognizer addNewPerson:Alfred];
+//    [self.recognizer addNewPerson:Jamal];
+//    [self.recognizer addNewPerson:Vlad];
+//    [self.recognizer addNewPerson:Mitch];
+//    [self.recognizer addNewPerson:SilentBob];
     
-    BPPerson *Fred = [BPPerson personWithName:@"Fred"];
-    failure = [Fred detectFaceAndAddImage:[UIImage imageWithFilename:@"3" withExtension:@"png"]];
-    failure = [Fred detectFaceAndAddImage:[UIImage imageWithFilename:@"4" withExtension:@"png"]];
+    BPPerson *Jake = [BPPerson personWithName:@"Jake"];
+    [Jake detectFaceAndAddImage:[UIImage imageWithFilename:@"jake1" withExtension:@"png"]];
+    [Jake detectFaceAndAddImage:[UIImage imageWithFilename:@"jake2" withExtension:@"png"]];
+    [Jake detectFaceAndAddImage:[UIImage imageWithFilename:@"jake3" withExtension:@"png"]];
+    [Jake detectFaceAndAddImage:[UIImage imageWithFilename:@"jake4" withExtension:@"png"]];
+    [Jake detectFaceAndAddImage:[UIImage imageWithFilename:@"jake5" withExtension:@"png"]];
     
-    BPPerson *James = [BPPerson personWithName:@"James"];
-    failure = [James detectFaceAndAddImage:[UIImage imageWithFilename:@"5" withExtension:@"png"]];
-    failure = [James detectFaceAndAddImage:[UIImage imageWithFilename:@"6" withExtension:@"png"]];
+    BPPerson *John = [BPPerson personWithName:@"John"];
+    [John detectFaceAndAddImage:[UIImage imageWithFilename:@"john1" withExtension:@"png"]];
+    [John detectFaceAndAddImage:[UIImage imageWithFilename:@"john2" withExtension:@"png"]];
+    [John detectFaceAndAddImage:[UIImage imageWithFilename:@"john3" withExtension:@"png"]];
+    [John detectFaceAndAddImage:[UIImage imageWithFilename:@"john4" withExtension:@"png"]];
+    [John detectFaceAndAddImage:[UIImage imageWithFilename:@"john5" withExtension:@"png"]];
     
-    BPPerson *Han = [BPPerson personWithName:@"Han"];
-    failure = [Han detectFaceAndAddImage:[UIImage imageWithFilename:@"7" withExtension:@"png"]];
-    failure = [Han detectFaceAndAddImage:[UIImage imageWithFilename:@"8" withExtension:@"png"]];
+    BPPerson *Robby = [BPPerson personWithName:@"Robby"];
+    [Robby detectFaceAndAddImage:[UIImage imageWithFilename:@"robby1" withExtension:@"png"]];
+    [Robby detectFaceAndAddImage:[UIImage imageWithFilename:@"robby2" withExtension:@"png"]];
+    [Robby detectFaceAndAddImage:[UIImage imageWithFilename:@"robby3" withExtension:@"png"]];
+    [Robby detectFaceAndAddImage:[UIImage imageWithFilename:@"robby4" withExtension:@"png"]];
+    [Robby detectFaceAndAddImage:[UIImage imageWithFilename:@"robby5" withExtension:@"png"]];
     
-    BPPerson *Jane = [BPPerson personWithName:@"Jane"];
-    failure = [Jane detectFaceAndAddImage:[UIImage imageWithFilename:@"9" withExtension:@"png"]];
-    failure = [Jane detectFaceAndAddImage:[UIImage imageWithFilename:@"10" withExtension:@"png"]];
+//    BPFacialRecognizer *recog = [BPFacialRecognizer newRecognizer];
     
-    BPPerson *Alfred = [BPPerson personWithName:@"Alfred"];
-    failure = [Alfred detectFaceAndAddImage:[UIImage imageWithFilename:@"11" withExtension:@"png"]];
-    failure = [Alfred detectFaceAndAddImage:[UIImage imageWithFilename:@"12" withExtension:@"png"]];
-    
-    BPPerson *Jamal = [BPPerson personWithName:@"Jamal"];
-    failure = [Jamal detectFaceAndAddImage:[UIImage imageWithFilename:@"13" withExtension:@"png"]];
-    failure = [Jamal detectFaceAndAddImage:[UIImage imageWithFilename:@"14" withExtension:@"png"]];
-    
-    BPPerson *Vlad = [BPPerson personWithName:@"Vlad"];
-    failure = [Vlad detectFaceAndAddImage:[UIImage imageWithFilename:@"15" withExtension:@"png"]];
-    failure = [Vlad detectFaceAndAddImage:[UIImage imageWithFilename:@"16" withExtension:@"png"]];
-    
-    BPPerson *Mitch = [BPPerson personWithName:@"Mitch"];
-    failure = [Mitch detectFaceAndAddImage:[UIImage imageWithFilename:@"17" withExtension:@"png"]];
-    failure = [Mitch detectFaceAndAddImage:[UIImage imageWithFilename:@"18" withExtension:@"png"]];
-    
-    BPPerson *SilentBob = [BPPerson personWithName:@"Silent Bob"];
-    failure = [SilentBob detectFaceAndAddImage:[UIImage imageWithFilename:@"19" withExtension:@"png"]];
-    failure = [SilentBob detectFaceAndAddImage:[UIImage imageWithFilename:@"20" withExtension:@"png"]];
-    
-    [self.recognizer addNewPerson:Jack];
-    [self.recognizer addNewPerson:Fred];
-    [self.recognizer addNewPerson:James];
-    [self.recognizer addNewPerson:Han];
-    [self.recognizer addNewPerson:Jane];
-    [self.recognizer addNewPerson:Alfred];
-    [self.recognizer addNewPerson:Jamal];
-    [self.recognizer addNewPerson:Vlad];
-    [self.recognizer addNewPerson:Mitch];
-    [self.recognizer addNewPerson:SilentBob];
+    [self.recognizer addNewPerson:Jake];
+    [self.recognizer addNewPerson:John];
+    [self.recognizer addNewPerson:Robby];
+//    [self.recognizer train];
+
     
     BPRecognizerCPUOperator* _operator = [BPRecognizerCPUOperator new];
     
@@ -346,5 +379,55 @@
 //    yes = [data2 writeToFile:pngFilePath2 atomically:YES];
 
 }
+
+
+- (void)testFriendRecognizerTest {
+    
+    BPPerson *Jake = [BPPerson personWithName:@"Jake"];
+    [Jake detectFaceAndAddImage:[UIImage imageWithFilename:@"jake1" withExtension:@"png"]];
+    [Jake detectFaceAndAddImage:[UIImage imageWithFilename:@"jake2" withExtension:@"png"]];
+    [Jake detectFaceAndAddImage:[UIImage imageWithFilename:@"jake3" withExtension:@"png"]];
+    [Jake detectFaceAndAddImage:[UIImage imageWithFilename:@"jake4" withExtension:@"png"]];
+    [Jake detectFaceAndAddImage:[UIImage imageWithFilename:@"jake5" withExtension:@"png"]];
+    
+    BPPerson *John = [BPPerson personWithName:@"John"];
+    [John detectFaceAndAddImage:[UIImage imageWithFilename:@"john1" withExtension:@"png"]];
+    [John detectFaceAndAddImage:[UIImage imageWithFilename:@"john2" withExtension:@"png"]];
+    [John detectFaceAndAddImage:[UIImage imageWithFilename:@"john3" withExtension:@"png"]];
+    [John detectFaceAndAddImage:[UIImage imageWithFilename:@"john4" withExtension:@"png"]];
+    [John detectFaceAndAddImage:[UIImage imageWithFilename:@"john5" withExtension:@"png"]];
+    
+    BPPerson *Robby = [BPPerson personWithName:@"Robby"];
+    [Robby detectFaceAndAddImage:[UIImage imageWithFilename:@"robby1" withExtension:@"png"]];
+    [Robby detectFaceAndAddImage:[UIImage imageWithFilename:@"robby2" withExtension:@"png"]];
+    [Robby detectFaceAndAddImage:[UIImage imageWithFilename:@"robby3" withExtension:@"png"]];
+    [Robby detectFaceAndAddImage:[UIImage imageWithFilename:@"robby4" withExtension:@"png"]];
+    [Robby detectFaceAndAddImage:[UIImage imageWithFilename:@"robby5" withExtension:@"png"]];
+    
+    BPFacialRecognizer *recog = [BPFacialRecognizer newRecognizer];
+    
+    [recog addNewPerson:Jake];
+    [recog addNewPerson:John];
+    [recog addNewPerson:Robby];
+    [recog train];
+    
+    BPRecognitionResult *shouldBeJohn = [recog recognizeUnknownPerson:[UIImage imageWithFilename:@"john_test1" withExtension:@"png"]];
+    XCTAssertEqualObjects(John, [shouldBeJohn person], @"Recognizer failed.");
+    
+    BPRecognitionResult *shouldBeJake = [recog recognizeUnknownPerson:[UIImage imageWithFilename:@"jake_test1" withExtension:@"png"]];
+    XCTAssertEqualObjects(Jake, [shouldBeJake person], @"Recognizer failed.");
+
+    BPRecognitionResult *shouldBeRobby = [recog recognizeUnknownPerson:[UIImage imageWithFilename:@"robby_test1" withExtension:@"png"]];
+    XCTAssertEqualObjects(Robby, [shouldBeRobby person], @"Recognizer failed.");
+    
+    
+    
+    BPMatrix* meanImage = [recog getMeanImage];
+    
+    UIImage *outputImage1 = [UIImage imageWithRawFloatFloats:[meanImage getData] WithFloatAndOfSquareDimension:kSizeDimension];
+
+    
+}
+
 
 @end

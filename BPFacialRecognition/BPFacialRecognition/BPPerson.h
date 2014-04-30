@@ -17,6 +17,6 @@
 @property (nonatomic, retain) NSNumber* count;
 +(BPPerson*)personWithName:(NSString*)name;
 -(BOOL)detectFaceAndAddImage:(UIImage*)newImage;
--(NSSet*)getPersonsImages;
+-(NSArray*)getPersonsImages;
 
 @end

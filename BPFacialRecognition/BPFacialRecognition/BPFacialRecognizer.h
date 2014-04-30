@@ -18,7 +18,7 @@
 -(void)train;
 -(BPRecognitionResult*)recognizeUnknownPerson:(UIImage*)image;
 -(BOOL)doesUnknownImage:(UIImage*)image matchPerson:(BPPerson*)person;
--(NSSet*)peopleInRecognizer;
-
+-(NSArray*)peopleInRecognizer;
+-(BPMatrix*)getMeanImage;
 @end
 

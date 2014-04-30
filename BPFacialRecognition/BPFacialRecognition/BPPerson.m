@@ -14,8 +14,8 @@
 @interface BPPerson ()
 @property (nonatomic, copy) NSString* name;
 @property (nonatomic, copy) NSString* uuid;
-@property (nonatomic, retain) NSMutableSet* images;
-@property (nonatomic, retain) NSMutableSet* grayscaledImages;
+@property (nonatomic, retain) NSMutableArray* images;
+@property (nonatomic, retain) NSMutableArray* grayscaledImages;
 -(BOOL)imageContainsFace:(UIImage*)image;
 @end
 
@@ -25,8 +25,8 @@
     BPPerson* person = [BPPerson new];
     [person setName:name];
     [person setUuid:[[NSUUID UUID] UUIDString]];
-    [person setImages:[NSMutableSet new]];
-    [person setGrayscaledImages:[NSMutableSet new]];
+    [person setImages:[NSMutableArray new]];
+    [person setGrayscaledImages:[NSMutableArray new]];
     return person;
 }
 -(BOOL)detectFaceAndAddImage:(UIImage *)newImage {
@@ -68,7 +68,7 @@
     return NO;
 }
 
--(NSSet *)getPersonsImages {
+-(NSArray *)getPersonsImages {
     return _grayscaledImages;
 }
 

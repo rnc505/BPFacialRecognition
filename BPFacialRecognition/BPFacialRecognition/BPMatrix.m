@@ -7,17 +7,20 @@
 //
 #define swap(a, b) {a^=b;b^=a;a^=b;}
 #import "BPMatrix.h"
+#import "BPEigen.h"
 #import "BPRecognizerCPUOperator.h"
 @interface BPMatrix()
 @property(nonatomic, retain) NSMutableData* data;
 @property(nonatomic, retain) BPRecognizerCPUOperator *operator;
-@property (nonatomic, readwrite) NSUInteger width;
-@property (nonatomic, readwrite) NSUInteger height;
+//@property (nonatomic, readwrite) NSUInteger width;
+//@property (nonatomic, readwrite) NSUInteger height;
 @property (nonatomic, retain, readwrite) BPMatrix* eigenvalues;
 @property (nonatomic, retain, readwrite) BPMatrix* eigenvectors;
 -(id)initWithWidth:(NSUInteger)width withHeight:(NSUInteger)height withPrimitiveSize:(NSUInteger)size;
 -(id)initWithWidth:(NSUInteger)width withHeight:(NSUInteger)height withPrimitiveSize:(NSUInteger)size withMemory:(void*)memory;
 -(void*)allocateNewMemoryOfDimension:(CGSize)dimensions ofPrimitiveSize:(NSUInteger)size;
++(void*)allocateNewMemoryOfDimension:(CGSize)dimensions ofPrimitiveSize:(NSUInteger)size;
+
 -(BPMatrix*)_internalTranspose;
 @end
 @implementation BPMatrix
@@ -86,6 +89,12 @@
     check_alloc_error(posix_memalign((void**)&uninitMem, kAlignment,dimensions.height*dimensions.width*size));
     return uninitMem;
 }
++(void *)allocateNewMemoryOfDimension:(CGSize)dimensions ofPrimitiveSize:(NSUInteger)size {
+    void* uninitMem __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&uninitMem, kAlignment,dimensions.height*dimensions.width*size));
+    return uninitMem;
+}
+
 
 -(BPMatrix*)duplicate {
     void* mem = [self allocateNewMemoryOfDimension:CGSizeMake(_width, _height) ofPrimitiveSize:_size];
@@ -144,9 +153,35 @@
         [self _internalTranspose];
     }
     [self setEigenvalues:[[BPMatrix alloc] initWithWidth:eigenval withHeight:1 withPrimitiveSize:_size withMemory:newEigenvalues]];
-    [self setEigenvectors:[[BPMatrix alloc] initWithWidth:eigenval withHeight:eigenvec/eigenval withPrimitiveSize:_size withMemory:newEigenvectors]];
+    BPMatrix* tempVec =[[BPMatrix alloc] initWithWidth:eigenval withHeight:eigenvec/eigenval withPrimitiveSize:_size withMemory:newEigenvectors];
+    [self setEigenvectors:tempVec];
     return self;
 }
+
++(BPMatrix *)eigendecomposeGeneralizedMatrixA:(BPMatrix*)A andB:(BPMatrix*)B WithNumberOfValues:(NSUInteger)numValues numberOfVector:(NSUInteger)numVectors {
+    
+    if([A width] != [A height]) {
+        [NSException raise:@"Dimension mismatch" format:@"Only square matrices can be eigendecomposed. Dimensions: (%lu, %lu).", (unsigned long)[A width], (unsigned long)[A height]];
+    }
+    if([B width] != [B height]) {
+        [NSException raise:@"Dimension mismatch" format:@"Only square matrices can be eigendecomposed. Dimensions: (%lu, %lu).", (unsigned long)[B width], (unsigned long)[B height]];
+    }
+    
+    BPMatrix *Atransposed = [A transposedNew];
+    BPMatrix *Btransposed = [B transposedNew];
+    void *newEigenvalues = [BPMatrix allocateNewMemoryOfDimension:CGSizeMake(numValues, 1) ofPrimitiveSize:sizeof(RawType)];
+    void *newEigenvectors = [BPMatrix allocateNewMemoryOfDimension:CGSizeMake(numValues, numVectors/numValues) ofPrimitiveSize:sizeof(RawType)];
+    
+    [[Atransposed operator] eigendecomposeGeneralizedMatricesA:[Atransposed getMutableData] andB:[Btransposed getMutableData] intoEigenvalues:newEigenvalues eigenvectors:newEigenvectors numberOfImportantValues:numValues maxtrixDimension:numVectors/numValues freeInput:NO];
+//    [BPEigen eigendecomposeGeneralizedMatricesA:A andB:B intoEigenvalues:newEigenvalues eigenvectors:newEigenvectors numberOfImportantValues:numValues maxtrixDimension:numVectors/numValues freeInput:NO];
+    
+    BPMatrix *retVal = [BPMatrix matrixWithDimensions:CGSizeMake(1, 1) withPrimitiveSize:sizeof(RawType)];
+    [retVal setEigenvalues:[[BPMatrix alloc] initWithWidth:numValues withHeight:1 withPrimitiveSize:sizeof(RawType) withMemory:newEigenvalues]];
+    [retVal setEigenvectors:[[[BPMatrix alloc] initWithWidth:numValues withHeight:numVectors/numValues withPrimitiveSize:sizeof(RawType) withMemory:newEigenvectors]transposedNew]];
+    return retVal;
+    
+}
+
 -(BPMatrix*)addBy:(BPMatrix*)rightMatrix {
     if([self width] != [rightMatrix width] || [self height] != [rightMatrix height]) {
         [NSException raise:@"Dimension mismatch" format:@"Dimensions weren't the same. Receiver: (%lu, %lu), rightMatrix: (%lu, %lu).", (unsigned long)[self width], (unsigned long)[self height], (unsigned long)[rightMatrix width], (unsigned long)[rightMatrix height]];
@@ -260,4 +295,37 @@
     
     return retVal;
 }
+
+-(BPMatrix *)flippedL2R {
+    BPMatrix *retval = [self duplicate];
+    RawType* retValData = [retval getMutableData];
+    for (int i = 0; i < _height; ++i) {
+        for(int L = 0, R = (int)_width - 1; L < R; ++L, --R) {
+            RawType temp = retValData[i*_width + R];
+            retValData[i*_width + R] = retValData[i*_width + L];
+            retValData[i*_width + L] = temp;
+        }
+    }
+    
+    return retval;
+}
+
++(BPMatrix *)concatMatrixOne:(BPMatrix *)matOne withMatrixTwo:(BPMatrix *)matTwo {
+    if([matOne height] != [matTwo height]) {
+        [NSException raise:@"Dimensions not allowed" format:@"Heights must match. Mat One Height: %lu | Mat Two Height: %lu",[matOne height], [matTwo height]];
+    }
+    BPMatrix *retVal = [BPMatrix matrixWithDimensions:CGSizeMake(matOne.width+matTwo.width, matOne.height) withPrimitiveSize:sizeof(RawType)];
+    RawType* retValP = [retVal getMutableData];
+    int index = 0;
+    for (int i = 0; i < matOne.height; ++i) {
+        for (int j = 0; j < matOne.width; ++j, ++index) {
+            retValP[index] = [matOne[i*matOne.width + j] floatValue];
+        }
+        for (int j = 0; j < matTwo.width; ++j,++index) {
+            retValP[index] = [matTwo[i*matTwo.width + j] floatValue];
+        }
+    }
+    return retVal;
+}
+
 @end

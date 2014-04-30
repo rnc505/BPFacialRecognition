@@ -1,1 +1,3 @@
 platform :ios, '7.0'
+pod 'eigen', '~> 3.2'
+pod 'UIImageEffects', '~> 0.0'

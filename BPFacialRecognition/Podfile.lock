@@ -1,1 +1,18 @@
+PODS:
+  - boost/numeric-includes (1.51.0)
+  - boost/preprocessor-includes (1.51.0)
+  - eigen (3.2.0):
+    - boost/numeric-includes
+    - boost/preprocessor-includes
+  - UIImageEffects (0.0.1)
+
+DEPENDENCIES:
+  - eigen (~> 3.2)
+  - UIImageEffects (~> 0.0)
+
+SPEC CHECKSUMS:
+  boost: 2b05737c6c81d5c844b8018bf828a18b34aceda6
+  eigen: 834cce1e31225921dcfeeaca45cf0014ba94eecd
+  UIImageEffects: e1059bcd4c1766f72a78ae6ade359e3f9ee31063
+
 COCOAPODS: 0.32.1

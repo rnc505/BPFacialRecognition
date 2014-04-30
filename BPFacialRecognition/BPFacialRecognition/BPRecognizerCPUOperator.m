@@ -24,7 +24,7 @@
 -(void)columnWiseMeanOfFloatMatrix:(float*)inputMatrix toFloatVector:(float*)outputVector columnHeight:(NSUInteger)cHeight rowWidth:(NSUInteger)rWidth freeInput:(BOOL)shouldFreeInput {
     
     for (int i = 0; i < cHeight; ++i) {
-        vDSP_meanv(inputMatrix + i, cHeight, outputVector+i, rWidth);
+        vDSP_meanv(inputMatrix + i*rWidth, 1, outputVector+i, rWidth);
     }
     if(shouldFreeInput) {
         free(inputMatrix); inputMatrix = NULL;
@@ -58,11 +58,19 @@
 }
 -(void)multiplyFloatMatrix:(float*)inputMatrixOne withFloatMatrix:(float*)inputMatrixTwo product:(float*)product matrixOneColumnHeight:(NSUInteger)cOneHeight matrixOneRowWidth:(NSUInteger)rOneWidth matrixTwoRowWidth:(NSUInteger)rTwoWidth freeInputs:(BOOL)shouldFreeInputs {
     
-    vDSP_mmul(inputMatrixOne, 1, inputMatrixTwo, 1, product, 1, cOneHeight, rTwoWidth, rOneWidth);
+    double* oneD = nil; check_alloc_error(posix_memalign((void**)&oneD, kAlignment, cOneHeight*rOneWidth*sizeof(double)));
+    double* twoD = nil; check_alloc_error(posix_memalign((void**)&twoD, kAlignment, rTwoWidth*rOneWidth*sizeof(double)));
+    double* productD = nil; check_alloc_error(posix_memalign((void**)&productD, kAlignment, cOneHeight*rTwoWidth*sizeof(double)));
+    
+    vDSP_vspdp(inputMatrixOne, 1, oneD, 1, cOneHeight*rOneWidth);
+    vDSP_vspdp(inputMatrixTwo, 1, twoD, 1, rTwoWidth*rOneWidth);
+    
+    vDSP_mmulD(oneD, 1, twoD, 1, productD, 1, cOneHeight, rTwoWidth, rOneWidth);
     if (shouldFreeInputs) {
         free(inputMatrixOne); inputMatrixOne = NULL;
         free(inputMatrixTwo); inputMatrixTwo = NULL;
     }
+    vDSP_vdpsp(productD, 1, product, 1, cOneHeight*rTwoWidth);
 }
 
 -(void)eigendecomposeSymmetricFloatMatrix:(float*)inputMatrix intoEigenvalues:(float*)eigenvalues eigenvectors:(float*)eigenvectors numberOfImportantValues:(NSUInteger)numberOfImportantValues matrixDimension:(NSUInteger)dimension freeInput:(BOOL)shouldFreeInput {
@@ -107,6 +115,8 @@
     if(shouldFreeInput) {
         free(inputMatrix); inputMatrix = NULL;
     }
+//    [self transposeFloatMatrix:eigenvectors transposed:eigenvectors columnHeight:numberOfImportantValues rowWidth:dimension freeInput:NO];
+    
 }
 
 -(void)eigendecomposeFloatMatrix:(float*)inputMatrix intoEigenvalues:(float*)eigenvalues eigenvectors:(float*)eigenvectors numberOfImportantValues:(NSUInteger)numberOfImportantValues matrixDimension:(NSUInteger)dimension freeInput:(BOOL)shouldFreeInput {
@@ -129,6 +139,42 @@
     }
     
 }
+
+-(void)eigendecomposeGeneralizedMatricesA:(float *)A andB:(float *)B intoEigenvalues:(float *)eigenvalues eigenvectors:(float *)eigenvectors numberOfImportantValues:(NSUInteger)numImportant maxtrixDimension:(NSUInteger)dimension freeInput:(BOOL)shouldFreeInput {
+    
+    __CLPK_integer n = (int)dimension, lda = (int)dimension, ldb = (int)dimension, ldvr = (int)n,lwork = -1,info;
+    __CLPK_real wkopt = -1;
+    __CLPK_integer ONE = 1;
+    
+    __CLPK_real *alphar __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&alphar, kAlignment, n*sizeof(__CLPK_real)));
+    __CLPK_real *alphai __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&alphai, kAlignment, n*sizeof(__CLPK_real)));
+    __CLPK_real *beta __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&beta, kAlignment, n*sizeof(__CLPK_real)));
+//    
+//    __CLPK_real *leftEigenvect __attribute__((aligned(kAlignment))) = NULL;
+//    check_alloc_error(posix_memalign((void**)&leftEigenvect, kAlignment, n*n*sizeof(__CLPK_real)));
+    
+    sggev_("N", "V", &n, A, &lda, B, &ldb, alphar, alphai, beta, NULL, &ldvr, eigenvectors, &ldvr, &wkopt, &lwork, &info);
+    if(info != 0) {
+        @throw [NSString stringWithFormat:@"Info was non-zero... %d",info];
+    }
+    lwork = (int)wkopt;
+    __CLPK_real *WORK_PTR __attribute__((aligned(kAlignment))) = NULL;
+    check_alloc_error(posix_memalign((void**)&WORK_PTR, kAlignment, lwork*sizeof(__CLPK_real)));
+    sggev_("N", "V", &n, A, &lda, B, &ldb, alphar, alphai, beta, NULL, &ldvr, eigenvectors, &ldvr, WORK_PTR, &lwork, &info);
+    
+    for (int i = 0; i < n; ++i) {
+        if (beta[i] < .0000000001) {
+            eigenvalues[i]= 0;
+        } else {
+            eigenvalues[i] = alphar[i]/beta[i];
+        }
+    }
+    NSLog(@"");
+}
+
 
 -(void)clearFloatMatrix:(float*)inputMatrix numberOfElements:(NSUInteger)elements {
     vDSP_vclr(inputMatrix, 1, elements);

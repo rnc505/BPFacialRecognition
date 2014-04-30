@@ -8,6 +8,7 @@
 
 #import <XCTest/XCTest.h>
 #import "BPMatrix.h"
+#import "BPEigen.h"
 @interface BPMatrixTests : XCTestCase
 
 @end
@@ -335,6 +336,48 @@
     
 }
 
+- (void)testEigendecomposeGeneralizedMatrices {
+    BPMatrix* A = [BPMatrix matrixWithDimensions:CGSizeMake(5, 5) withPrimitiveSize:sizeof(RawType)];
+    A[0] = @(2.f), A[1] = @(3.f),A[2] = @(4.f), A[3] = @(5.f), A[4] = @(6.f), A[5] = @(4.f), A[6] = @(4.f), A[7] = @(5.f),A[8] = @(6.f),A[9] = @(7.f),A[10] = @(0.f), A[11] = @(3.f), A[12] = @(6.f),A[13] = @(7.f),A[14] = @(8.f),A[15] = @(0.f), A[16] = @(0.f), A[17] = @(2.f),A[18] = @(8.f),A[19] = @(9.f),A[20] = @(0.f), A[21] = @(0.f), A[22] = @(0.f),A[23] = @(1.f),A[24] = @(10.f);
+    
+    BPMatrix* B = [BPMatrix matrixWithDimensions:CGSizeMake(5, 5) withPrimitiveSize:sizeof(RawType)];
+    B[0] = @(1.f), B[1] = @(-1.f),B[2] = @(-1.f), B[3] = @(-1.f), B[4] = @(-1.f), B[5] = @(0.f), B[6] = @(1.f), B[7] = @(-1.f),B[8] = @(-1.f),B[9] = @(-1.f),B[10] = @(0.f), B[11] = @(0.f), B[12] = @(1.f),B[13] = @(-1.f),B[14] = @(-1.f),B[15] = @(0.f), B[16] = @(0.f), B[17] = @(0.f),B[18] = @(1.f),B[19] = @(-1.f),B[20] = @(0.f), B[21] = @(0.f), B[22] = @(0.f),B[23] = @(0.f),B[24] = @(1.f);
+//
+//    BPMatrix*A = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
+//    A[0] = @(10.f), A[1] = @(1.f), A[2] = @(2.f), A[3] = @(1.f), A[4] = @(2.f), A[5] = @(-1.f), A[6] = @(1.f), A[7] = @(1.f), A[8] = @(2.f);
+//    
+//    BPMatrix*B = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
+//    B[0] = @(1.f), B[1] = @(2.f), B[2] = @(3.f), B[3] = @(4.f), B[4] = @(5.f), B[5] = @(6.f), B[6] = @(7.f), B[7] = @(8.f), B[8] = @(9.f);
+    
+//    BPMatrix *B = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
+//    B[0] = @(1.f), B[1] = @(2.f), B[2] = @(3.f), B[3] = @(4.f), B[4] = @(5.f), B[5] = @(6.f), B[6] = @(7.f), B[7] = @(8.f), B[8] = @(9.f);
+//    BPMatrix *A = [B duplicate];
+    
+    
+    BPMatrix* empty = [BPMatrix eigendecomposeGeneralizedMatrixA:A andB:B WithNumberOfValues:A.width numberOfVector:A.width*A.height];
+    
+    BPMatrix* eigenvalues = [empty eigenvalues];
+    RawType* eigenvaluesPointer = (void*)[eigenvalues getData];
+    NSLog(@"");
+//    XCTAssertEqualWithAccuracy(<#a1#>, <#a2#>, <#accuracy#>, <#format...#>)
+}
+
+- (void)testAlternativeToEigendecomposingGeneralizedMatrices {
+    BPMatrix* A = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
+    A[0] = @(1.f), A[1] = @(2.f),A[2] = @(3.f), A[3] = @(4.f), A[4] = @(5.f), A[5] = @(6.f), A[6] = @(7.f), A[7] = @(8.f),A[8] = @(9.f);
+    
+    BPMatrix* B = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
+    B[0] = @(5.f), B[1] = @(20.f),B[2] = @(35.f), B[3] = @(10.f), B[4] = @(25.f), B[5] = @(40.f), B[6] = @(15.f), B[7] = @(30.f),B[8] = @(45.f);
+    
+    BPMatrix* Binverted = [[B duplicate] invertMatrix];
+    [Binverted multiplyBy:A];
+    [Binverted eigendecomposeIsSymmetric:NO withNumberOfValues:3 withNumberOfVectors:9];
+    
+    
+    
+    NSLog(@"");
+}
+
 - (void)testMeanOfRows {
     BPMatrix* A = [BPMatrix matrixWithDimensions:CGSizeMake(3, 3) withPrimitiveSize:sizeof(RawType)];
     RawType* APointer = [A getMutableData];
@@ -350,9 +393,9 @@
     APointer[8] = 3.f;
     BPMatrix* meanOfRows = [A meanOfRows];
     RawType* MeanPointer = (void*)[meanOfRows getData];
-    XCTAssertEqual(14.f/3, MeanPointer[0], @"Mean of rows was incorrect");
-    XCTAssertEqual(12.f/3, MeanPointer[1], @"Mean of rows was incorrect");
-    XCTAssertEqual(14.f/3, MeanPointer[2], @"Mean of rows was incorrect");
+    XCTAssertEqual(6.f/3, MeanPointer[0], @"Mean of rows was incorrect");
+    XCTAssertEqual(15.f/3, MeanPointer[1], @"Mean of rows was incorrect");
+    XCTAssertEqual(19.f/3, MeanPointer[2], @"Mean of rows was incorrect");
 }
 
 - (void)testGetColumn {
@@ -477,6 +520,70 @@
     XCTAssertEqual(3, stetchedP[9], @"Stretched didn't work");
     XCTAssertEqual(3, stetchedP[10], @"Stretched didn't work");
     XCTAssertEqual(3, stetchedP[11], @"Stretched didn't work");
+}
+
+- (void)testFlipL2R {
+    BPMatrix *A = [BPMatrix matrixWithDimensions:CGSizeMake(3, 4) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    for (int i = 1; i <= A.width*A.height; ++i) {
+        APointer[i-1] = (RawType)i;
+    }
+    BPMatrix *mat =[A flippedL2R];
+    RawType*Aflip = (void*)[mat getData];
+    
+    XCTAssertEqual(3, Aflip[0], @"Flipp no go");
+    XCTAssertEqual(2, Aflip[1], @"Flipp no go");
+    XCTAssertEqual(1, Aflip[2], @"Flipp no go");
+    
+    XCTAssertEqual(6, Aflip[3], @"Flipp no go");
+    XCTAssertEqual(5, Aflip[4], @"Flipp no go");
+    XCTAssertEqual(4, Aflip[5], @"Flipp no go");
+
+    XCTAssertEqual(9, Aflip[6], @"Flipp no go");
+    XCTAssertEqual(8, Aflip[7], @"Flipp no go");
+    XCTAssertEqual(7, Aflip[8], @"Flipp no go");
+    
+    XCTAssertEqual(12, Aflip[9], @"Flipp no go");
+    XCTAssertEqual(11, Aflip[10], @"Flipp no go");
+    XCTAssertEqual(10, Aflip[11], @"Flipp no go");
+}
+
+- (void)testConcatTwoMatricesByColumn {
+    BPMatrix * A = [BPMatrix matrixWithDimensions:CGSizeMake(2, 4) withPrimitiveSize:sizeof(RawType)];
+    RawType* APointer = [A getMutableData];
+    for (int i = 0; i < A.width*A.height; ++i) {
+        APointer[i] = (RawType)i;
+    }
+    
+    BPMatrix * B = [BPMatrix matrixWithDimensions:CGSizeMake(1, 4) withPrimitiveSize:sizeof(RawType)];
+    RawType* BPointer = [B getMutableData];
+    for (int i = 0; i < B.width*B.height; ++i) {
+        BPointer[i] = (RawType)i*2;
+    }
+    
+    BPMatrix* concat = [BPMatrix concatMatrixOne:A withMatrixTwo:B];
+    RawType* concatP = (void*)[concat getData];
+    
+    XCTAssertEqual(0, concatP[0], @"Concat no work");
+    XCTAssertEqual(1, concatP[1], @"Concat no work");
+    XCTAssertEqual(0, concatP[2], @"Concat no work");
+    
+    XCTAssertEqual(2, concatP[3], @"Concat no work");
+    XCTAssertEqual(3, concatP[4], @"Concat no work");
+    XCTAssertEqual(2, concatP[5], @"Concat no work");
+    
+    XCTAssertEqual(4, concatP[6], @"Concat no work");
+    XCTAssertEqual(5, concatP[7], @"Concat no work");
+    XCTAssertEqual(4, concatP[8], @"Concat no work");
+    
+    XCTAssertEqual(6, concatP[9], @"Concat no work");
+    XCTAssertEqual(7, concatP[10], @"Concat no work");
+    XCTAssertEqual(6, concatP[11], @"Concat no work");
+    
+}
+
+-(void)testEigen {
+    [BPEigen test];
 }
 
 @end

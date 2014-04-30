@@ -9,8 +9,8 @@
 #import <Foundation/Foundation.h>
 
 @interface BPMatrix : NSObject
-@property (nonatomic, readonly) NSUInteger width;
-@property (nonatomic, readonly) NSUInteger height;
+@property (nonatomic) NSUInteger width;
+@property (nonatomic) NSUInteger height;
 @property (nonatomic, readonly) NSUInteger size;
 @property (nonatomic, retain, readonly) BPMatrix* eigenvalues;
 @property (nonatomic, retain, readonly) BPMatrix* eigenvectors;
@@ -20,7 +20,9 @@
 +(BPMatrix*)matrixWithSubtractionOfMatrixOne:(BPMatrix*)matrixOne byMatrixTwo:(BPMatrix*)matrixTwo;
 +(BPMatrix*)matrixWithAdditionOfMatrixOne:(BPMatrix*)matrixOne WithMatrixTwo:(BPMatrix*)matrixTwo;
 +(RawType)euclideanDistanceBetweenMatrixOne:(BPMatrix*)matrixOne andMatrixTwo:(BPMatrix*)matrixTwo;
++(BPMatrix*)concatMatrixOne:(BPMatrix*)matOne withMatrixTwo:(BPMatrix*)matTwo;
 
++(BPMatrix *)eigendecomposeGeneralizedMatrixA:(BPMatrix*)A andB:(BPMatrix*)B WithNumberOfValues:(NSUInteger)numValues numberOfVector:(NSUInteger)numVectors;
 -(const void*)getData;
 -(void*)getMutableData;
 -(BPMatrix*)transpose;
@@ -40,6 +42,7 @@
 -(BPMatrix*)getColumnsFromIndex:(NSUInteger)index1 toIndex:(NSUInteger)index2;
 
 -(BPMatrix*)stretchByNumberOfRows:(NSUInteger)numRows;
+-(BPMatrix*)flippedL2R;
 
 - (id)objectAtIndexedSubscript:(NSUInteger)idx;
 - (void)setObject:(id)obj atIndexedSubscript:(NSUInteger)idx;

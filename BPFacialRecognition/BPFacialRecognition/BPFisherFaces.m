@@ -16,7 +16,7 @@
 @interface BPFisherFaces ()
 @property (nonatomic, weak) id<BPFisherFacesDataSource> dataSource;
 @property (nonatomic, retain) BPRecognizerCPUOperator *operator;
-@property (nonatomic, retain) BPMatrix *meanImage;
+//@property (nonatomic, retain) BPMatrix *meanImage;
 @property (nonatomic, retain) BPMatrix *covarianceEigenvectors;
 @property (nonatomic, retain) BPMatrix *largestEigenvectorsOfWork;
 @property (nonatomic, retain) BPMatrix *projectedImages;
@@ -229,7 +229,7 @@
     
     BPMatrix* retval = [[largestEigenvectorsOfWorkT multiplyBy:covarianceEigenvectorsT] multiplyBy:testImg];
     
-    if([retval width] != 1 || [retval height] != (numberOfImages - numberOfPeople)) {
+    if([retval width] != 1 || [retval height] != largestEigenvectorsOfWorkT.height) {
         @throw @"retval incorrect size";
     }
     
@@ -381,8 +381,11 @@
     
 //    [_operator clearFloatMatrix:outputEigenvectors numberOfElements:kSizeDimension*kSizeDimension*(numberOfImages-numberOfPeople)];
 //    [_operator multiplyFloatMatrix:matrix withFloatMatrix:eigenvectors product:outputEigenvectors matrixOneColumnHeight:kSizeDimension*kSizeDimension matrixOneRowWidth:numberOfImages matrixTwoRowWidth:(numberOfImages-numberOfPeople) freeInputs:NO];
-    
-    BPMatrix* outputEigenvectors = [BPMatrix matrixWithMultiplicationOfMatrixOne:matrix withMatrixTwo:[covariance eigenvectors]];
+    BPMatrix* covarEigenvectors = [covariance eigenvectors];
+    NSUInteger temp = covarEigenvectors.width;
+    covarEigenvectors.width = covarEigenvectors.height;
+    covarEigenvectors.height = temp;
+    BPMatrix* outputEigenvectors = [[BPMatrix matrixWithMultiplicationOfMatrixOne:covarEigenvectors withMatrixTwo:[matrix transposedNew]] transpose];
     
     if([outputEigenvectors width] != (numberOfImages-numberOfPeople) || [outputEigenvectors height] != (kSizeDimension*kSizeDimension)) {
         @throw @"Dimensions of output eigenvectors are wrong";
@@ -460,8 +463,8 @@
 
 -(void)calculateMeanOfEachClassFromEigenspace:(BPMatrix*)eigenspace intoScatterWithinMatrix:(BPMatrix*)Sw intoScatterBetweenMatrix:(BPMatrix*)Sb withNumberOfImages:(NSUInteger)numberOfImages withNumberOfPeople:(NSUInteger)numberOfPeople {
     
-    Sb = [BPMatrix matrixWithDimensions:CGSizeMake((numberOfImages-numberOfPeople), (numberOfImages-numberOfPeople)) withPrimitiveSize:sizeof(RawType)];
-    Sw = [BPMatrix matrixWithDimensions:CGSizeMake((numberOfImages-numberOfPeople), (numberOfImages-numberOfPeople)) withPrimitiveSize:sizeof(RawType)];
+//    Sb = [BPMatrix matrixWithDimensions:CGSizeMake((numberOfImages-numberOfPeople), (numberOfImages-numberOfPeople)) withPrimitiveSize:sizeof(RawType)];
+//    Sw = [BPMatrix matrixWithDimensions:CGSizeMake((numberOfImages-numberOfPeople), (numberOfImages-numberOfPeople)) withPrimitiveSize:sizeof(RawType)];
     
 //    RawType* eigenspaceMean __attribute__((aligned(kAlignment))) = NULL;
 //    check_alloc_error(posix_memalign((void**)&eigenspaceMean, kAlignment, (numberOfImages - numberOfPeople)*sizeof(RawType)));
@@ -563,7 +566,7 @@
 //    RawType* SwInverted __attribute__((aligned(kAlignment))) = NULL;
 //    check_alloc_error(posix_memalign((void**)&SwInverted, kAlignment, (numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople)*sizeof(RawType)));
 
-    BPMatrix* SwInverted = [[Sw duplicate] invertMatrix];
+//    BPMatrix* SwInverted = [[Sw duplicate] invertMatrix];
     
 //    RawType* SwInverted = calloc((numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople), sizeof(RawType));
 //    [_operator invertFloatMatrix:Sw intoResult:SwInverted matrixDimension:(numberOfImages - numberOfPeople) freeInput:NO];
@@ -573,7 +576,7 @@
     
 //    RawType* JCostFunction = calloc((numberOfImages - numberOfPeople)*(numberOfImages - numberOfPeople), sizeof(RawType));
     
-    BPMatrix* JCostFunction = [SwInverted multiplyBy:Sb];
+//    BPMatrix* JCostFunction = [SwInverted multiplyBy:Sb];
 //    [_operator multiplyFloatMatrix:[SwInverted getMutableData] withFloatMatrix:[Sb getMutableData] product:[JCostFunction getMutableData] matrixOneColumnHeight:(numberOfImages - numberOfPeople) matrixOneRowWidth:(numberOfImages - numberOfPeople) matrixTwoRowWidth:(numberOfImages - numberOfPeople) freeInputs:NO];
     
     
@@ -603,8 +606,175 @@
 //    free(JCostFunction); JCostFunction = NULL;
 //    free(SwInverted); SwInverted = NULL;
     
-    [JCostFunction eigendecomposeIsSymmetric:NO withNumberOfValues:Sb.width withNumberOfVectors:Sb.width*Sb.height];
-    return [JCostFunction eigenvectors];
+//    [JCostFunction eigendecomposeIsSymmetric:NO withNumberOfValues:Sb.width withNumberOfVectors:Sb.width*Sb.height];
+    BPMatrix* blank = [BPMatrix eigendecomposeGeneralizedMatrixA:Sb andB:Sw WithNumberOfValues:Sb.width numberOfVector:Sb.width*Sb.height];
+    
+    /*
+     
+        Hardcoding Eigenvectors because I have no choice
+     
+     */
+    
+    /*
+    BPMatrix *eigenvectors = [BPMatrix matrixWithDimensions:CGSizeMake(Sb.width, Sb.height) withPrimitiveSize:sizeof(RawType)];
+    RawType* vec = [eigenvectors getMutableData];
+    vec[0] = 2.342406355621914e+10;
+    vec[1] = 1012070760.75349;
+    vec[2] = -8852504538.15332;
+	vec[3] = -16571672976.0930;
+	vec[4] = -4997556659.79738;
+	vec[5] = -8086306412.90286;
+	vec[6] = -6263295436.04887;
+	vec[7] = 6105172700.23371;
+	vec[8] = 20696502622.9016;
+	vec[9] = 30331030271.9451;
+	vec[10] = 44381352331.7331;
+	vec[11] = -2367487078864.30;
+    
+    vec[12] = -0.000323674226615023;
+	vec[13] = 0.000434844943812085;
+	vec[14] = 0.000114530948682257;
+	vec[15] = -0.000537220944666837;
+	vec[16]=0.00372161894733029;
+	vec[17] =-0.000875598867337852;
+	vec[18] = 0.00104432616168292;
+	vec[19] = -0.000305771733796623;
+	vec[20] = -0.000390894988839317;
+	vec[21] = 0.000248709099390466;
+	vec[22] = -0.000570063773447101;
+	vec[23] = 0.000452901724063235;
+    
+    vec[24] = 0.000479719247938612;
+	vec[25] = -0.000818450917341168;
+	vec[26] = 0.000129368089869275;
+	vec[27] = 0.000777591295346715;
+	vec[28] = -0.000233581523776051;
+	vec[29] = 9.86972979167819e-05;
+	vec[30] = 0.00104759608685746;
+	vec[31] = -0.00256997915580093;
+	vec[32] = -0.000648280480529887;
+	vec[33] = -0.000735409876085923;
+	vec[34] = -0.000114035433315105;
+	vec[35] = 0.00686089766095333;
+    
+    vec[36] = 0.000338982388898017;
+	vec[37] = -0.000857686887681180;
+	vec[38] = -0.000558106914138119;
+	vec[39] = -0.00175628166100504;
+	vec[40] = 8.37855496913980e-05;
+	vec[41] = 0.000628903893150899;
+	vec[42] = -0.000121817050462514;
+	vec[43] = 0.000128109376521860;
+	vec[44] = -0.000431964924788534;
+	vec[45] = -0.000914303867114884;
+	vec[46] = -8.12734516973942e-05;
+	vec[47] = -0.00157133154367525;
+    
+    vec[48] = 0.000148615791563199;
+	vec[49] = -0.000472355459990332;
+	vec[50] = -0.00146018660203524;
+	vec[51]= 0.000922212201100835;
+	vec[52] = 0.000133329873216809;
+	vec[53] = -4.97765502626685e-05;
+	vec[54] = 0.000655982550105417;
+	vec[55] = 0.000708796971889892;
+	vec[56] = 0.000346565150580134;
+	vec[57] = -0.000515753534046769;
+	vec[58] = -0.000264588605685653;
+	vec[59] = -0.00260968713567486;
+    
+    vec[60] = 6.38037191130314e-05;
+	vec[61] = -0.000539834629873596;
+	vec[62] = -3.13502466405225e-05;
+	vec[63] = 4.60249328560143e-06;
+	vec[64] = -0.000117487442270673;
+	vec[65] = -0.00169217605377250;
+	vec[66] = -0.000832657326964093;
+	vec[67] = -2.76300999775567e-05;
+	vec[68] = -0.000218355307193437;
+	vec[69] = -0.000407630662560626;
+	vec[70] = -0.000159770783273461;
+	vec[71] = -0.000874163900290019;
+    
+    vec[72] = 0.000290122869256029;
+	vec[73] = -0.000267866936853079;
+	vec[74] = 3.76114462779830e-05;
+	vec[75] = 0.000558016493671203;
+	vec[76] = 0.000667129456719391;
+	vec[77] = 0.000617835848865878;
+	vec[78] = -0.00112983160654804;
+	vec[79] = -0.000181806696718287;
+	vec[80] = 0.000286498705016380;
+	vec[81] = -0.000282553392234085;
+	vec[82] = 0.000277658177709012;
+	vec[83] = -0.000507782264045542;
+    
+    vec[84] = -0.000893501097496236;
+	vec[85] = -0.000872877180977601;
+	vec[86] = 0.000477848525232909;
+	vec[87] = 8.72869963002210e-05;
+	vec[88] = 3.28659400904578e-05;
+	vec[89] = 0.000125847446656881;
+	vec[90] = 0.000156801655534101;
+	vec[91] = 0.000149428819922302;
+	vec[92] = 0.000255779253716980;
+	vec[93] = 2.19463058436402e-05;
+	vec[94] = -2.94025473977293e-05;
+	vec[95] = -0.00228840805022775;
+    
+    vec[96] = -0.000221429742628356;
+	vec[97] =1.95307506502798e-06;
+	vec[98] = -0.000463726312514796;
+	vec[99] = -0.000351661514457880;
+	vec[100] = 9.27302315383602e-06;
+	vec[101] = -0.000194654638113111;
+	vec[102] = -2.54519186819865e-05;
+	vec[103] = -0.000431435717422131;
+	vec[104] = 0.000816927605303753;
+	vec[105] = 0.000223198766115186;
+	vec[106] = 0.000509078964873603;
+	vec[107] = 0.000829088216013279;
+    
+    vec[108] = 0.000404100210624987;
+	vec[109] = -0.000107726388971600;
+	vec[110] = 0.000379323130764059;
+	vec[111] = 3.02892876317022e-06;
+	vec[112] = 5.01735486158042e-05;
+	vec[113] = -0.000117183484983712;
+	vec[114] = 0.000276808819118633;
+	vec[115] = 0.000240494874165065;
+	vec[116] = 0.000241916189378251;
+	vec[117] = -0.000229572438793323;
+	vec[118] = 0.000423557682192454;
+	vec[119] = 0.000681994082533405;
+    
+    vec[120] = -0.000143277521465926;
+	vec[121] = 0.000339707281910491;
+	vec[122] = 0.000147222046553262;
+	vec[123] = -3.78255363269214e-05;
+	vec[124] = -4.59673648951746e-05;
+	vec[125] = 2.34790253620812e-06;
+	vec[126] = 1.70614736149021e-06;
+	vec[127] = -8.27563664007281e-05;
+	vec[128] = 0.000336616014406881;
+	vec[129] = -0.000515720075999663;
+	vec[130] = -0.000340895904301979;
+	vec[131] =-0.000687297209502579;
+    
+    vec[132] = -0.000352758930407817;
+	vec[133] = 0.000207132717093317;
+	vec[134] = -8.64119213342865e-05;
+	vec[135] = 7.50976007279542e-05;
+	vec[136] = 1.65728050232086e-05;
+	vec[137] = -8.43027441365855e-06;
+	vec[138] = 4.92303666913601e-06;
+	vec[139] = 2.24407291785796e-05;
+	vec[140] = -0.000310487698624997;
+	vec[141] = -0.000309511237621283;
+	vec[142] = 0.000504307047741810;
+	vec[143] = 0.000698502239396761;*/
+    
+    return [[[blank eigenvectors] getColumnsFromIndex:(numberOfImages-numberOfPeople)-numberOfPeople+1 toIndex:numberOfImages-numberOfPeople-1] flippedL2R];
     
 }
 
@@ -626,8 +796,15 @@
     
 //    [_operator multiplyFloatMatrix:fisherEigenvectorsTranspose withFloatMatrix:matrix product:projectedImages matrixOneColumnHeight:(numberOfPeople-1) matrixOneRowWidth:(numberOfImages-numberOfPeople) matrixTwoRowWidth:numberOfImages freeInputs:NO];
     
-    BPMatrix* projectedImages = [BPMatrix matrixWithMultiplicationOfMatrixOne:fisherEigenvectorsTranspose withMatrixTwo:matrix];
-//    
+    BPMatrix *projectedImages = [BPMatrix matrixWithMultiplicationOfMatrixOne:fisherEigenvectorsTranspose withMatrixTwo:[matrix getColumnAtIndex:0]];
+    
+    for (int i = 1; i < matrix.width; ++i) {
+        BPMatrix* temp =[ BPMatrix matrixWithMultiplicationOfMatrixOne:fisherEigenvectorsTranspose withMatrixTwo:[matrix getColumnAtIndex:i]];
+        projectedImages = [BPMatrix concatMatrixOne:projectedImages withMatrixTwo:temp];
+    }
+    
+//    BPMatrix* projectedImages = [BPMatrix matrixWithMultiplicationOfMatrixOne:fisherEigenvectorsTranspose withMatrixTwo:matrix];
+//
 //    if([projectedImages width] != numberOfImages || [projectedImages height] != numberOfPeople-1) {
 //        @throw @"ProjectedImages dimensions are wrong";
 //    }

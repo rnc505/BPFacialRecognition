@@ -18,6 +18,10 @@
 @end
 
 @implementation BPFacialRecognizer
+
+-(BPMatrix *)getMeanImage {
+    return [_operator meanImage];
+}
 +(BPFacialRecognizer *)newRecognizer {
     BPFacialRecognizer *recognizer = [BPFacialRecognizer new];
     [recognizer setPeople:[NSMutableArray new]];
@@ -55,8 +59,8 @@
     }
     return [person isEqual:[matched person]];
 }
--(NSSet *)peopleInRecognizer {
-    return [NSSet setWithArray:_people];
+-(NSArray *)peopleInRecognizer {
+    return [NSArray arrayWithArray:_people];
 }
 
 #pragma BPPersonDelegate Methods
@@ -71,8 +75,8 @@
 -(NSArray *)totalImageSet {
     NSMutableArray *retVal = [NSMutableArray new];
     for(BPPerson *person in _people) {
-        NSSet* images = [person getPersonsImages];
-        [retVal addObjectsFromArray:[images allObjects]];
+        NSArray* images = [person getPersonsImages];
+        [retVal addObjectsFromArray:images];
     }
     return retVal;
 }
